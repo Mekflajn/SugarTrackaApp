@@ -38,7 +38,6 @@ const PocetnaScreen = props =>{
                     <Text>3. MJERENJE</Text>
                 </View>
             </Card>
-            {user ? <Text>Dobrodošao, {user.name}</Text> : <Text>Učitavanje...</Text>}
 
         </View>
     );

@@ -1,7 +1,6 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import Icon from "react-native-vector-icons/MaterialIcons";
 import colors from "../constants/colors";
 
 const Header = ({ title, style, showBackButton }) => {
@@ -13,7 +12,11 @@ const Header = ({ title, style, showBackButton }) => {
         <TouchableOpacity 
           style={styles.backButton} 
           onPress={() => navigation.goBack()}>
-          <Icon name="arrow-back" size={30} color="black" />
+          {/* Koristi sliku umesto ikone */}
+          <Image 
+            source={require("../assets/arrowBack.png")}  // putanja do tvoje slike
+            style={styles.backIcon}
+          />
         </TouchableOpacity>
       )}
       <Text style={styles.headerTitle}>{title}</Text>
@@ -43,8 +46,14 @@ const styles = StyleSheet.create({
   backButton: {
     position: "absolute",
     left: 10,
-    paddingTop: 30
+    paddingTop: 30,
   },
+  backIcon: {
+    width: 30,   // dimenzije slike
+    height: 30,
+    resizeMode: "contain", // osiguraj da slika bude pravilno prilagođena
+    tintColor: 'black'
+  }
 });
 
 export default Header;

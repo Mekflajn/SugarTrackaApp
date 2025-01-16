@@ -1,28 +1,35 @@
 import React from "react";
-import { Text, View, StyleSheet, TouchableWithoutFeedback } from "react-native";
+import { Text, View, StyleSheet, TouchableWithoutFeedback, TouchableOpacity } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import Card from "../components/Card";
 import colors from "../constants/colors";
 
 const LijekoviScreen = () => {
+    const navigation = useNavigation();
+    const navigateToScreen = (screenName) => {
+        navigation.navigate(screenName); // Navigacija do ekrana za tablete
+    };
+
+
     return(
         <View style={styles.screen}>
-            <TouchableWithoutFeedback>
+            <TouchableOpacity onPress={() => navigateToScreen("TABLETE")}>
                 <Card style={styles.card}>
                     <Text style={styles.text}>TABLETE</Text>
                 </Card>
-            </TouchableWithoutFeedback>
+            </TouchableOpacity>
             
-            <TouchableWithoutFeedback>
+            <TouchableOpacity onPress={() => navigateToScreen("PODSJETNICI")}>
                 <Card style={styles.card}>
                     <Text style={styles.text}>PODSJETNICI</Text>
                 </Card>
-            </TouchableWithoutFeedback>
+            </TouchableOpacity>
 
-            <TouchableWithoutFeedback>
+            <TouchableOpacity onPress={() => navigateToScreen("UPOZORENJA")}>
                 <Card style={styles.card}>
                     <Text style={styles.text}>UPOZORENJA</Text>
                 </Card>
-            </TouchableWithoutFeedback>
+            </TouchableOpacity>
         </View>
     );
 };

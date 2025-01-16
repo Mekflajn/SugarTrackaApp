@@ -9,17 +9,17 @@ import Card from "../components/Card";
 
 const PodesavanjaNaloga = () => {
 const [profileImage, setProfileImage] = useState(null);
-  const user = useUser();
-  const [isEditing, setIsEditing] = useState(false);
-  const [updatedData, setUpdatedData] = useState({
+const user = useUser();
+const [isEditing, setIsEditing] = useState(false);
+const [updatedData, setUpdatedData] = useState({
     name: user?.name || "",
     surname: user?.surname || "",
     gender: user?.gender || "",
   });
 
-  const db = getFirestore(); // Koristimo Firestore
+const db = getFirestore(); // Koristimo Firestore
 
-  const defaultProfileImage =
+const defaultProfileImage =
     user?.gender === "Žensko"
       ? require("../assets/female_account.png")
       : user?.gender === "Muško"
@@ -37,7 +37,6 @@ const [profileImage, setProfileImage] = useState(null);
 
         try {
           const snapshot = await getDoc(userRef);
-          
           if (snapshot.exists()) {
             const data = snapshot.data();
             setUpdatedData({
@@ -219,23 +218,26 @@ const [profileImage, setProfileImage] = useState(null);
       </Card>
 
       {!isEditing ? (
+        <View style={styles.editDugmad}>
         <TouchableOpacity style={styles.editButton} onPress={() => setIsEditing(true)}>
           <Text style={styles.buttonText}>Uredi</Text>
         </TouchableOpacity>
+              <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+              <Image
+              source={require('../assets/logout.png')}
+              style={styles.logoutIcon}/>
+        </TouchableOpacity>
+            </View>
       ) : (
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-            <Text style={styles.buttonText}>Spremi</Text>
+            <Text style={styles.buttonText}>Sačuvaj</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
             <Text style={styles.buttonText}>Poništi</Text>
           </TouchableOpacity>
         </View>
       )}
-
-      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-        <Text style={styles.buttonText}>Odjavi se</Text>
-      </TouchableOpacity>
     </View>
     </ScrollView>
   );
@@ -322,19 +324,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 5,
     marginTop: 20,
+    marginHorizontal: 10
   },
   saveButton: {
     backgroundColor: colors.primary,
     padding: 15,
     alignItems: "center",
     borderRadius: 5,
+    marginHorizontal: 10
   },
   cancelButton: {
     backgroundColor: "#f44336",
     padding: 15,
     alignItems: "center",
     borderRadius: 5,
-    marginTop: 10,
+    marginHorizontal: 10
   },
   buttonText: {
     color: "white",
@@ -350,7 +354,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 5,
     marginTop: 20,
+    marginHorizontal: 10
   },
+  logoutIcon: {
+    width: 20,
+    height: 20,
+  },
+  editDugmad: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between'
+  }
 });
 
 export default PodesavanjaNaloga;
