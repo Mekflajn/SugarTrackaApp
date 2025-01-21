@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Image, StyleSheet, TouchableWithoutFeedback, Keyboard, Alert } from 'react-native';
+import { View, Text, TextInput, Image, StyleSheet, TouchableWithoutFeedback, Keyboard, Alert, Platform, ScrollView } from 'react-native';
 import { doc, collection, addDoc } from 'firebase/firestore'; // Za rad sa Firestore
 import { FIREBASE_DB } from '../config/FirebaseConfig'; // Tvoj Firebase DB objekat
 import { getAuth } from 'firebase/auth'; // Za rad sa Firebase Authentication
 import colors from '../constants/colors';
+import { useNavigation } from '@react-navigation/native';
+import DateTimePicker from '@react-native-community/datetimepicker'; // Dodaj ovu liniju
 
 const UnosScreen = () => {
   const [glukoza, setGlukoza] = useState('');
@@ -11,6 +13,15 @@ const UnosScreen = () => {
   const [donjiPritisak, setDonjiPritisak] = useState('');
   const [puls, setPuls] = useState('');
   const [biljeske, setBiljeske] = useState('');
+  const [date, setDate] = useState(new Date());  // Novi state za datum
+  const [showDatePicker, setShowDatePicker] = useState(false);  // State za kontrolisanje prikaza date picker-a
+  const navigation = useNavigation();
+
+  const handleDateChange = (event, selectedDate) => {
+    const currentDate = selectedDate || date;
+    setShowDatePicker(Platform.OS === 'ios' ? true : false);  // Drži picker otvorenim na iOS
+    setDate(currentDate);  // Postavi odabrani datum
+  };
 
   const saveData = async () => {
     if (!glukoza || !gornjiPritisak || !donjiPritisak || !puls) {
@@ -36,7 +47,7 @@ const UnosScreen = () => {
         diastolicPressure: donjiPritisak,
         pulse: puls,
         notes: biljeske,
-        timestamp: new Date(),
+        timestamp: date,  // Koristi izabrani datum
       };
 
       await addDoc(measurementsCollection, newMeasurement); // Dodavanje novog dokumenta u Firestore
@@ -47,6 +58,7 @@ const UnosScreen = () => {
       setDonjiPritisak('');
       setPuls('');
       setBiljeske('');
+      navigation.navigate('POČETNA_STACK');
     } catch (error) {
       console.error('Greška pri čuvanju podataka:', error);
       Alert.alert('Greška', 'Došlo je do greške prilikom čuvanja podataka!');
@@ -54,6 +66,7 @@ const UnosScreen = () => {
   };
 
   return (
+    <ScrollView>
     <View style={styles.container}>
       {/* Unos glukoze */}
       <View style={styles.polja}>
@@ -125,6 +138,27 @@ const UnosScreen = () => {
         </View>
       </View>
 
+      {/* Dodaj dugme za odabir datuma */}
+      <View style={styles.polja}>
+        <Text style={styles.text}>DATUM I VRIJEME</Text>
+        <TouchableWithoutFeedback onPress={() => setShowDatePicker(true)}>
+          <View style={styles.inputContainer}>
+          <Image source={require('../assets/calendar.png')} style={styles.icon} />
+            <Text style={styles.input}>{date.toLocaleDateString()}</Text>
+          </View>
+        </TouchableWithoutFeedback>
+      </View>
+
+      {/* DateTime Picker */}
+      {showDatePicker && (
+        <DateTimePicker
+          value={date}
+          mode="date"
+          display="default"
+          onChange={handleDateChange}
+        />
+      )}
+
       {/* Potvrda */}
       <View style={styles.button}>
         <TouchableWithoutFeedback onPress={saveData}>
@@ -132,6 +166,7 @@ const UnosScreen = () => {
         </TouchableWithoutFeedback>
       </View>
     </View>
+    </ScrollView>
   );
 };
 
@@ -140,19 +175,20 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: colors.pozadina,
     flex: 1, 
-},
+    paddingBottom: 120
+  },
   polja: { 
     marginBottom: 10
- },
+  },
   text: { 
     fontWeight: 'bold', 
     marginTop: 10 
-},
+  },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1, // Dodajemo border oko inputContainer-a
-    borderColor: '#ccc', // Boja bordera
+    borderWidth: 1,
+    borderColor: colors.primary,
     borderRadius: 10,
     padding: 5,
     marginBottom: 10,
@@ -161,14 +197,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f0f0',
     borderRadius: 10,
     padding: 10,
-    flex: 1, // Da TextInput popuni preostali prostor
-    height: 50, // Smanjena visina za sve inpute
-    borderColor: colors.linija
+    flex: 1,
+    height: 50,
+    borderColor: colors.linija,
+    textAlignVertical: 'center', // Vertikalno centriranje teksta u inputu
   },
   icon: {
     width: 24,
     height: 24,
-    marginRight: 10, // Dodajemo razmak između slike i inputa
+    marginRight: 10,
   },
   button: {
     backgroundColor: '#4CAF50',

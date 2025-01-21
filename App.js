@@ -20,7 +20,6 @@ import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import TableteScreen from './screens/TableteScreen';
 import PodsjetniciScreen from './screens/PodsjetniciScreen';
-import UpozorenjaScreen from './screens/UpozorenjaScreen';
 import Header from './components/Header';
 import { onAuthStateChanged } from 'firebase/auth';
 import { FIREBASE_AUTH, FIREBASE_DB } from './config/FirebaseConfig'; // Importuj iz FirebaseConfig
@@ -28,6 +27,10 @@ import { doc, getDoc } from 'firebase/firestore';
 import { onSnapshot } from 'firebase/firestore';
 import { firebase } from '@react-native-firebase/app';
 import { firebaseConfig } from '../SugarTrackApp/config/FirebaseConfig';
+import HranaScreen from './screens/HranaScreen';
+import EdukacijaScreen from './screens/EdukacijaScreen';
+
+
 
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);  // Inicijalizacija Firebase-a
@@ -38,18 +41,32 @@ if (!firebase.apps.length) {
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 const Stack1 = createStackNavigator();
+const Stack2 = createStackNavigator();
+
+function IshranaStack() {
+  return(
+  <Stack.Navigator initialRouteName='ISHRANA'>
+    <Stack2.Screen name='ISHRANA' component={IshranaScreen} options={{ 
+  header: (props) => <Header {...props} title="ISHRANA" showBackButton={false}/> 
+}}/>
+    <Stack2.Screen name='HRANA' component={HranaScreen} options={{ 
+  header: (props) => <Header {...props} title="HRANA" showBackButton={true}/> 
+}}/>
+    <Stack2.Screen name='EDUKACIJA' component={EdukacijaScreen} options={{ 
+  header: (props) => <Header {...props} title="EDUKACIJA" showBackButton={true}/> 
+}}/>
+  </Stack.Navigator>
+  );
+}
 
 function LijekoviStack() {
   return(
     <Stack.Navigator initialRouteName='LIJEKOVI'>
       <Stack1.Screen name = "LIJEKOVI" component={LijekoviScreen} options={{ 
-  header: (props) => <Header {...props} title="LIJEKOVI" showBackButton={true}/> 
+  header: (props) => <Header {...props} title="LIJEKOVI" showBackButton={false}/> 
 }}/>
       <Stack1.Screen name = "TABLETE" component={TableteScreen} options={{ 
   header: (props) => <Header {...props} title="TABLETE" showBackButton={true}/> 
-}}/>
-      <Stack1.Screen name = "UPOZORENJA" component={UpozorenjaScreen} options={{ 
-  header: (props) => <Header {...props} title="UPOZORENJA" showBackButton={true}/> 
 }}/>
       <Stack1.Screen name = "PODSJETNICI" component={PodsjetniciScreen} options={{ 
   header: (props) => <Header {...props} title="PODSJETNICI" showBackButton={true}/> 
@@ -126,7 +143,7 @@ function MainApp() {
       <Tab.Screen name="ISTORIJA" component={IstorijaScreen} options={{ header: () => <Header title="ISTORIJA MJERENJA"/> }} />
       <Tab.Screen name="LIJEKOVI" component={LijekoviStack} options={{ headerShown: false }} />
       <Tab.Screen name="POČETNA" component={PocetnaStack} options={{ headerShown: false }}  />
-      <Tab.Screen name="ISHRANA" component={IshranaScreen} options={{ header: () => <Header title="ISHRANA"/> }} />
+      <Tab.Screen name="ISHRANA" component={IshranaStack} options={{ headerShown: false }} />
       <Tab.Screen name="NALOG" component={PodesavanjaNaloga} options={{ header: () => <Header title="NALOG"/> }} />
     </Tab.Navigator>
   );

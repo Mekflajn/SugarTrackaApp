@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import { View, Text, StyleSheet, Button, TextInput, KeyboardAvoidingView, ActivityIndicator } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, Button, TextInput, KeyboardAvoidingView, ActivityIndicator, TouchableOpacity, Image } from 'react-native';
 import { FIREBASE_AUTH } from '../config/FirebaseConfig';
 import { FIREBASE_DB } from '../config/FirebaseConfig';
 import { signInWithEmailAndPassword } from "firebase/auth";
@@ -49,32 +49,62 @@ const LoginScreen = ({navigation, setIsAuthenticated}) => {
   return (
     <View style={styles.screen}>
 
-    {loading ? (
-    <View style={styles.loadingContainer}>
-      <ActivityIndicator size="large" color={colors.primary} />
-    </View>
-    ) : (
-      <>
-      <Text style={styles.title}>PRIJAVA KORISNIKA</Text>
-      <KeyboardAvoidingView behavior='padding'>
-        <TextInput
-            style={styles.input}
-            placeholder='Email'
-            autoCapitalize='none'
-            value={email}
-            onChangeText={(email) => setEmail(email)}/>
-        
-        <TextInput
-            style={styles.input}
-            placeholder='Šifra'
-            autoCapitalize='none'
-            secureTextEntry={true}
-            value={password}
-            onChangeText={(password) => setPassword(password)}/>
-      </KeyboardAvoidingView> 
-      <Button title='ULOGUJTE SE' onPress={handleLogin}/>
-      </>
-    )}
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      ) : (
+        <>
+          {/* Header sa strelicom i naslovom */}
+          <View style={styles.header}>
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+              <Image
+                source={require("../assets/arrowBack.png")} // Putanja do tvoje slike
+                style={styles.backIcon}
+              />
+            </TouchableOpacity>
+            <Text style={styles.title}>PRIJAVA KORISNIKA</Text>
+          </View>
+
+          {/* Logo */}
+          <View style={styles.logoContainer}>
+            <Image source={require('../assets/icon.png')} style={styles.logo} />
+          </View>
+
+          {/* Formular za prijavu */}
+          <KeyboardAvoidingView behavior="padding" style={styles.form}>
+            {/* Email input sa ikonom */}
+            <View style={styles.inputContainer}>
+              <Image source={require('../assets/email.png')} style={styles.icon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Email"
+                autoCapitalize="none"
+                value={email}
+                onChangeText={setEmail}
+              />
+            </View>
+
+            {/* Password input sa ikonom */}
+            <View style={styles.inputContainer}>
+              <Image source={require('../assets/password.png')} style={styles.icon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Šifra"
+                autoCapitalize="none"
+                secureTextEntry={true}
+                value={password}
+                onChangeText={setPassword}
+              />
+            </View>
+          </KeyboardAvoidingView>
+
+          {/* Dugme za prijavu */}
+          <TouchableOpacity onPress={handleLogin} style={styles.editButton}>
+            <Text>ULOGUJTE SE</Text>
+          </TouchableOpacity>
+        </>
+      )}
     </View>
   );
 };
@@ -83,20 +113,71 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     alignItems: 'center',
+    justifyContent: 'flex-start', // Poravnanje prema vrhu
+    padding: 20,
+    backgroundColor: colors.pozadina,
+  },
+  header: {
+    flexDirection: 'row', // Poravnanje strelice i naslova u horizontalnom pravcu
+    width: '100%',
+    height: 100,
+    paddingTop: 20, // Pomeranje od vrha ekrana
+    alignItems: 'center',
     justifyContent: 'center',
-    padding: 20
+    paddingHorizontal: 10,
+  },
+  backButton: {
+    position: 'absolute', // Strelica je apsolutno pozicionirana
+    left: -15,
+    top: 33,
+    padding: 10,
+  },
+  backIcon: {
+    width: 30,
+    height: 30,
+    resizeMode: 'contain',
+    tintColor: 'black',
   },
   title: {
     fontSize: 24,
-    marginBottom: 20
+    marginLeft: 40, // Razmak između strelice i naslova
+    textAlign: 'center',
+    flex: 1, // Obezbeđuje centriranje naslova
+  },
+  logoContainer: {
+    marginBottom: 40, // Razmak između logotipa i forme
+  },
+  logo: {
+    width: 150,
+    height: 150,
+    resizeMode: 'contain',
+  },
+  form: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 10,
+    padding: 5,
+    marginBottom: 10,
+    borderColor: colors.primary
   },
   input: {
-    width: '100%',
+    backgroundColor: '#f0f0f0',
+    borderRadius: 10,
     padding: 10,
-    marginVertical: 10,
-    borderWidth: 1,
-    borderColor: colors.primary,
-    borderRadius: 5
+    flex: 1,
+    height: 50,
+    borderColor: colors.linija
+  },
+  icon: {
+    width: 24,
+    height: 24,
+    marginRight: 10,
   },
   loadingContainer: {
     flex: 1,
@@ -104,6 +185,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
   },
+    editButton: {
+      backgroundColor: colors.primary,
+      borderRadius: 20,
+      padding: 10,
+      marginTop: 20,
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '70%',
+      height: 40,
+    },
 });
 
 export default LoginScreen;

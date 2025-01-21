@@ -77,11 +77,11 @@ const IstorijaScreen = () => {
             <Card style={styles.card}>
               <View style={styles.cardContent}>
                 <View style={styles.textContent}>
-                  <Text>Vrijednost glukoze: {item.glucose}</Text>
-                  <Text>Puls: {item.pulse}</Text>
-                  <Text>Pritisak: {item.systolicPressure}/{item.diastolicPressure}</Text>
-                  <Text>Bilješke: {item.notes}</Text>
-                  <Text>
+                  <Text style={styles.glucoseText}>Vrijednost glukoze: {item.glucose} mmol/L</Text>
+                  <Text style={styles.pulseText}>Puls: {item.pulse} BPM</Text>
+                  <Text style={styles.pressureText}>Pritisak: {item.systolicPressure}/{item.diastolicPressure} mmHg</Text>
+                  <Text style={styles.notesText}>Bilješke: {item.notes || 'Nema bilješki'}</Text>
+                  <Text style={styles.timestampText}>
                     Vrijeme: {item.timestamp ? new Intl.DateTimeFormat('sr-RS', { 
                       dateStyle: 'short', 
                       timeStyle: 'short', 
@@ -95,6 +95,7 @@ const IstorijaScreen = () => {
               </View>
             </Card>
           )}
+          contentContainerStyle={styles.flatListContent}
         />
       )}
     </View>
@@ -108,7 +109,15 @@ const styles = StyleSheet.create({
     backgroundColor: colors.pozadina,
   },
   card: {
-    marginBottom: 10,
+    marginBottom: 15,
+    padding: 15,
+    borderRadius: 10,
+    backgroundColor: colors.white,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 3,
   },
   cardContent: {
     flexDirection: 'row',
@@ -118,6 +127,32 @@ const styles = StyleSheet.create({
   textContent: {
     flex: 1,
   },
+  glucoseText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: colors.primary,
+    marginBottom: 5,
+  },
+  pulseText: {
+    fontSize: 16,
+    color: colors.secondary,
+    marginBottom: 5,
+  },
+  pressureText: {
+    fontSize: 16,
+    color: colors.secondary,
+    marginBottom: 5,
+  },
+  notesText: {
+    fontSize: 14,
+    color: '#555',
+    marginBottom: 5,
+  },
+  timestampText: {
+    fontSize: 14,
+    color: '#777',
+    marginBottom: 5,
+  },
   iconContainer: {
     marginLeft: 10,
   },
@@ -125,12 +160,17 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 20,
     fontSize: 20,
+    color: '#777',
   },
   loadingText: {
     textAlign: 'center',
     marginTop: 20,
     fontSize: 20,
+    color: '#777',
   },
+  flatListContent: {
+    paddingBottom: 120, // Dodano padding ispod FlatList-a
+},
 });
 
 export default IstorijaScreen;
