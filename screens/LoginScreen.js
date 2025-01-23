@@ -58,7 +58,7 @@ const LoginScreen = ({ navigation, setIsAuthenticated }) => {
 
           {/* Logo */}
           <View style={styles.logoContainer}>
-            <Image source={require('../assets/icon.png')} style={styles.logo} />
+            <Image source={require('../assets/logo.png')} style={styles.logo} />
           </View>
 
           {/* Login Form */}
@@ -147,8 +147,8 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   logo: {
-    width: 150,
-    height: 150,
+    width: 128,
+    height: 128,
     resizeMode: 'contain',
   },
   form: {

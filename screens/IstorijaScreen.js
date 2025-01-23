@@ -62,7 +62,7 @@ const IstorijaScreen = () => {
   };
 
   if (loading) {
-    return <View style={{backgroundColor: colors.pozadina}}><Text style={styles.loadingText}>Učitavanje podataka...</Text></View>;
+    return <View style={{flex: 1,backgroundColor: colors.pozadina}}><Text style={styles.loadingText}>Učitavanje podataka...</Text></View>;
   }
 
   return (

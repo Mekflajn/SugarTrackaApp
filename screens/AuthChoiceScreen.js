@@ -6,7 +6,7 @@ const AuthChoiceScreen = ({ navigation }) => {
   return (
     <View style={styles.screen}>
       <Image 
-        source={require('../assets/icon.png')} 
+        source={require('../assets/logo.png')} 
         style={styles.icon}
       />
 
@@ -40,8 +40,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.pozadina,
   },
   icon: {
-    width: 100,
-    height: 100,
+    width: 128,
+    height: 128,
     marginBottom: 20,
   },
   title: {

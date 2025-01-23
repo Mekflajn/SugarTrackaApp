@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: colors.primary,
-    paddingVertical: 15,
+    padding: 15,
     borderRadius: 25,
     alignItems: 'center',
   },

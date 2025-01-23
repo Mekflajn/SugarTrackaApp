@@ -165,24 +165,26 @@ const defaultProfileImage =
           <Text style={styles.infoLabel}>Pol</Text>
           {isEditing ? (
             <View style={styles.genderContainer}>
-              <TouchableOpacity
-                style={[styles.genderButton, updatedData.gender === "Muško" && styles.selectedGenderButton]}
-                onPress={() => setUpdatedData({ ...updatedData, gender: "Muško" })}
-              >
-                <Text style={styles.genderButtonText}>Muško</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.genderButton, updatedData.gender === "Žensko" && styles.selectedGenderButton]}
-                onPress={() => setUpdatedData({ ...updatedData, gender: "Žensko" })}
-              >
-                <Text style={styles.genderButtonText}>Žensko</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.genderButton, updatedData.gender === "Nije navedeno" && styles.selectedGenderButton]}
-                onPress={() => setUpdatedData({ ...updatedData, gender: "Nije navedeno" })}
-              >
-                <Text style={styles.genderButtonText}>Ne želim da navodim</Text>
-              </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.genderButton, updatedData.gender === "Muško" && styles.selectedGenderButton]}
+              onPress={() => setUpdatedData({ ...updatedData, gender: "Muško" })}>
+              <Image source={require('../assets/male.png')} style={styles.genderIcon} />
+              <Text style={styles.genderButtonText}>M</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.genderButton, updatedData.gender === "Žensko" && styles.selectedGenderButton]}
+                onPress={() => setUpdatedData({ ...updatedData, gender: "Žensko" })}>
+              <Image source={require('../assets/female.png')} style={styles.genderIcon} />
+              <Text style={styles.genderButtonText}>Ž</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.genderButton, updatedData.gender === "Nije navedeno" && styles.selectedGenderButton]}
+                onPress={() => setUpdatedData({ ...updatedData, gender: "Nije navedeno" })}>
+              <Image source={require('../assets/person.png')} style={styles.genderIcon} />
+              <Text style={styles.genderButtonText}>NN</Text>
+            </TouchableOpacity>
             </View>
           ) : (
             <Text style={styles.infoValue}>{user?.gender || "N/A"}</Text>
@@ -342,21 +344,32 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   genderContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 12,
+    marginBottom: 20,
+    flexDirection: 'row',  // Postavi dugmadi u horizontalni red 
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   genderButton: {
+    flexDirection: 'column',
+    alignItems: 'center',
     padding: 10,
-    backgroundColor: "#f0f0f0",
+    borderWidth: 1,
+    borderColor: colors.primary,
     borderRadius: 5,
-  },
-  genderButtonText: {
-    fontSize: 14,
-    color: "#333",
+    marginHorizontal: 10, // Razmak između dugmadi
+    width: 48,
   },
   selectedGenderButton: {
     backgroundColor: colors.primary,
+  },
+  genderIcon: {
+    width: 36,  // Manje dimenzije za ikone
+    height: 36,
+    marginRight: 0, // Razmak između ikone i teksta
+  },
+  genderButtonText: {
+    fontSize: 12, // Možda želiš smanjiti tekst da bude proporcionalan
+    color: 'black',
   },
   editButton: {
     backgroundColor: colors.primary,

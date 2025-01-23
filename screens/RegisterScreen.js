@@ -76,6 +76,10 @@ const RegisterScreen = ({ navigation, setIsAuthenticated }) => {
             <Text style={styles.title}>REGISTRACIJA</Text>
             <Text>Kreirajte svoj novi nalog!</Text>
           </View>
+          <Image
+            source={require("../assets/logo.png")} // Zamenite sa stvarnim nazivom slike logotipa
+            style={styles.centeredLogo}
+            />
 
           <View style={styles.inputWrapper}>
             <View style={styles.inputContainer}>
@@ -245,8 +249,16 @@ const styles = StyleSheet.create({
     height: 100,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 10,
     position: 'relative',
+  },
+  centeredLogo: {
+    width: 128, // Širina logotipa
+    height: 128, // Visina logotipa
+    resizeMode: 'contain', // Prilagođavanje slike unutar okvira
+    alignSelf: 'center', // Centriranje slike horizontalno
+    marginTop: 10, // Razmak između teksta i slike
+    marginBottom: 20
   },
   backButton: {
     position: 'absolute',
