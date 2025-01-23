@@ -1,7 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, TextInput, Button, ActivityIndicator, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, TextInput, ActivityIndicator, TouchableOpacity, Image, ScrollView, Animated } from 'react-native';
 import { useState } from 'react';
-import { KeyboardAvoidingView } from 'react-native';
 import { doc, setDoc } from "firebase/firestore";
 import { FIREBASE_DB } from '../config/FirebaseConfig';
 import { FIREBASE_AUTH } from '../config/FirebaseConfig';
@@ -19,10 +18,11 @@ const RegisterScreen = ({ navigation, setIsAuthenticated }) => {
   const [dijabetes, setDijabetes] = useState('');
   const [gender, setGender] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   const handleRegister = async () => {
-    if (!gender) {
-      alert("Molimo izaberite pol.");
+    if (!name || !surname || !email || !password || !height || !weight || !age || !dijabetes || !gender) {
+      alert("Molimo unesite sve obavezne podatke.");
       return;
     }
 
@@ -48,7 +48,7 @@ const RegisterScreen = ({ navigation, setIsAuthenticated }) => {
     } catch (error) {
       if (error.code === 'auth/email-already-in-use') {
         alert('Ova email adresa je već registrovana. Preusmeravanje na prijavu...');
-        navigation.navigate('LOGIN'); // Preusmerava na ekran za prijavu
+        navigation.navigate('LOGIN');
       } else {
         console.error('Greška: ', error.message);
         alert('Greška prilikom registracije: ' + error.message);
@@ -59,7 +59,7 @@ const RegisterScreen = ({ navigation, setIsAuthenticated }) => {
   };
 
   return (
-    <View style={styles.screen}>
+    <ScrollView contentContainerStyle={styles.screen}>
       {loading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.primary} />
@@ -67,141 +67,191 @@ const RegisterScreen = ({ navigation, setIsAuthenticated }) => {
       ) : (
         <>
           <View style={styles.header}>
-            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <TouchableOpacity onPress={() => navigation.navigate('AUTHCHOICE')} style={styles.backButton}>
               <Image
-                source={require("../assets/arrowBack.png")} // Putanja do tvoje slike
+                source={require("../assets/arrowBack.png")}
                 style={styles.backIcon}
               />
             </TouchableOpacity>
             <Text style={styles.title}>REGISTRACIJA</Text>
+            <Text>Kreirajte svoj novi nalog!</Text>
           </View>
-          <Text>Kreirajte svoj novi nalog!</Text>
-          <KeyboardAvoidingView behavior='padding'>
+
+          <View style={styles.inputWrapper}>
+            <View style={styles.inputContainer}>
+              <Image source={require('../assets/person.png')} style={styles.icon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Ime"
+                value={name}
+                onChangeText={setName}
+                autoCapitalize='words'
+              />
+            </View>
 
             <View style={styles.inputContainer}>
-
-            <View style={styles.inputWrapper}>
-            <Image source={require('../assets/icon.png')} style={styles.icon} />
+              <Image source={require('../assets/person.png')} style={styles.icon} />
               <TextInput
                 style={styles.input}
-                placeholder='Ime'
-                value={name}
-                onChangeText={setName} />
-            </View>
-
-              <View style={styles.inputWrapper}>
-              <Image source={require('../assets/icon.png')} style={styles.icon} />
-              <TextInput
-                style={styles.input}
-                placeholder='Prezime'
+                placeholder="Prezime"
                 value={surname}
-                onChangeText={setSurname} />
-              </View>
+                onChangeText={setSurname}
+                autoCapitalize='words'
+              />
+            </View>
 
-            <View style={styles.inputWrapper}>
-            <Image source={require('../assets/icon.png')} style={styles.icon} />
+            <View style={styles.inputContainer}>
+              <Image source={require('../assets/email.png')} style={styles.icon} />
               <TextInput
                 style={styles.input}
-                placeholder='Email'
+                placeholder="Email"
+                autoCapitalize="none"
+                keyboardType="email-address"
                 value={email}
-                onChangeText={setEmail} />
+                onChangeText={setEmail}
+              />
             </View>
 
-              <View style={styles.inputWrapper}>
-              <Image source={require('../assets/icon.png')} style={styles.icon} />
+            <View style={styles.inputContainer}>
+              <Image source={require('../assets/password.png')} style={styles.icon} />
               <TextInput
                 style={styles.input}
-                placeholder='Šifra'
+                placeholder="Šifra"
+                autoCapitalize="none"
+                secureTextEntry={!isPasswordVisible}  // Prikazivanje/skrivanje lozinke
                 value={password}
-                onChangeText={setPassword} />
-              </View>
-
-            <View style={styles.inputWrapper}>
-            <Image source={require('../assets/icon.png')} style={styles.icon} />
+                onChangeText={setPassword}
+              />
+              <TouchableOpacity onPress={() => setIsPasswordVisible(prevState => !prevState)} style={styles.iconButton}>
+                <Image
+                  source={isPasswordVisible ? require('../assets/visibility.png') : require('../assets/visibilitiOff.png')} // Ikona za otvaranje/zatvaranje oka
+                  style={styles.iconVisibility}
+                />
+              </TouchableOpacity>
+            </View>
+          <View style={styles.red}>
+            <View style={styles.inputContainerHalf}>
+              <Image source={require('../assets/ruler.png')} style={styles.icon} />
               <TextInput
                 style={styles.input}
-                placeholder='Visina'
+                placeholder="Visina"
+                keyboardType="numeric"
                 value={height}
-                onChangeText={setHeight} />
-              </View>
-              <View style={styles.inputWrapper}>
-              <Image source={require('../assets/icon.png')} style={styles.icon} />
+                onChangeText={setHeight}
+              />
+            </View>
+
+            <View style={styles.inputContainerHalf}>
+              <Image source={require('../assets/weight.png')} style={styles.icon} />
               <TextInput
                 style={styles.input}
-                placeholder='Masa'
+                placeholder="Masa"
+                keyboardType="numeric"
                 value={weight}
-                onChangeText={setWeight} />
+                onChangeText={setWeight}
+              />
+            </View>
             </View>
 
-            <View style={styles.inputWrapper}>
-            <Image source={require('../assets/icon.png')} style={styles.icon} />
+          <View style={styles.red}>
+            <View style={styles.inputContainerHalf}>
+              <Image source={require('../assets/cake.png')} style={styles.icon} />
               <TextInput
                 style={styles.input}
-                placeholder='Godine'
+                placeholder="Godine"
+                keyboardType="numeric"
                 value={age}
-                onChangeText={setAge} />
-              </View>
-              <View style={styles.inputWrapper}>
-              <Image source={require('../assets/icon.png')} style={styles.icon} />
-              <TextInput
-                style={styles.input}
-                placeholder='Tip dijabetesa'
-                value={dijabetes}
-                onChangeText={setDijabetes} />
+                onChangeText={setAge}
+              />
             </View>
 
-            <View style={styles.genderContainer}>
-              <Text style={styles.genderText}>Izaberite pol:</Text>
-              <TouchableOpacity
-                style={[styles.genderButton, gender === 'Muško' && styles.selectedGenderButton]}
-                onPress={() => setGender('Muško')}>
-                <Text style={styles.genderButtonText}>Muško</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.genderButton, gender === 'Žensko' && styles.selectedGenderButton]}
-                onPress={() => setGender('Žensko')}>
-                <Text style={styles.genderButtonText}>Žensko</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.genderButton, gender === 'Nije navedeno' && styles.selectedGenderButton]}
-                onPress={() => setGender('Nije navedeno')}>
-                <Text style={styles.genderButtonText}>Ne zelim da navodim</Text>
-              </TouchableOpacity>
-              </View>
-              
+            <View style={styles.inputContainerHalf}>
+              <Image source={require('../assets/blood.png')} style={styles.icon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Tip dijabetesa"
+                value={dijabetes}
+                onChangeText={(text) => {
+                  // Dozvoliti samo unos 1 ili 2
+                  if (text === '1' || text === '2' || text === '') {
+                    setDijabetes(text); // Ažuriraj stanje samo ako je unos validan
+                  } else {
+                    alert('Unesite samo "1" za Tip 1 ili "2" za Tip 2'); // Prikazivanje greške
+                  }
+                }}
+                keyboardType="numeric"
+              />
+            </View>
+            </View>
           </View>
-          </KeyboardAvoidingView>
 
-          <Button title='REGISTRUJTE SE' onPress={handleRegister} />
+          <Text style={styles.tekst}>Izaberite pol:</Text>
+          <View style={styles.genderContainer}>
+
+            <TouchableOpacity
+              style={[styles.genderButton, gender === 'Muško' && styles.selectedGenderButton]}
+              onPress={() => setGender('Muško')}>
+              <Image source={require('../assets/male.png')} style={styles.genderIcon} />
+              <Text style={styles.genderButtonText}>Muško</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.genderButton, gender === 'Žensko' && styles.selectedGenderButton]}
+              onPress={() => setGender('Žensko')}>
+              <Image source={require('../assets/female.png')} style={styles.genderIcon} />
+              <Text style={styles.genderButtonText}>Žensko</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.genderButton, gender === 'Nije navedeno' && styles.selectedGenderButton]}
+              onPress={() => setGender('Nije navedeno')}>
+              <Image source={require('../assets/person.png')} style={styles.genderIcon} />
+              <Text style={styles.genderButtonText}>Ne navodi</Text>
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
+            <Text style={styles.registerButtonText}>REGISTRUJTE SE</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => navigation.navigate('LOGIN')} style={styles.footerLink}>
+            <Text style={styles.footerText}>
+              Već imate nalog?{' '}
+              <Text style={styles.linkText}>Ulogujte se</Text>
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.footerLink}>
+            <Text style={styles.footerText}>
+              Pročitajte naše{' '}
+              <Text style={styles.linkText}>Uslove korišćenja</Text>
+            </Text>
+          </TouchableOpacity>
         </>
       )}
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   screen: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'center',
-    alignItems: "center",
+    alignItems: 'center',
     padding: 20,
     backgroundColor: colors.pozadina
   },
   header: {
-    flexDirection: 'row',
     width: '100%',
     height: 100,
-    paddingTop: 20,
-    alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 10,
+    alignItems: 'center',
+    marginBottom: 20,
+    position: 'relative',
   },
   backButton: {
     position: 'absolute',
-    left: -15,
-    top: 33,
+    left: -20,
+    top: 5,
     padding: 10,
   },
   backIcon: {
@@ -212,60 +262,122 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    marginBottom: 20
+    marginBottom: 20,
+    fontWeight: 'bold'
   },
   inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '48%',  // Svaki input uzima oko 48% širine
-    borderWidth: 1,
-    borderRadius: 5,
-    borderColor: colors.primary,
-    marginBottom: 10,  // Razmak između redova
+    width: '100%',
+    marginBottom: 20,
   },
   inputContainer: {
-    flexDirection: 'row', // Postavljamo inpute u redove
-    flexWrap: 'wrap',     // Omogućavamo da se polja raspoređuju u više redova
-    justifyContent: 'space-between', // Prostor između inputa
-    width: '100%',   // Koristi celu širinu ekrana
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.primary,
+    borderRadius: 10,
+    padding: 5,
     marginBottom: 20,
   },
   input: {
-    flex: 1,   // Omogućava da TextInput zauzme preostali prostor
+    backgroundColor: '#f0f0f0',
+    borderRadius: 10,
     padding: 10,
-    fontSize: 16,
+    flex: 1,
+    height: 50,
+    borderColor: colors.linija,
+    textAlignVertical: 'center', // Vertikalno centriranje teksta u inputu
   },
   icon: {
-    width: 20,
-    height: 20,
-    marginLeft: 10,
+    width: 24,
+    height: 24,
+    marginRight: 10,
+  },
+  iconVisibility: {
+    width: 24,
+    height: 24,
+    marginRight: 5,
+    marginLeft: 5
+  },
+  red: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  inputContainerHalf: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.primary,
+    borderRadius: 10,
+    padding: 5,
+    width: '49%', // Ograničava širinu na polovinu
+    marginBottom: 20
   },
   genderContainer: {
-    marginTop: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
+    marginBottom: 20,
+    flexDirection: 'row',  // Postavi dugmadi u horizontalni red 
+    alignItems: 'center',
   },
-  genderText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 10
+  tekst: {
+    marginBottom: 20,
+    fontSize: 16
   },
   genderButton: {
+    flexDirection: 'column',
+    alignItems: 'center',
     padding: 10,
     borderWidth: 1,
-    borderRadius: 5,
     borderColor: colors.primary,
-    backgroundColor: '#fff',
+    borderRadius: 5,
+    marginHorizontal: 10, // Razmak između dugmadi
+    width: 80
   },
   selectedGenderButton: {
     backgroundColor: colors.primary,
   },
+  genderIcon: {
+    width: 36,  // Manje dimenzije za ikone
+    height: 36,
+    marginRight: 0, // Razmak između ikone i teksta
+  },
   genderButtonText: {
+    fontSize: 12, // Možda želiš smanjiti tekst da bude proporcionalan
+    color: 'black',
+  },
+  registerButton: {
+    backgroundColor: colors.primary,
+    borderRadius: 25,
+    paddingVertical: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '80%',
+    marginBottom: 20,
+  },
+  registerButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  loginRedirect: {
+    marginTop: 20,
+  },
+  loginRedirectText: {
+    color: colors.primary,
+    textDecorationLine: 'underline',
     fontSize: 16,
-    color: '#000',
+  },
+  footerLink: {
+    marginTop: 10,
+  },
+  footerText: {
+    textAlign: 'center',
+    fontSize: 14,
+    color: colors.text,
+  },
+    linkText: {
+    textDecorationLine: 'underline',
+    color: colors.primary,
   },
 });
-
 
 export default RegisterScreen;

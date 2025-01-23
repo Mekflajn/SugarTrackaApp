@@ -1,46 +1,37 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Button, TextInput, KeyboardAvoidingView, ActivityIndicator, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, ActivityIndicator, Image } from 'react-native';
 import { FIREBASE_AUTH } from '../config/FirebaseConfig';
 import { FIREBASE_DB } from '../config/FirebaseConfig';
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import colors from '../constants/colors';
 
-const LoginScreen = ({navigation, setIsAuthenticated}) => {
+const LoginScreen = ({ navigation, setIsAuthenticated }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false)
-  const auth = FIREBASE_AUTH;
+  const [loading, setLoading] = useState(false);
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   const handleLogin = async () => {
     setLoading(true);
     try {
-        console.log('Pokušaj prijave...');
-        const userCredential = await signInWithEmailAndPassword(FIREBASE_AUTH, email, password);
-        console.log('Korisnik prijavljen:', userCredential.user);
+      const userCredential = await signInWithEmailAndPassword(FIREBASE_AUTH, email, password);
+      const user = userCredential.user;
+      const userDoc = await getDoc(doc(FIREBASE_DB, "users", user.uid));
 
-        const user = userCredential.user;
-        console.log('Preuzimanje podataka korisnika...');
-        const userDoc = await getDoc(doc(FIREBASE_DB, "users", user.uid));
-
-        if (userDoc.exists()) {
-            const userData = userDoc.data();
-            console.log('Podaci korisnika:', userData);
-
-            setIsAuthenticated(true);
-        } else {
-            console.error('Podaci korisnika nisu pronađeni.');
-            alert('Došlo je do greške prilikom preuzimanja podataka.');
-        }
+      if (userDoc.exists()) {
+        setIsAuthenticated(true);
+      } else {
+        alert('Došlo je do greške prilikom preuzimanja podataka.');
+      }
     } catch (error) {
-        if (error.code === 'auth/user-not-found') {
-            alert('Nalog sa ovim podacima ne postoji.');
-        } else if (error.code === 'auth/wrong-password') {
-            alert('Pogrešna lozinka.');
-        } else {
-            console.error('Greška: ', error.message);
-            alert('Greška prilikom prijave: ' + error.message);
-        }
+      if (error.code === 'auth/user-not-found') {
+        alert('Nalog sa ovim podacima ne postoji.');
+      } else if (error.code === 'auth/wrong-password') {
+        alert('Pogrešna lozinka.');
+      } else {
+        alert('Greška prilikom prijave: ' + error.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -48,18 +39,17 @@ const LoginScreen = ({navigation, setIsAuthenticated}) => {
 
   return (
     <View style={styles.screen}>
-
       {loading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.primary} />
         </View>
       ) : (
         <>
-          {/* Header sa strelicom i naslovom */}
+          {/* Header */}
           <View style={styles.header}>
             <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
               <Image
-                source={require("../assets/arrowBack.png")} // Putanja do tvoje slike
+                source={require("../assets/arrowBack.png")}
                 style={styles.backIcon}
               />
             </TouchableOpacity>
@@ -71,9 +61,8 @@ const LoginScreen = ({navigation, setIsAuthenticated}) => {
             <Image source={require('../assets/icon.png')} style={styles.logo} />
           </View>
 
-          {/* Formular za prijavu */}
+          {/* Login Form */}
           <KeyboardAvoidingView behavior="padding" style={styles.form}>
-            {/* Email input sa ikonom */}
             <View style={styles.inputContainer}>
               <Image source={require('../assets/email.png')} style={styles.icon} />
               <TextInput
@@ -84,24 +73,36 @@ const LoginScreen = ({navigation, setIsAuthenticated}) => {
                 onChangeText={setEmail}
               />
             </View>
-
-            {/* Password input sa ikonom */}
             <View style={styles.inputContainer}>
               <Image source={require('../assets/password.png')} style={styles.icon} />
               <TextInput
                 style={styles.input}
                 placeholder="Šifra"
                 autoCapitalize="none"
-                secureTextEntry={true}
+                secureTextEntry={!isPasswordVisible}  // Prikazivanje/skrivanje lozinke
                 value={password}
                 onChangeText={setPassword}
               />
+              <TouchableOpacity onPress={() => setIsPasswordVisible(prevState => !prevState)} style={styles.iconButton}>
+                <Image
+                  source={isPasswordVisible ? require('../assets/visibility.png') : require('../assets/visibilitiOff.png')} // Ikona za otvaranje/zatvaranje oka
+                  style={styles.iconVisibility}
+                />
+              </TouchableOpacity>
             </View>
           </KeyboardAvoidingView>
 
-          {/* Dugme za prijavu */}
-          <TouchableOpacity onPress={handleLogin} style={styles.editButton}>
-            <Text>ULOGUJTE SE</Text>
+          {/* Login Button */}
+          <TouchableOpacity onPress={handleLogin} style={styles.loginButton}>
+            <Text style={styles.buttonText}>ULOGUJTE SE</Text>
+          </TouchableOpacity>
+
+          {/* Register Link */}
+          <TouchableOpacity onPress={() => navigation.navigate('REGISTER')} style={styles.footerLink}>
+            <Text style={styles.footerText}>
+              Nemate nalog?{' '}
+              <Text style={styles.linkText}>Napravite jedan!</Text>
+            </Text>
           </TouchableOpacity>
         </>
       )}
@@ -113,23 +114,22 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'flex-start', // Poravnanje prema vrhu
+    justifyContent: 'flex-start',
     padding: 20,
     backgroundColor: colors.pozadina,
   },
   header: {
-    flexDirection: 'row', // Poravnanje strelice i naslova u horizontalnom pravcu
     width: '100%',
     height: 100,
-    paddingTop: 20, // Pomeranje od vrha ekrana
-    alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 10,
+    alignItems: 'center',
+    marginBottom: 20,
+    position: 'relative',
   },
   backButton: {
-    position: 'absolute', // Strelica je apsolutno pozicionirana
-    left: -15,
-    top: 33,
+    position: 'absolute',
+    left: -20,
+    top: 25,
     padding: 10,
   },
   backIcon: {
@@ -140,12 +140,11 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    marginLeft: 40, // Razmak između strelice i naslova
+    fontWeight: 'bold',
     textAlign: 'center',
-    flex: 1, // Obezbeđuje centriranje naslova
   },
   logoContainer: {
-    marginBottom: 40, // Razmak između logotipa i forme
+    marginBottom: 40,
   },
   logo: {
     width: 150,
@@ -160,24 +159,28 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 10,
-    padding: 5,
-    marginBottom: 10,
-    borderColor: colors.primary
-  },
-  input: {
-    backgroundColor: '#f0f0f0',
+    borderColor: colors.primary,
     borderRadius: 10,
     padding: 10,
+    marginBottom: 20,
+  },
+  input: {
     flex: 1,
     height: 50,
-    borderColor: colors.linija
+    backgroundColor: '#f9f9f9',
+    borderRadius: 10,
+    paddingHorizontal: 10,
   },
   icon: {
     width: 24,
     height: 24,
     marginRight: 10,
+  },
+  iconVisibility: {
+    width: 24,
+    height: 24,
+    marginRight: 5,
+    marginLeft: 5
   },
   loadingContainer: {
     flex: 1,
@@ -185,16 +188,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
   },
-    editButton: {
-      backgroundColor: colors.primary,
-      borderRadius: 20,
-      padding: 10,
-      marginTop: 20,
-      alignItems: 'center',
-      justifyContent: 'center',
-      width: '70%',
-      height: 40,
-    },
+  loginButton: {
+    backgroundColor: colors.primary,
+    borderRadius: 25,
+    paddingVertical: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '80%',
+    marginBottom: 20,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  footerLink: {
+    marginTop: 10,
+  },
+  footerText: {
+    textAlign: 'center',
+    fontSize: 14,
+    color: colors.text,
+  },
+  linkText: {
+      textDecorationLine: 'underline',
+      color: colors.primary,
+  },
 });
 
 export default LoginScreen;

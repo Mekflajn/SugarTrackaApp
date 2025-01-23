@@ -71,6 +71,7 @@ const PocetnaScreen = () => {
         <Card style={styles.card}>
           <View style={styles.inputContainer}>
             <Text style={styles.text}>UNESITE VRIJEDNOST</Text>
+            <Text style={styles.subText}>Unesite podatke o glukozi, pulsu, i pritisku za praćenje vašeg zdravlja.</Text>
             <TouchableOpacity
               style={styles.editButton}
               onPress={() => navigation.navigate('UNOS')}
@@ -188,6 +189,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
     textAlign: 'center',
+  },
+  subText: {
+    fontSize: 14,
+    color: '#666',
+    marginVertical: 10,
+    textAlign: 'center',
+    paddingHorizontal: 20,
   },
   editButton: {
     backgroundColor: colors.primary,
