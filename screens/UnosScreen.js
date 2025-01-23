@@ -76,9 +76,14 @@ const UnosScreen = () => {
           <TextInput
             style={styles.input}
             placeholder="Unesite vrijednost glukoze"
-            keyboardType="numeric"
+            keyboardType="decimal-pad"
             value={glukoza}
-            onChangeText={setGlukoza}
+            onChangeText={(text) => {
+              // Dozvoljava samo brojeve i opcionalnu zapetu
+              if (/^\d*\.?\d*$/.test(text)) {
+                setGlukoza(text);
+              }
+            }}
           />
         </View>
       </View>
@@ -93,7 +98,12 @@ const UnosScreen = () => {
             placeholder="Unesite vrijednost gornjeg pritiska"
             keyboardType="numeric"
             value={gornjiPritisak}
-            onChangeText={setGornjiPritisak}
+            onChangeText={(text) => {
+              // Provjeri da li je broj u opsegu 90-180
+              if (/^\d+$/.test(text) && parseInt(text) >= 90 && parseInt(text) <= 200) {
+                setGornjiPritisak(text);
+              }
+            }}
           />
         </View>
         <View style={styles.inputContainer}>
@@ -103,7 +113,12 @@ const UnosScreen = () => {
             placeholder="Unesite vrijednost donjeg pritiska"
             keyboardType="numeric"
             value={donjiPritisak}
-            onChangeText={setDonjiPritisak}
+            onChangeText={(text) => {
+              // Provjeri da li je broj u opsegu 60-120
+              if (/^\d+$/.test(text) && parseInt(text) >= 60 && parseInt(text) <= 120) {
+                setDonjiPritisak(text);
+              }
+            }}
           />
         </View>
       </View>
@@ -118,7 +133,12 @@ const UnosScreen = () => {
             placeholder="Unesite vrijednost pulsa"
             keyboardType="numeric"
             value={puls}
-            onChangeText={setPuls}
+            onChangeText={(text) => {
+              // Provjeri da li je broj u opsegu 40-200
+              if (/^\d+$/.test(text) && parseInt(text) >= 40 && parseInt(text) <= 200) {
+                setPuls(text);
+              }
+            }}
           />
         </View>
       </View>
@@ -208,9 +228,9 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   button: {
-    backgroundColor: '#4CAF50',
-    padding: 15,
-    borderRadius: 5,
+    backgroundColor: colors.primary,
+    paddingVertical: 15,
+    borderRadius: 25,
     alignItems: 'center',
   },
   editButtonText: { color: 'white', fontWeight: 'bold' },

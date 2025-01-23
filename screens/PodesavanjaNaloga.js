@@ -72,6 +72,30 @@ const defaultProfileImage =
       const userId = user.uid; // Koristi UID korisnika za putanju
       const userRef = doc(db, "users", userId); // Koristi Firestore doc() umesto ref()
 
+      const age = parseInt(updatedData.age, 10);
+      const weight = parseFloat(updatedData.weight.replace(',', '.')); // Zameni zapetu sa tačkom za decimalne brojeve
+      const height = parseFloat(updatedData.height.replace(',', '.'));
+
+      if (isNaN(age) || age <= 0) {
+        Alert.alert("Greška", "Unesite validne godine.");
+        return;
+      }
+
+      if (isNaN(weight) || weight <= 0) {
+        Alert.alert("Greška", "Unesite validnu masu.");
+        return;
+      }
+
+      if (isNaN(height) || height <= 0) {
+        Alert.alert("Greška", "Unesite validnu visinu.");
+        return;
+      }
+
+      if (updatedData.dijabetes !== "1" && updatedData.dijabetes !== "2") {
+        Alert.alert("Greška", "Tip dijabetesa mora biti 1 ili 2.");
+        return;
+      }
+
       const updatedUserData = {
         ...updatedData, // uključuje ime, prezime, pol, itd.
         dijabetes: updatedData.dijabetes, // dodajemo godine
@@ -125,13 +149,13 @@ const defaultProfileImage =
                 style={[styles.input, styles.inputHalf]}
                 value={updatedData.name}
                 placeholder="Ime"
-                onChangeText={(text) => setUpdatedData({ ...updatedData, name: text })}
+                onChangeText={(text) => setUpdatedData({ ...updatedData, name: text.charAt(0).toUpperCase() + text.slice(1) })}
               />
               <TextInput
                 style={[styles.input, styles.inputHalf]}
                 value={updatedData.surname}
                 placeholder="Prezime"
-                onChangeText={(text) => setUpdatedData({ ...updatedData, surname: text })}
+                onChangeText={(text) => setUpdatedData({ ...updatedData, surname: text.charAt(0).toUpperCase() + text.slice(1) })}
               />
             </View>
           ) : (
@@ -170,7 +194,12 @@ const defaultProfileImage =
               style={styles.input}
               value={updatedData.age}
               placeholder="Godine"
-              onChangeText={(text) => setUpdatedData({ ...updatedData, age: text })}
+              onChangeText={(text) => {
+                // Provera da li je unos samo broj
+                if (/^\d+$/.test(text)) {
+                  setUpdatedData({ ...updatedData, age: text });
+                }
+              }}
               keyboardType="numeric"
           />
           ) : (
@@ -184,6 +213,7 @@ const defaultProfileImage =
               value={updatedData.dijabetes}
               placeholder="Tip dijabetesa"
               onChangeText={(text) => setUpdatedData({ ...updatedData, dijabetes: text })}
+              keyboardType="numeric"
           />
           ) : (
           <Text style={styles.infoValue}>{user?.dijabetes || "N/A"}</Text>
@@ -195,7 +225,12 @@ const defaultProfileImage =
               style={styles.input}
               value={updatedData.weight}
               placeholder="Masa"
-              onChangeText={(text) => setUpdatedData({ ...updatedData, weight: text })}
+              onChangeText={(text) => {
+                // Provera da li je unos validan broj
+                if (/^\d*\.?\d*$/.test(text)) {
+                  setUpdatedData({ ...updatedData, weight: text });
+                }
+              }}
               keyboardType="numeric"
           />
           ) : (
@@ -208,7 +243,12 @@ const defaultProfileImage =
               style={styles.input}
               value={updatedData.height}
               placeholder="Visina"
-              onChangeText={(text) => setUpdatedData({ ...updatedData, height: text })}
+              onChangeText={(text) => {
+                // Provera da li je unos validan broj
+                if (/^\d*\.?\d*$/.test(text)) {
+                  setUpdatedData({ ...updatedData, height: text });
+                }
+              }}
               keyboardType="numeric"
           />
           ) : (
