@@ -1,11 +1,13 @@
 import React from 'react';
-import { View, Text, StyleSheet, TextInput, ActivityIndicator, TouchableOpacity, Image, ScrollView, Animated } from 'react-native';
+import { View, Text, StyleSheet, TextInput, ActivityIndicator, TouchableOpacity, Image, ScrollView, Animated, Modal } from 'react-native';
 import { useState } from 'react';
 import { doc, setDoc } from "firebase/firestore";
 import { FIREBASE_DB } from '../config/FirebaseConfig';
 import { FIREBASE_AUTH } from '../config/FirebaseConfig';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import colors from '../constants/colors';
+import strings from '../constants/Strings';
+import zxcvbn from 'zxcvbn';
 
 const RegisterScreen = ({ navigation, setIsAuthenticated }) => {
   const [email, setEmail] = useState('');
@@ -19,6 +21,14 @@ const RegisterScreen = ({ navigation, setIsAuthenticated }) => {
   const [gender, setGender] = useState('');
   const [loading, setLoading] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [isTermsModalVisible, setTermsModalVisible] = useState(false);
+  const [isPrivacyModalVisible, setPrivacyModalVisible] = useState(false);
+  const [emailError, setEmailError] = useState('');
+
+  const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+
+  const toggleTermsModal = () => setTermsModalVisible(!isTermsModalVisible);
+  const togglePrivacyModal = () => setPrivacyModalVisible(!isPrivacyModalVisible);
 
   const handleRegister = async () => {
     if (!name || !surname || !email || !password || !height || !weight || !age || !dijabetes || !gender) {
@@ -112,8 +122,18 @@ const RegisterScreen = ({ navigation, setIsAuthenticated }) => {
                 autoCapitalize="none"
                 keyboardType="email-address"
                 value={email}
-                onChangeText={setEmail}
+                onChangeText={(input) => {
+                  setEmail(input);
+              
+                  // Proveri da li email odgovara regex-u
+                  if (emailRegex.test(input)) {
+                    setEmailError('');
+                  } else {
+                    setEmailError('Unesite validnu email adresu');
+                  }
+                }}
               />
+              {/*emailError ? <Text style={styles.errorText}>{emailError}</Text> : null*/}
             </View>
 
             <View style={styles.inputContainer}>
@@ -141,7 +161,14 @@ const RegisterScreen = ({ navigation, setIsAuthenticated }) => {
                 placeholder="Visina"
                 keyboardType="numeric"
                 value={height}
-                onChangeText={setHeight}
+                onChangeText={(input) => {
+                  // Proverava da li unos sadrži samo brojeve
+                  if (/^[0-9]*$/.test(input)) {
+                    setHeight(input);
+                  } else {
+                    setHeight(height); // Zadržava prethodni unos
+                  }
+                }}
               />
             </View>
 
@@ -152,7 +179,14 @@ const RegisterScreen = ({ navigation, setIsAuthenticated }) => {
                 placeholder="Masa"
                 keyboardType="numeric"
                 value={weight}
-                onChangeText={setWeight}
+                onChangeText={(input) => {
+                  // Proverava da li unos sadrži samo brojeve
+                  if (/^[0-9]*$/.test(input)) {
+                    setWeight(input);
+                  } else {
+                    setWeight(weight); // Zadržava prethodni unos
+                  }
+                }}
               />
             </View>
             </View>
@@ -165,7 +199,15 @@ const RegisterScreen = ({ navigation, setIsAuthenticated }) => {
                 placeholder="Godine"
                 keyboardType="numeric"
                 value={age}
-                onChangeText={setAge}
+                onChangeText={(input) => {
+                  // Proverava da li unos sadrži samo brojeve
+                  if (/^[0-9]*$/.test(input)) {
+                    setAge(input);
+                  } else {
+                    // Ako unos nije broj, ništa ne menja
+                    setAge(age); // Zadržava prethodni unos
+                  }
+                }}
               />
             </View>
 
@@ -224,14 +266,72 @@ const RegisterScreen = ({ navigation, setIsAuthenticated }) => {
               <Text style={styles.linkText}>Ulogujte se</Text>
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.footerLink}>
+          <TouchableOpacity style={styles.footerLink} onPress={toggleTermsModal}>
             <Text style={styles.footerText}>
-              Pročitajte naše{' '}
+              Registracijom prihvatate naše{' '}
               <Text style={styles.linkText}>Uslove korišćenja</Text>
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.footerLink} onPress={togglePrivacyModal}>
+            <Text style={styles.footerText}>
+              i <Text style={styles.linkText}>Politiku privatnosti</Text>.
             </Text>
           </TouchableOpacity>
         </>
       )}
+<Modal
+  visible={isTermsModalVisible}
+  animationType="slide"
+  transparent={true}
+  onRequestClose={toggleTermsModal}
+>
+  <View style={styles.modalContainer}>
+    <View style={styles.modalContent}>
+      <TouchableOpacity style={styles.backButton1} onPress={toggleTermsModal}>
+        <Image
+          source={require('../assets/arrowBack.png')} // Ikona strelice
+          style={styles.backIcon}
+        />
+      </TouchableOpacity>
+      <Text style={styles.modalTitle}>Uslovi korišćenja</Text>
+      <Image
+      source={require('../assets/logo96.png')}/>
+      <ScrollView style={styles.modalScroll}>
+        <Text style={styles.modalText}>
+          {strings.modalText1}
+        </Text>
+      </ScrollView>
+    </View>
+  </View>
+</Modal>
+
+<Modal
+  visible={isPrivacyModalVisible}
+  animationType="slide"
+  transparent={true}
+  onRequestClose={togglePrivacyModal}
+>
+  <View style={styles.modalContainer}>
+    <View style={styles.modalContent}>
+      <TouchableOpacity style={styles.backButton1} onPress={togglePrivacyModal}>
+        <Image
+          source={require('../assets/arrowBack.png')}
+          style={styles.backIcon}
+        />
+      </TouchableOpacity>
+      <Text style={styles.modalTitle}>Politika privatnosti</Text>
+      <Image
+      source={require('../assets/logo96.png')}/>
+      <ScrollView style={styles.modalScroll}>
+        <Text style={styles.modalText}>
+          {/* Ovde ubacite tekst za politiku privatnosti */}
+          {strings.modalText2}
+        </Text>
+      </ScrollView>
+    </View>
+  </View>
+</Modal>
     </ScrollView>
   );
 }
@@ -263,6 +363,12 @@ const styles = StyleSheet.create({
   backButton: {
     position: 'absolute',
     left: -20,
+    top: 5,
+    padding: 10,
+  },
+  backButton1: {
+    position: 'absolute',
+    left: 0,
     top: 5,
     padding: 10,
   },
@@ -389,6 +495,35 @@ const styles = StyleSheet.create({
     linkText: {
     textDecorationLine: 'underline',
     color: colors.primary,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Tamna pozadina
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    width: '90%',
+    borderRadius: 10,
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalScroll: {
+    maxHeight: 400, // Ograniči visinu teksta
+    marginTop: 20,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  modalText: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: '#333',
+    marginBottom: 15, // Dodatni razmak između sekcija
   },
 });
 

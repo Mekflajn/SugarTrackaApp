@@ -99,8 +99,8 @@ const UnosScreen = () => {
             keyboardType="numeric"
             value={gornjiPritisak}
             onChangeText={(text) => {
-              // Provjeri da li je broj u opsegu 90-180
-              if (/^\d+$/.test(text) && parseInt(text) >= 90 && parseInt(text) <= 200) {
+              // Provjeri da li je broj veći od 0
+              if (/^\d+$/.test(text) && parseInt(text) > 0) {
                 setGornjiPritisak(text);
               }
             }}
@@ -114,8 +114,8 @@ const UnosScreen = () => {
             keyboardType="numeric"
             value={donjiPritisak}
             onChangeText={(text) => {
-              // Provjeri da li je broj u opsegu 60-120
-              if (/^\d+$/.test(text) && parseInt(text) >= 60 && parseInt(text) <= 120) {
+              // Provjeri da li je broj veći od 0
+              if (/^\d+$/.test(text) && parseInt(text) > 0) {
                 setDonjiPritisak(text);
               }
             }}
@@ -134,8 +134,8 @@ const UnosScreen = () => {
             keyboardType="numeric"
             value={puls}
             onChangeText={(text) => {
-              // Provjeri da li je broj u opsegu 40-200
-              if (/^\d+$/.test(text) && parseInt(text) >= 40 && parseInt(text) <= 200) {
+              // Provjeri da li je broj veći od 0
+              if (/^\d+$/.test(text) && parseInt(text) > 0) {
                 setPuls(text);
               }
             }}
