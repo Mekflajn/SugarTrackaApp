@@ -94,32 +94,32 @@ const UnosScreen = () => {
         <View style={styles.inputContainer}>
           <Image source={require('../assets/heart.png')} style={styles.icon} />
           <TextInput
-            style={styles.input}
-            placeholder="Unesite vrijednost gornjeg pritiska"
-            keyboardType="numeric"
-            value={gornjiPritisak}
-            onChangeText={(text) => {
-              // Provjeri da li je broj veći od 0
-              if (/^\d+$/.test(text) && parseInt(text) > 0) {
-                setGornjiPritisak(text);
-              }
-            }}
-          />
+          style={styles.input}
+          placeholder="Unesite vrijednost gornjeg pritiska"
+          keyboardType="numeric"
+          value={gornjiPritisak}
+          onChangeText={(text) => {
+            // Dozvoljava samo brojeve ili prazno polje (za brisanje)
+            if (/^\d*$/.test(text)) {
+              setGornjiPritisak(text); // Ažuriranje vrednosti
+            }
+          }}
+        />
         </View>
         <View style={styles.inputContainer}>
           <Image source={require('../assets/heart.png')} style={styles.icon} />
           <TextInput
-            style={styles.input}
-            placeholder="Unesite vrijednost donjeg pritiska"
-            keyboardType="numeric"
-            value={donjiPritisak}
-            onChangeText={(text) => {
-              // Provjeri da li je broj veći od 0
-              if (/^\d+$/.test(text) && parseInt(text) > 0) {
-                setDonjiPritisak(text);
-              }
-            }}
-          />
+          style={styles.input}
+          placeholder="Unesite vrijednost donjeg pritiska"
+          keyboardType="numeric"
+          value={donjiPritisak}
+          onChangeText={(text) => {
+            // Dozvoljava samo brojeve ili prazno polje (za brisanje)
+            if (/^\d*$/.test(text)) {
+              setDonjiPritisak(text); // Ažuriranje vrednosti
+            }
+          }}
+        />
         </View>
       </View>
 
@@ -129,17 +129,17 @@ const UnosScreen = () => {
         <View style={styles.inputContainer}>
           <Image source={require('../assets/ecg.png')} style={styles.icon} />
           <TextInput
-            style={styles.input}
-            placeholder="Unesite vrijednost pulsa"
-            keyboardType="numeric"
-            value={puls}
-            onChangeText={(text) => {
-              // Provjeri da li je broj veći od 0
-              if (/^\d+$/.test(text) && parseInt(text) > 0) {
-                setPuls(text);
-              }
-            }}
-          />
+          style={styles.input}
+          placeholder="Unesite vrijednost pulsa"
+          keyboardType="numeric"
+          value={puls}
+          onChangeText={(text) => {
+            // Dozvoljava samo brojeve ili prazno polje (za brisanje)
+            if (/^\d*$/.test(text)) {
+              setPuls(text); // Ažuriranje vrednosti
+            }
+          }}
+        />
         </View>
       </View>
 

@@ -22,9 +22,9 @@ const PocetnaScreen = () => {
 
     const fetchMeasurements = () => {
       try {
-        const userDoc = doc(FIREBASE_DB, 'users', uid); // Pristup korisnikovim podacima
+        const userDoc = doc(FIREBASE_DB, 'users', uid);
         const measurementsCollection = collection(userDoc, 'measurements');
-        const q = query(measurementsCollection, orderBy('timestamp', 'desc')); // Sortiraj po vremenu unosa (najnovije prvo)
+        const q = query(measurementsCollection, orderBy('timestamp', 'desc'));
 
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
           const items = querySnapshot.docs.map((doc) => {
@@ -49,29 +49,40 @@ const PocetnaScreen = () => {
   }, [uid]);
 
   if (loading) {
-    return <View style={{flex: 1, backgroundColor: colors.pozadina}}><Text style={styles.loadingText}>Učitavanje podataka...</Text></View>;
+    return (
+      <View style={{ flex: 1, backgroundColor: colors.pozadina }}>
+        <Text style={styles.loadingText}>Učitavanje podataka...</Text>
+      </View>
+    );
   }
 
-  // Formatiranje podataka za grafikon
   const chartData = {
-    labels: measurements.reverse().map((_, index) => `M${index + 1}`), // Oznake za x-osa
+    labels: measurements
+      .slice(0, 10)
+      .reverse()
+      .map((_, index) => `M${index + 1}`),
     datasets: [
       {
-        data: measurements.map((item) => {
-          const glucoseValue = parseFloat(item.glucose);
-          return !isNaN(glucoseValue) ? glucoseValue : 0;
-        }),
+        data: measurements
+          .slice(0, 10)
+          .reverse()
+          .map((item) => {
+            const glucoseValue = parseFloat(item.glucose);
+            return !isNaN(glucoseValue) ? glucoseValue : 0;
+          }),
       },
     ],
   };
 
   return (
-    <ScrollView style={styles.scrollContainer}>
+    <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContentContainer}>
       <View style={styles.screen}>
         <Card style={styles.card}>
           <View style={styles.inputContainer}>
             <Text style={styles.text}>UNESITE VRIJEDNOST</Text>
-            <Text style={styles.subText}>Unesite podatke o glukozi, pulsu, i pritisku za praćenje vašeg zdravlja.</Text>
+            <Text style={styles.subText}>
+              Unesite podatke o glukozi, pulsu, i pritisku za praćenje vašeg zdravlja.
+            </Text>
             <TouchableOpacity
               style={styles.editButton}
               onPress={() => navigation.navigate('UNOS')}
@@ -81,35 +92,31 @@ const PocetnaScreen = () => {
           </View>
         </Card>
 
-        {/* Grafikon */}
         <Card style={styles.card}>
           {measurements.length === 0 ? (
             <Text style={styles.text}>TRENUTNO NEMATE NITI JEDNO MJERENJE.</Text>
           ) : (
             <>
-              <Text style={styles.text}>PRIKAZ MJERENJA GRAFIKOM U mmol/l</Text>
+              <Text style={styles.text}>PRIKAZ MJERENJA GRAFIKONOM U mmol/l</Text>
               <LineChart
                 data={chartData}
-                width={260} // Širina grafikona
-                height={200} // Visina grafikona
-                yAxisSuffix=" mmol/L" // Sufiks za Y osu
+                width={260}
+                height={200}
+                yAxisSuffix=" mmol/L"
                 chartConfig={{
                   backgroundColor: '#ffffff',
                   backgroundGradientFrom: '#f5f5f5',
                   backgroundGradientTo: '#e0e0e0',
-                  decimalPlaces: 1, // Zaokruživanje na 1 decimalu
-                  color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`, // Boja linije
-                  labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`, // Boja oznaka
-                  style: {
-                    borderRadius: 10,
-                  },
-                  propsForLabels: {
-                    fontSize: 10, // Veličina fonta za oznake
-                  },
-                  yAxisLabelWidth: 50, // Širina oznake za y-osa
+                  decimalPlaces: 1,
+                  color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`,
+                  labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                  style: { borderRadius: 10 },
+                  propsForLabels: { fontSize: 10 },
+                  yAxisLabelWidth: 50,
                 }}
-                bezier // Zakrivljene linije
+                bezier
                 style={{
+                  alignSelf: 'center',
                   marginVertical: 10,
                   borderRadius: 10,
                 }}
@@ -118,35 +125,41 @@ const PocetnaScreen = () => {
           )}
         </Card>
 
-        <Card style={styles.card}>
+        <Card style={styles.card1}>
           {measurements.length === 0 ? (
-            <Text>TRENUTNO NEMATE NITI JEDNO MJERENJE.</Text>
+            <Text style={styles.text}>TRENUTNO NEMATE NITI JEDNO MJERENJE.</Text>
           ) : (
             <>
               <Text style={styles.text}>LISTA ZADNJIH 5 MJERENJA</Text>
               <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                pagingEnabled={true}
-                snapToInterval={260}
-                decelerationRate="fast"
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.verticalListContainer}
+                scrollEnabled={true}
+                nestedScrollEnabled={true}
+                keyboardShouldPersistTaps="always"
+                style={styles.scrollableContainer}
               >
                 {measurements
-                  .sort((a, b) => b.timestamp.toDate() - a.timestamp.toDate()) // Sortiraj po vremenu unosa (najnovije prvo)
+                  .sort((a, b) => b.timestamp.toDate() - a.timestamp.toDate())
                   .slice(0, 5)
                   .map((item) => (
                     <Card key={item.id} style={styles.measurementCard}>
                       <View style={styles.cardContent}>
                         <Text>Glukoza: {item.glucose}</Text>
                         <Text>Puls: {item.pulse}</Text>
-                        <Text>Pritisak: {item.systolicPressure}/{item.diastolicPressure}</Text>
-                        <Text>Bilješke: {item.notes}</Text>
                         <Text>
-                          Vrijeme: {item.timestamp ? new Intl.DateTimeFormat('sr-RS', {
-                            dateStyle: 'short',
-                            timeStyle: 'short',
-                            hour12: false,
-                          }).format(item.timestamp.toDate()) : "N/A"}
+                          Pritisak: {item.systolicPressure}/{item.diastolicPressure}
+                        </Text>
+                        <Text>Bilješke: {item.notes || 'Nema bilješki'}</Text>
+                        <Text>
+                          Vrijeme:{' '}
+                          {item.timestamp
+                            ? new Intl.DateTimeFormat('sr-RS', {
+                                dateStyle: 'short',
+                                timeStyle: 'short',
+                                hour12: false,
+                              }).format(item.timestamp.toDate())
+                            : 'N/A'}
                         </Text>
                       </View>
                     </Card>
@@ -163,7 +176,6 @@ const PocetnaScreen = () => {
 const styles = StyleSheet.create({
   scrollContainer: {
     backgroundColor: colors.pozadina,
-    paddingBottom: 110,
   },
   screen: {
     flex: 1,
@@ -174,21 +186,55 @@ const styles = StyleSheet.create({
     backgroundColor: colors.pozadina,
   },
   card: {
-    width: '80%',
+    width: '90%',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 50,
   },
-  inputContainer: {
+  card1: {
+    width: '90%',
+    height: 200, // Ograničena visina kartice
+    alignItems: 'center',  // Centriranje kartice horizontalno
+    justifyContent: 'center', // Centriranje kartice vertikalno
+    marginBottom: 50,
+    padding: 10,
+    borderRadius: 10,
+    overflow: 'hidden', // Skriva sadržaj koji izlazi van kartice
+    flexDirection: 'column', // Osigurava da se kartice vertikalno slažu
+    alignSelf: 'center',  // Centriranje kartice unutar roditelja
+  },
+  scrollableContainer: {
+    height: '100%', // Scrollview treba da preuzme celu visinu kartice
+    paddingVertical: 10,
+  },
+  verticalListContainer: {
     width: '100%',
+    alignItems: 'center', // Centriranje elemenata unutar liste
+    paddingVertical: 10,
+  },
+  measurementCard: {
+    width: '100%',
+    padding: 15,
+    backgroundColor: colors.pozadina,
+    borderRadius: 10,
+    justifyContent: 'center',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    marginBottom: 15,
+    minHeight: 120,
+    alignSelf: 'center', // Centriranje kartice unutar Card1
+    flex: 1, // Osigurava da kartica koristi sav prostor
+    marginHorizontal: 20
+  },
+  cardContent: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   text: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
     textAlign: 'center',
+    marginBottom: 10
   },
   subText: {
     fontSize: 14,
@@ -197,32 +243,21 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingHorizontal: 20,
   },
-  editButton: {
-    backgroundColor: colors.primary,
-    borderRadius: 20,
-    padding: 10,
-    marginTop: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '70%',
-    height: 40,
-  },
+editButton: {
+  backgroundColor: colors.primary,
+  borderRadius: 20,
+  padding: 10,
+  marginTop: 20,
+  alignItems: 'center',
+  justifyContent: 'center',
+  width: '70%', // Manja širina, prilagođena dugmetu
+  height: 40,
+  alignSelf: 'center', // Centriranje dugmeta unutar kartice
+},
+
   editButtonText: {
     fontSize: 16,
     fontWeight: 'bold',
-  },
-  measurementCard: {
-    width: 250,
-    marginRight: 10,
-    padding: 10,
-    backgroundColor: colors.pozadina,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  cardContent: {
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   loadingText: {
     textAlign: 'center',
