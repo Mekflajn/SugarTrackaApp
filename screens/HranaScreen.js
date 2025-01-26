@@ -176,6 +176,7 @@ const styles = StyleSheet.create({
         backgroundColor: colors.primary,
     },
     timeButtonText: {
+        fontSize: 13,
         color: '#000',
         fontWeight: 'bold',
     },

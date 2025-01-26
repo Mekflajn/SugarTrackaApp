@@ -7,6 +7,7 @@ import Card from '../components/Card';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import colors from '../constants/colors';
+import RNFS from 'react-native-fs';
 
 const IstorijaScreen = () => {
   const { uid } = useUser();
@@ -61,12 +62,41 @@ const IstorijaScreen = () => {
     }
   };
 
+  const generateReport = async () => {
+    try {
+      if (data.length === 0) {
+        Alert.alert('Nema podataka', 'Nema mjerenja za generisanje izveštaja.');
+        return;
+      }
+
+      const reportContent = data.map(item => {
+        const date = item.timestamp ? item.timestamp.toDate() : new Date();
+        return `Vrijednost glukoze: ${item.glucose} mmol/L\nPuls: ${item.pulse} BPM\nPritisak: ${item.systolicPressure}/${item.diastolicPressure} mmHg\nBilješke: ${item.notes || 'Nema bilješki'}\nVrijeme: ${date.toLocaleString()}\n\n`;
+      }).join('');
+
+      const filePath = RNFS.DocumentDirectoryPath + '/izvjestaj.txt';
+      console.log('Putanja fajla:', filePath);
+
+
+      await RNFS.writeFile(filePath, reportContent, 'utf8');
+      Alert.alert('Izvještaj', 'Izvještaj je uspešno generisan. Možete ga preuzeti.');
+
+      console.log('Izvještaj kreiran na putanji:', filePath);
+    } catch (error) {
+      console.error('Greška pri generisanju izveštaja:', error);
+    }
+  };
+
   if (loading) {
-    return <View style={{flex: 1,backgroundColor: colors.pozadina}}><Text style={styles.loadingText}>Učitavanje podataka...</Text></View>;
+    return <View style={{flex: 1, backgroundColor: colors.pozadina}}><Text style={styles.loadingText}>Učitavanje podataka...</Text></View>;
   }
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity style={styles.reportButton} onPress={generateReport}>
+        <Text style={styles.reportButtonText}>Izvještaj</Text>
+      </TouchableOpacity>
+      
       {data.length === 0 ? (
         <Text style={styles.noDataText}>Nema sačuvanih mjerenja.</Text>
       ) : (
@@ -82,16 +112,16 @@ const IstorijaScreen = () => {
                   <Text style={styles.pressureText}>Pritisak: {item.systolicPressure}/{item.diastolicPressure} mmHg</Text>
                   <Text style={styles.notesText}>Bilješke: {item.notes || 'Nema bilješki'}</Text>
                   <Text style={styles.timestampText}>
-                  Vrijeme: {item.timestamp ? (() => {
+                    Vrijeme: {item.timestamp ? (() => {
                       const date = item.timestamp.toDate();
-                      const day = String(date.getDate()).padStart(2, '0');  // Dvocifreni dan
-                      const month = String(date.getMonth() + 1).padStart(2, '0');  // Dvocifreni mesec
+                      const day = String(date.getDate()).padStart(2, '0');  
+                      const month = String(date.getMonth() + 1).padStart(2, '0');  
                       const year = date.getFullYear();
-                      const hours = String(date.getHours()).padStart(2, '0');  // Dvocifreni sat
-                      const minutes = String(date.getMinutes()).padStart(2, '0');  // Dvocifreni minut
+                      const hours = String(date.getHours()).padStart(2, '0');  
+                      const minutes = String(date.getMinutes()).padStart(2, '0');  
                       return `${day}/${month}/${year} ${hours}:${minutes}`;
                     })() : "N/A"}
-                </Text>
+                  </Text>
                 </View>
                 <TouchableOpacity onPress={() => handleDelete(item.id)} style={styles.iconContainer}>
                   <FontAwesomeIcon icon={faTrash} size={24} color="red" />
@@ -111,6 +141,18 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
     backgroundColor: colors.pozadina,
+  },
+  reportButton: {
+    backgroundColor: colors.primary,
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 20,
+    alignItems: 'center',
+  },
+  reportButtonText: {
+    fontSize: 18,
+    color: '#fff',
+    fontWeight: 'bold',
   },
   card: {
     marginBottom: 15,
@@ -173,8 +215,8 @@ const styles = StyleSheet.create({
     color: '#777',
   },
   flatListContent: {
-    paddingBottom: 120, // Dodano padding ispod FlatList-a
-},
+    paddingBottom: 120,
+  },
 });
 
 export default IstorijaScreen;

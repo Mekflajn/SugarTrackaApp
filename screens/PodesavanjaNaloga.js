@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity, Alert, TextInput, ScrollView, SafeAreaView } from "react-native";
+import { View, Text, StyleSheet, Image, TouchableOpacity, Alert, TextInput, ScrollView, SafeAreaView, Modal, FlatList } from "react-native";
 import { getAuth } from "firebase/auth";
 import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
 import colors from "../constants/colors";
@@ -16,15 +16,56 @@ const [updatedData, setUpdatedData] = useState({
     surname: user?.surname || "",
     gender: user?.gender || "",
   });
+const [isModalVisible, setIsModalVisible] = useState(false); // State za modal
 
 const db = getFirestore(); // Koristimo Firestore
 
-const defaultProfileImage =
-    user?.gender === "Žensko"
-      ? require("../assets/female_account.png")
-      : user?.gender === "Muško"
-      ? require("../assets/male_account.png")
-      : require("../assets/nalog.png");
+const getDefaultProfileImage = (gender) => {
+  if (gender === "Žensko") {
+    return require("../assets/female_account.png");
+  } else if (gender === "Muško") {
+    return require("../assets/male_account.png");
+  } else {
+    return require("../assets/nalog.png"); // Ako nije Muško ni Žensko, vraća nalog.png
+  }
+};
+const maleImages = [
+  {id: "1", source: require("../assets/male1.png")},
+  {id: "2", source: require("../assets/male2.png") },
+  {id: "3", source: require("../assets/male3.png") },
+  {id: "4", source: require("../assets/male_account.png") },
+];
+
+const femaleImages = [
+  {id: "1", source: require("../assets/female1.png") },
+  {id: "2", source: require("../assets/female2.png") },
+  {id: "3", source: require("../assets/female3.png") },
+  {id: "4", source: require("../assets/female_account.png") },
+];
+
+const handleProfileImageChange = async (image) => {
+  setProfileImage(image);
+  setIsModalVisible(false); // Zatvori modal
+
+  // Spremanje linka do slike u Firestore
+  const auth = getAuth();
+  const user = auth.currentUser;
+
+  if (user) {
+    const userId = user.uid; // Koristi UID korisnika za putanju
+    const userRef = doc(db, "users", userId);
+
+    try {
+      // Dodaj sliku u podatke korisnika
+      await setDoc(userRef, { profileImage: image }, { merge: true });
+      console.log("Slika je uspešno sačuvana.");
+    } catch (error) {
+      console.log("Greška pri čuvanju slike:", error);
+      Alert.alert("Greška", "Došlo je do greške prilikom čuvanja slike.");
+    }
+  }
+};
+
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -48,6 +89,14 @@ const defaultProfileImage =
               weight: data.weight || "",
               height: data.height || ""
             });
+
+            if (data.profileImage) {
+              setProfileImage(data.profileImage);
+            } else {
+              // Ako nema spremljene slike, postavi default sliku
+              setProfileImage(getDefaultProfileImage(data.gender));
+            }
+            
           } else {
             Alert.alert("Greška", "Podaci nisu pronađeni.");
           }
@@ -131,13 +180,52 @@ const defaultProfileImage =
     }
   };
 
+  const imagesToDisplay = user?.gender === "Muško" ? maleImages :
+  user?.gender === "Žensko" ? femaleImages :
+  [{ id: "1", source: require("../assets/nalog.png") }];
+  useEffect(() => {
+    const defaultImage = getDefaultProfileImage();
+    setProfileImage(defaultImage);
+  }, []);
+
+  useEffect(() => {
+    const defaultImage = getDefaultProfileImage(user?.gender);
+    setProfileImage(defaultImage);
+  }, [user?.gender]);
+
   return (
     <ScrollView style={styles.scrollContainer}>
     <View style={styles.screen}>
-      <TouchableOpacity style={styles.imageContainer}>
-        <Image source={defaultProfileImage} style={styles.image} />
+      <TouchableOpacity style={styles.imageContainer} onPress={() => setIsModalVisible(true)}>
+        <Image source={profileImage || getDefaultProfileImage(user?.gender)} style={styles.image} />
         <Text style={styles.editImageText}>Promijeni sliku</Text>
       </TouchableOpacity>
+
+      <Modal
+        visible={isModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setIsModalVisible(false)}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+          <TouchableOpacity onPress={() => setIsModalVisible(false)} style={styles.backButton}>
+              <Image source={require("../assets/arrowBack.png")} style={styles.backArrow} />
+            </TouchableOpacity>
+            <FlatList
+              data={imagesToDisplay}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <TouchableOpacity onPress={() => handleProfileImageChange(item.source)}>
+                  <Image source={item.source} style={styles.modalImage} />
+                </TouchableOpacity>
+              )}
+            />
+            <TouchableOpacity onPress={() => setIsModalVisible(false)} style={styles.closeButton}>
+              <Text style={styles.buttonText}>Zatvori</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
       {/* Korišćenje Card komponente */}
       <Card style={styles.card}>
@@ -372,25 +460,28 @@ const styles = StyleSheet.create({
     color: 'black',
   },
   editButton: {
+    width: 80,
     backgroundColor: colors.primary,
     padding: 15,
     alignItems: "center",
-    borderRadius: 5,
+    borderRadius: 20,
     marginTop: 20,
     marginHorizontal: 10
   },
   saveButton: {
+    width: 80,
     backgroundColor: colors.primary,
     padding: 15,
     alignItems: "center",
-    borderRadius: 5,
+    borderRadius: 20,
     marginHorizontal: 10
   },
   cancelButton: {
+    width: 80,
     backgroundColor: "#f44336",
     padding: 15,
     alignItems: "center",
-    borderRadius: 5,
+    borderRadius: 20,
     marginHorizontal: 10
   },
   buttonText: {
@@ -402,22 +493,55 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   logoutButton: {
-    backgroundColor: "#ff9800",
+    width: 80,
+    backgroundColor: "#f44336",
     padding: 15,
     alignItems: "center",
-    borderRadius: 5,
+    borderRadius: 20,
     marginTop: 20,
     marginHorizontal: 10
   },
   logoutIcon: {
     width: 20,
     height: 20,
+    tintColor: 'white'
   },
   editDugmad: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between'
-  }
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    backgroundColor: "white",
+    padding: 20,
+    borderRadius: 10,
+    alignItems: "center",
+    width: "80%",  // Modal širi širinu
+    maxHeight: "80%"
+  },
+  modalImage: {
+    width: 80,
+    height: 80,
+    margin: 10,
+    borderRadius: 40,
+  },
+  backButton: {
+    position: "absolute",
+    top: 20,
+    left: 10,
+    zIndex: 1,
+  },
+  backArrow: {
+    width: 30,
+    height: 30,
+    tintColor: 'black',
+  },
 });
 
 export default PodesavanjaNaloga;

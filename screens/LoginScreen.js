@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, ActivityIndicator, Image } from 'react-native';
 import { FIREBASE_AUTH } from '../config/FirebaseConfig';
 import { FIREBASE_DB } from '../config/FirebaseConfig';
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";  // Dodajte sendPasswordResetEmail
 import { doc, getDoc } from "firebase/firestore";
 import colors from '../constants/colors';
 
@@ -11,6 +11,7 @@ const LoginScreen = ({ navigation, setIsAuthenticated }) => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [isResetLoading, setIsResetLoading] = useState(false);  // Dodano za loading pri resetovanju
 
   const handleLogin = async () => {
     setLoading(true);
@@ -34,6 +35,18 @@ const LoginScreen = ({ navigation, setIsAuthenticated }) => {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResetPassword = async () => {
+    setIsResetLoading(true);
+    try {
+      await sendPasswordResetEmail(FIREBASE_AUTH, email);
+      alert('Poslali smo vam email za resetovanje lozinke!');
+    } catch (error) {
+      alert('Greška prilikom slanja emaila molimo vas da upišete email u polje za unos.');
+    } finally {
+      setIsResetLoading(false);
     }
   };
 
@@ -95,6 +108,15 @@ const LoginScreen = ({ navigation, setIsAuthenticated }) => {
           {/* Login Button */}
           <TouchableOpacity onPress={handleLogin} style={styles.loginButton}>
             <Text style={styles.buttonText}>ULOGUJTE SE</Text>
+          </TouchableOpacity>
+
+          {/* Forgot Password Link */}
+          <TouchableOpacity onPress={handleResetPassword} style={styles.forgotPasswordLink}>
+            {isResetLoading ? (
+              <ActivityIndicator size="small" color={colors.primary} />
+            ) : (
+              <Text style={styles.footerText}>Zaboravili ste šifru?</Text>
+            )}
           </TouchableOpacity>
 
           {/* Register Link */}
@@ -208,7 +230,12 @@ const styles = StyleSheet.create({
   footerText: {
     textAlign: 'center',
     fontSize: 14,
-    color: colors.text,
+    color: colors.primary,
+    textDecorationLine: 'underline'
+  },
+  forgotPasswordLink: {
+    marginTop: 10,
+    alignItems: 'center',
   },
   linkText: {
       textDecorationLine: 'underline',
