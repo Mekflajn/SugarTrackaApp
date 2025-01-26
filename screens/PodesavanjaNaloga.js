@@ -4,7 +4,6 @@ import { getAuth } from "firebase/auth";
 import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
 import colors from "../constants/colors";
 import { useUser } from "../context/UserContext";
-import { launchImageLibrary } from "react-native-image-picker";
 import Card from "../components/Card";
 
 const PodesavanjaNaloga = () => {
@@ -22,41 +21,44 @@ const db = getFirestore(); // Koristimo Firestore
 
 const getDefaultProfileImage = (gender) => {
   if (gender === "Žensko") {
-    return require("../assets/female_account.png");
+    return require("../assets/nalozi/female_account.png");
   } else if (gender === "Muško") {
-    return require("../assets/male_account.png");
+    return require("../assets/nalozi/male_account.png");
   } else {
-    return require("../assets/nalog.png"); // Ako nije Muško ni Žensko, vraća nalog.png
+    return require("../assets/nalozi/nalog.png"); // Ako nije Muško ni Žensko, vraća nalog.png
   }
 };
 const maleImages = [
-  {id: "1", source: require("../assets/male1.png")},
-  {id: "2", source: require("../assets/male2.png") },
-  {id: "3", source: require("../assets/male3.png") },
-  {id: "4", source: require("../assets/male_account.png") },
+  {id: "1", source: require("../assets/nalozi/male1.png")},
+  {id: "2", source: require("../assets/nalozi/male2.png") },
+  {id: "3", source: require("../assets/nalozi/male3.png") },
+  {id: "4", source: require("../assets/nalozi/male_account.png") },
 ];
 
 const femaleImages = [
-  {id: "1", source: require("../assets/female1.png") },
-  {id: "2", source: require("../assets/female2.png") },
-  {id: "3", source: require("../assets/female3.png") },
-  {id: "4", source: require("../assets/female_account.png") },
+  {id: "1", source: require("../assets/nalozi/female1.png") },
+  {id: "2", source: require("../assets/nalozi/female2.png") },
+  {id: "3", source: require("../assets/nalozi/female3.png") },
+  {id: "4", source: require("../assets/nalozi/female_account.png") },
 ];
 
 const handleProfileImageChange = async (image) => {
-  setProfileImage(image);
-  setIsModalVisible(false); // Zatvori modal
+  if (!image) {
+    Alert.alert("Greška", "Nema slike za postaviti.");
+    return;
+  }
 
-  // Spremanje linka do slike u Firestore
+  setProfileImage(image);
+  setIsModalVisible(false);
+
   const auth = getAuth();
   const user = auth.currentUser;
 
   if (user) {
-    const userId = user.uid; // Koristi UID korisnika za putanju
+    const userId = user.uid;
     const userRef = doc(db, "users", userId);
 
     try {
-      // Dodaj sliku u podatke korisnika
       await setDoc(userRef, { profileImage: image }, { merge: true });
       console.log("Slika je uspešno sačuvana.");
     } catch (error) {
@@ -67,50 +69,49 @@ const handleProfileImageChange = async (image) => {
 };
 
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const auth = getAuth();
-      const user = auth.currentUser; // Dobijamo trenutnog korisnika
 
-      if (user) {
-        const userId = user.uid; // Uzimaš UID korisnika
-        const userRef = doc(db, "users", userId); // Koristimo Firestore doc() umesto ref()
+useEffect(() => {
+  const fetchUserData = async () => {
+    const auth = getAuth();
+    const user = auth.currentUser;
 
-        try {
-          const snapshot = await getDoc(userRef);
-          if (snapshot.exists()) {
-            const data = snapshot.data();
-            setUpdatedData({
-              name: data.name || "",
-              surname: data.surname || "",
-              gender: data.gender || "",
-              age: data.age || "",
-              dijabetes: data.dijabetes || "",
-              weight: data.weight || "",
-              height: data.height || ""
-            });
+    if (user) {
+      const userId = user.uid;
+      const userRef = doc(db, "users", userId);
 
-            if (data.profileImage) {
-              setProfileImage(data.profileImage);
-            } else {
-              // Ako nema spremljene slike, postavi default sliku
-              setProfileImage(getDefaultProfileImage(data.gender));
-            }
-            
+      try {
+        const snapshot = await getDoc(userRef);
+        if (snapshot.exists()) {
+          const data = snapshot.data();
+          setUpdatedData({
+            name: data.name || "",
+            surname: data.surname || "",
+            gender: data.gender || "",
+            age: data.age || "",
+            dijabetes: data.dijabetes || "",
+            weight: data.weight || "",
+            height: data.height || ""
+          });
+
+          // Set profileImage nakon što je korisnikov podatak učitan
+          if (data.profileImage) {
+            setProfileImage(data.profileImage);
           } else {
-            Alert.alert("Greška", "Podaci nisu pronađeni.");
+            setProfileImage(getDefaultProfileImage(data.gender));
           }
-        } catch (error) {
-          console.log("Greška pri čitanju podataka:", error);
-          Alert.alert("Greška", "Došlo je do greške prilikom čitanja podataka.");
-        }
-      } else {
-        Alert.alert("Greška", "Korisnik nije ulogovan.");
-      }
-    };
 
-    fetchUserData();
-  }, []);
+        } else {
+          Alert.alert("Greška", "Podaci nisu pronađeni.");
+        }
+      } catch (error) {
+        console.log("Greška pri čitanju podataka:", error);
+        Alert.alert("Greška", "Došlo je do greške prilikom čitanja podataka.");
+      }
+    }
+  };
+
+  fetchUserData();
+}, []);
 
   const handleSave = async () => {
     console.log("Dugme je pritisnuto!");
@@ -182,7 +183,7 @@ const handleProfileImageChange = async (image) => {
 
   const imagesToDisplay = user?.gender === "Muško" ? maleImages :
   user?.gender === "Žensko" ? femaleImages :
-  [{ id: "1", source: require("../assets/nalog.png") }];
+  [{ id: "1", source: require("../assets/nalozi/nalog.png") }];
   useEffect(() => {
     const defaultImage = getDefaultProfileImage();
     setProfileImage(defaultImage);

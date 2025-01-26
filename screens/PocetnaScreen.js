@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useUser } from '../context/UserContext';
 import Card from '../components/Card';
@@ -139,6 +139,8 @@ const PocetnaScreen = () => {
                 keyboardShouldPersistTaps="always"
                 style={styles.scrollableContainer}
               >
+                {/* Dodajemo slike na početak i kraj */}
+                <Image source={require('../assets/up.png')} style={styles.scrollIcon} />
                 {measurements
                   .sort((a, b) => b.timestamp.toDate() - a.timestamp.toDate())
                   .slice(0, 5)
@@ -164,6 +166,8 @@ const PocetnaScreen = () => {
                       </View>
                     </Card>
                   ))}
+                {/* Dodajemo slike na kraj */}
+                <Image source={require('../assets/down.png')} style={styles.scrollIcon} />
               </ScrollView>
             </>
           )}
@@ -193,7 +197,7 @@ const styles = StyleSheet.create({
   },
   card1: {
     width: '90%',
-    height: 200, // Ograničena visina kartice
+    height: 240, // Ograničena visina kartice
     alignItems: 'center',  // Centriranje kartice horizontalno
     justifyContent: 'center', // Centriranje kartice vertikalno
     marginBottom: 50,
@@ -234,7 +238,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
     textAlign: 'center',
-    marginBottom: 10
+    marginBottom: 5
   },
   subText: {
     fontSize: 14,
@@ -243,17 +247,17 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingHorizontal: 20,
   },
-editButton: {
-  backgroundColor: colors.primary,
-  borderRadius: 20,
-  padding: 10,
-  marginTop: 20,
-  alignItems: 'center',
-  justifyContent: 'center',
-  width: '70%', // Manja širina, prilagođena dugmetu
-  height: 40,
-  alignSelf: 'center', // Centriranje dugmeta unutar kartice
-},
+  editButton: {
+    backgroundColor: colors.primary,
+    borderRadius: 20,
+    padding: 10,
+    marginTop: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '70%', // Manja širina, prilagođena dugmetu
+    height: 40,
+    alignSelf: 'center', // Centriranje dugmeta unutar kartice
+  },
 
   editButtonText: {
     fontSize: 16,
@@ -263,6 +267,11 @@ editButton: {
     textAlign: 'center',
     marginTop: 20,
     fontSize: 20,
+  },
+  scrollIcon: {
+    width: 30,
+    height: 30,
+    marginVertical: 0,
   },
 });
 

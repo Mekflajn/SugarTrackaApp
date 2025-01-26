@@ -56,7 +56,7 @@ const IstorijaScreen = () => {
       const measurementDoc = doc(userDoc, 'measurements', id);
 
       await deleteDoc(measurementDoc);
-      Alert.alert('Obaveštenje', 'Uspešno obrisano.');
+      Alert.alert('Obavještenje', 'Uspešno obrisano.');
     } catch (error) {
       console.error('Greška pri brisanju merenja:', error);
     }
