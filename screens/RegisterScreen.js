@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TextInput, ActivityIndicator, TouchableOpacity, Image, ScrollView, Animated, Modal } from 'react-native';
+import { View, Text, StyleSheet, TextInput, ActivityIndicator, TouchableOpacity, Image, ScrollView, Modal, Alert } from 'react-native';
 import { useState } from 'react';
 import { doc, setDoc } from "firebase/firestore";
 import { FIREBASE_DB } from '../config/FirebaseConfig';
@@ -32,7 +32,7 @@ const RegisterScreen = ({ navigation, setIsAuthenticated }) => {
 
   const handleRegister = async () => {
     if (!name || !surname || !email || !password || !height || !weight || !age || !dijabetes || !gender) {
-      alert("Molimo unesite sve obavezne podatke.");
+      Alert.alert('Obavještenje',"Molimo vas unesite sve potrebne podatke.");
       return;
     }
 
@@ -57,11 +57,11 @@ const RegisterScreen = ({ navigation, setIsAuthenticated }) => {
       setIsAuthenticated(true);
     } catch (error) {
       if (error.code === 'auth/email-already-in-use') {
-        alert('Ova email adresa je već registrovana. Preusmeravanje na prijavu...');
+        Alert.alert('Obavještenje','Nalog sa ovom email adresom već postoji. Preusmjeravanje na prijavu...');
         navigation.navigate('LOGIN');
       } else {
         console.error('Greška: ', error.message);
-        alert('Greška prilikom registracije: ' + error.message);
+        Alert.alert('Obavještenje','Greška prilikom registracije.');
       }
     } finally {
       setLoading(false);
@@ -87,7 +87,7 @@ const RegisterScreen = ({ navigation, setIsAuthenticated }) => {
             <Text>Kreirajte svoj novi nalog!</Text>
           </View>
           <Image
-            source={require("../assets/logo.png")} // Zamenite sa stvarnim nazivom slike logotipa
+            source={require("../assets/logo.png")}
             style={styles.centeredLogo}
             />
 
@@ -114,6 +114,7 @@ const RegisterScreen = ({ navigation, setIsAuthenticated }) => {
               />
             </View>
 
+            {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
             <View style={styles.inputContainer}>
               <Image source={require('../assets/email.png')} style={styles.icon} />
               <TextInput
@@ -124,16 +125,15 @@ const RegisterScreen = ({ navigation, setIsAuthenticated }) => {
                 value={email}
                 onChangeText={(input) => {
                   setEmail(input);
-              
-                  // Proveri da li email odgovara regex-u
-                  if (emailRegex.test(input)) {
+                  if (input === '') {
+                    setEmailError('');
+                  } else if (emailRegex.test(input)) {
                     setEmailError('');
                   } else {
                     setEmailError('Unesite validnu email adresu');
                   }
                 }}
               />
-              {/*emailError ? <Text style={styles.errorText}>{emailError}</Text> : null*/}
             </View>
 
             <View style={styles.inputContainer}>
@@ -142,7 +142,7 @@ const RegisterScreen = ({ navigation, setIsAuthenticated }) => {
                 style={styles.input}
                 placeholder="Šifra"
                 autoCapitalize="none"
-                secureTextEntry={!isPasswordVisible}  // Prikazivanje/skrivanje lozinke
+                secureTextEntry={!isPasswordVisible}
                 value={password}
                 onChangeText={setPassword}
               />
@@ -162,11 +162,10 @@ const RegisterScreen = ({ navigation, setIsAuthenticated }) => {
                 keyboardType="numeric"
                 value={height}
                 onChangeText={(input) => {
-                  // Proverava da li unos sadrži samo brojeve
                   if (/^[0-9]*$/.test(input)) {
                     setHeight(input);
                   } else {
-                    setHeight(height); // Zadržava prethodni unos
+                    setHeight(height);
                   }
                 }}
               />
@@ -180,11 +179,10 @@ const RegisterScreen = ({ navigation, setIsAuthenticated }) => {
                 keyboardType="numeric"
                 value={weight}
                 onChangeText={(input) => {
-                  // Proverava da li unos sadrži samo brojeve
                   if (/^[0-9]*$/.test(input)) {
                     setWeight(input);
                   } else {
-                    setWeight(weight); // Zadržava prethodni unos
+                    setWeight(weight);
                   }
                 }}
               />
@@ -200,12 +198,10 @@ const RegisterScreen = ({ navigation, setIsAuthenticated }) => {
                 keyboardType="numeric"
                 value={age}
                 onChangeText={(input) => {
-                  // Proverava da li unos sadrži samo brojeve
                   if (/^[0-9]*$/.test(input)) {
                     setAge(input);
                   } else {
-                    // Ako unos nije broj, ništa ne menja
-                    setAge(age); // Zadržava prethodni unos
+                    setAge(age);
                   }
                 }}
               />
@@ -218,11 +214,10 @@ const RegisterScreen = ({ navigation, setIsAuthenticated }) => {
                 placeholder="Tip dijabetesa"
                 value={dijabetes}
                 onChangeText={(text) => {
-                  // Dozvoliti samo unos 1 ili 2
                   if (text === '1' || text === '2' || text === '') {
-                    setDijabetes(text); // Ažuriraj stanje samo ako je unos validan
+                    setDijabetes(text);
                   } else {
-                    alert('Unesite samo "1" za Tip 1 ili "2" za Tip 2'); // Prikazivanje greške
+                    alert('Unesite samo "1" za Tip 1 ili "2" za Tip 2');
                   }
                 }}
                 keyboardType="numeric"
@@ -290,7 +285,7 @@ const RegisterScreen = ({ navigation, setIsAuthenticated }) => {
     <View style={styles.modalContent}>
       <TouchableOpacity style={styles.backButton1} onPress={toggleTermsModal}>
         <Image
-          source={require('../assets/arrowBack.png')} // Ikona strelice
+          source={require('../assets/arrowBack.png')}
           style={styles.backIcon}
         />
       </TouchableOpacity>
@@ -325,7 +320,6 @@ const RegisterScreen = ({ navigation, setIsAuthenticated }) => {
       source={require('../assets/logo96.png')}/>
       <ScrollView style={styles.modalScroll}>
         <Text style={styles.modalText}>
-          {/* Ovde ubacite tekst za politiku privatnosti */}
           {strings.modalText2}
         </Text>
       </ScrollView>
@@ -353,11 +347,11 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   centeredLogo: {
-    width: 128, // Širina logotipa
-    height: 128, // Visina logotipa
-    resizeMode: 'contain', // Prilagođavanje slike unutar okvira
-    alignSelf: 'center', // Centriranje slike horizontalno
-    marginTop: 10, // Razmak između teksta i slike
+    width: 128, 
+    height: 128, 
+    resizeMode: 'contain', 
+    alignSelf: 'center', 
+    marginTop: 10,
     marginBottom: 20
   },
   backButton: {
@@ -403,7 +397,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 50,
     borderColor: colors.linija,
-    textAlignVertical: 'center', // Vertikalno centriranje teksta u inputu
+    textAlignVertical: 'center',
   },
   icon: {
     width: 24,
@@ -428,12 +422,12 @@ const styles = StyleSheet.create({
     borderColor: colors.primary,
     borderRadius: 10,
     padding: 5,
-    width: '49%', // Ograničava širinu na polovinu
+    width: '49%',
     marginBottom: 20
   },
   genderContainer: {
     marginBottom: 20,
-    flexDirection: 'row',  // Postavi dugmadi u horizontalni red 
+    flexDirection: 'row',
     alignItems: 'center',
   },
   tekst: {
@@ -447,19 +441,19 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.primary,
     borderRadius: 5,
-    marginHorizontal: 10, // Razmak između dugmadi
+    marginHorizontal: 10,
     width: 80
   },
   selectedGenderButton: {
     backgroundColor: colors.primary,
   },
   genderIcon: {
-    width: 36,  // Manje dimenzije za ikone
+    width: 36, 
     height: 36,
-    marginRight: 0, // Razmak između ikone i teksta
+    marginRight: 0,
   },
   genderButtonText: {
-    fontSize: 12, // Možda želiš smanjiti tekst da bude proporcionalan
+    fontSize: 12,
     color: 'black',
   },
   registerButton: {
@@ -500,7 +494,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Tamna pozadina
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
     backgroundColor: '#fff',
@@ -511,7 +505,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   modalScroll: {
-    maxHeight: 400, // Ograniči visinu teksta
+    maxHeight: 400,
     marginTop: 20,
   },
   modalTitle: {
@@ -523,8 +517,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     color: '#333',
-    marginBottom: 15, // Dodatni razmak između sekcija
+    marginBottom: 15,
   },
+  errorText: {
+    color: colors.primary,
+    fontSize: 12,
+    marginBottom: 5,
+    textAlign: 'center'
+  }
 });
 
 export default RegisterScreen;

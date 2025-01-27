@@ -40,7 +40,7 @@ const PocetnaScreen = () => {
 
         return unsubscribe;
       } catch (error) {
-        console.error('Greška pri povlačenju merenja:', error);
+        console.error('Greška pri povlačenju mjerenja iz baze:', error);
       }
     };
 
@@ -139,7 +139,6 @@ const PocetnaScreen = () => {
                 keyboardShouldPersistTaps="always"
                 style={styles.scrollableContainer}
               >
-                {/* Dodajemo slike na početak i kraj */}
                 <Image source={require('../assets/up.png')} style={styles.scrollIcon} />
                 {measurements
                   .sort((a, b) => b.timestamp.toDate() - a.timestamp.toDate())
@@ -166,7 +165,6 @@ const PocetnaScreen = () => {
                       </View>
                     </Card>
                   ))}
-                {/* Dodajemo slike na kraj */}
                 <Image source={require('../assets/down.png')} style={styles.scrollIcon} />
               </ScrollView>
             </>
@@ -197,23 +195,23 @@ const styles = StyleSheet.create({
   },
   card1: {
     width: '90%',
-    height: 240, // Ograničena visina kartice
-    alignItems: 'center',  // Centriranje kartice horizontalno
-    justifyContent: 'center', // Centriranje kartice vertikalno
+    height: 240,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 50,
     padding: 10,
     borderRadius: 10,
-    overflow: 'hidden', // Skriva sadržaj koji izlazi van kartice
-    flexDirection: 'column', // Osigurava da se kartice vertikalno slažu
-    alignSelf: 'center',  // Centriranje kartice unutar roditelja
+    overflow: 'hidden',
+    flexDirection: 'column',
+    alignSelf: 'center',  
   },
   scrollableContainer: {
-    height: '100%', // Scrollview treba da preuzme celu visinu kartice
+    height: '100%',
     paddingVertical: 10,
   },
   verticalListContainer: {
     width: '100%',
-    alignItems: 'center', // Centriranje elemenata unutar liste
+    alignItems: 'center',
     paddingVertical: 10,
   },
   measurementCard: {
@@ -225,8 +223,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 15,
     minHeight: 120,
-    alignSelf: 'center', // Centriranje kartice unutar Card1
-    flex: 1, // Osigurava da kartica koristi sav prostor
+    alignSelf: 'center',
+    flex: 1,
     marginHorizontal: 20
   },
   cardContent: {
@@ -254,14 +252,15 @@ const styles = StyleSheet.create({
     marginTop: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    width: '70%', // Manja širina, prilagođena dugmetu
+    width: '70%',
     height: 40,
-    alignSelf: 'center', // Centriranje dugmeta unutar kartice
+    alignSelf: 'center',
   },
 
   editButtonText: {
     fontSize: 16,
     fontWeight: 'bold',
+    color: '#fff'
   },
   loadingText: {
     textAlign: 'center',

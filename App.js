@@ -1,16 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { UserProvider } from './context/UserContext';
-import { SafeAreaView, StyleSheet, View, Image } from 'react-native';
+import { SafeAreaView, StyleSheet, View, Image, Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createStackNavigator } from "@react-navigation/stack";
 import 'react-native-gesture-handler';
-import Icon from "react-native-vector-icons/Ionicons";
 import colors from './constants/colors';
 import PocetnaScreen from './screens/PocetnaScreen';
-import LijekoviScreen from './screens/LijekoviScreen';
 import IstorijaScreen from './screens/IstorijaScreen';
 import IshranaScreen from './screens/IshranaScreen';
 import PodesavanjaNaloga from './screens/PodesavanjaNaloga';
@@ -19,28 +17,27 @@ import AuthChoiceScreen from './screens/AuthChoiceScreen';
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import TableteScreen from './screens/TableteScreen';
-import PodsjetniciScreen from './screens/PodsjetniciScreen';
 import Header from './components/Header';
 import { onAuthStateChanged } from 'firebase/auth';
-import { FIREBASE_AUTH, FIREBASE_DB } from './config/FirebaseConfig'; // Importuj iz FirebaseConfig
+import { FIREBASE_AUTH, FIREBASE_DB } from './config/FirebaseConfig'; 
 import { doc, getDoc } from 'firebase/firestore';
 import { onSnapshot } from 'firebase/firestore';
 import { firebase } from '@react-native-firebase/app';
 import { firebaseConfig } from '../SugarTrackApp/config/FirebaseConfig';
 import HranaScreen from './screens/HranaScreen';
 import EdukacijaScreen from './screens/EdukacijaScreen';
+import PreporuceniObrociScreen from './screens/PreporuceniObrociScreen';
 
 
 
 if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);  // Inicijalizacija Firebase-a
+  firebase.initializeApp(firebaseConfig);
 } else {
-  firebase.app(); // Koristi već inicijalizovanu instancu
+  firebase.app();
 }
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
-const Stack1 = createStackNavigator();
 const Stack2 = createStackNavigator();
 
 function IshranaStack() {
@@ -55,23 +52,12 @@ function IshranaStack() {
     <Stack2.Screen name='EDUKACIJA' component={EdukacijaScreen} options={{ 
   header: (props) => <Header {...props} title="EDUKACIJA" showBackButton={true}/> 
 }}/>
-  </Stack.Navigator>
-  );
-}
 
-function LijekoviStack() {
-  return(
-    <Stack.Navigator initialRouteName='LIJEKOVI'>
-      <Stack1.Screen name = "LIJEKOVI" component={LijekoviScreen} options={{ 
-  header: (props) => <Header {...props} title="LIJEKOVI" showBackButton={false}/> 
+<Stack2.Screen name='PREPORUCENI_OBROCI' component={PreporuceniObrociScreen} options={{ 
+  header: (props) => <Header {...props} title="PREPORUČENI OBROCI" showBackButton={true}/> 
 }}/>
-      <Stack1.Screen name = "TABLETE" component={TableteScreen} options={{ 
-  header: (props) => <Header {...props} title="TABLETE" showBackButton={true}/> 
-}}/>
-      <Stack1.Screen name = "PODSJETNICI" component={PodsjetniciScreen} options={{ 
-  header: (props) => <Header {...props} title="PODSJETNICI" showBackButton={true}/> 
-}}/>
-    </Stack.Navigator>
+
+  </Stack.Navigator>
   );
 }
 function AuthStack({ setIsAuthenticated }) {
@@ -95,7 +81,7 @@ function PocetnaStack() {
         name="POČETNA_STACK" 
         component={PocetnaScreen}
         options={{
-          header: () => <Header title="SUGARTRACK"/>
+          header: () => <Header title="SugarTrack"/>
         }}
       />
       <Stack.Screen 
@@ -141,7 +127,7 @@ function MainApp() {
       })}
     >
       <Tab.Screen name="ISTORIJA" component={IstorijaScreen} options={{ header: () => <Header title="ISTORIJA MJERENJA"/> }} />
-      <Tab.Screen name="LIJEKOVI" component={LijekoviStack} options={{ headerShown: false }} />
+      <Tab.Screen name="LIJEKOVI" component={TableteScreen} options={{ header: () => <Header title="LIJEKOVI"/> }} />
       <Tab.Screen name="POČETNA" component={PocetnaStack} options={{ headerShown: false }}  />
       <Tab.Screen name="ISHRANA" component={IshranaStack} options={{ headerShown: false }} />
       <Tab.Screen name="NALOG" component={PodesavanjaNaloga} options={{ header: () => <Header title="NALOG"/> }} />
@@ -158,7 +144,6 @@ export default function App() {
       if (user) {
         const docRef = doc(FIREBASE_DB, 'users', user.uid);
 
-        // Dodaj listener za promene u Firestore-u
         const unsubscribeSnapshot = onSnapshot(docRef, (docSnap) => {
           if (docSnap.exists()) {
             setUserData({
@@ -166,20 +151,20 @@ export default function App() {
               email: user.email,
               ...docSnap.data(),
             });
-            setIsAuthenticated(true); // Kada se korisnik autentifikuje
+            setIsAuthenticated(true);
           } else {
             console.warn('Dokument ne postoji za korisnika:', user.uid);
           }
         });
 
-        return unsubscribeSnapshot; // Clean-up za listener
+        return unsubscribeSnapshot;
       } else {
         setIsAuthenticated(false);
         setUserData(null);
       }
     });
 
-    return unsubscribe; // Clean-up za onAuthStateChanged
+    return unsubscribe;
   }, []);
 
   return (
@@ -189,6 +174,7 @@ export default function App() {
           <StatusBar style="auto" />
           <NavigationContainer>
             {isAuthenticated ? <MainApp /> : <AuthStack setIsAuthenticated={setIsAuthenticated} />}
+            <View style={{alignItems: 'center', backgroundColor: colors.pozadina, marginBottom: 5}}><Text style={{fontSize: 10, fontWeight: 'bold'}}>SugarTrack©</Text></View>
           </NavigationContainer>
         </SafeAreaView>
       </View>

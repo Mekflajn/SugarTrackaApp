@@ -16,22 +16,15 @@ const LoginScreen = ({ navigation, setIsAuthenticated }) => {
   const handleLogin = async () => {
     setLoading(true);
     try {
-      const userCredential = await signInWithEmailAndPassword(FIREBASE_AUTH, email, password);
-      const user = userCredential.user;
-      const userDoc = await getDoc(doc(FIREBASE_DB, "users", user.uid));
-
-      if (userDoc.exists()) {
-        setIsAuthenticated(true);
-      } else {
-        alert('Došlo je do greške prilikom preuzimanja podataka.');
-      }
+      await signInWithEmailAndPassword(FIREBASE_AUTH, email, password);
+      // Nema potrebe za ručnim setovanjem isAuthenticated
     } catch (error) {
       if (error.code === 'auth/user-not-found') {
-        alert('Nalog sa ovim podacima ne postoji.');
+        Alert.alert('Greška','Nalog sa ovim podacima ne postoji.');
       } else if (error.code === 'auth/wrong-password') {
-        alert('Pogrešna lozinka.');
+        Alert.alert('Greška','Pogrešna lozinka.');
       } else {
-        alert('Greška prilikom prijave: ' + error.message);
+        Alert.alert('Obavješenje','Greška prilikom prijave');
       }
     } finally {
       setLoading(false);
@@ -42,9 +35,9 @@ const LoginScreen = ({ navigation, setIsAuthenticated }) => {
     setIsResetLoading(true);
     try {
       await sendPasswordResetEmail(FIREBASE_AUTH, email);
-      alert('Poslali smo vam email za resetovanje lozinke!');
+      Alert.alert('Obavještenje','Poslali smo vam email za resetovanje lozinke!');
     } catch (error) {
-      alert('Greška prilikom slanja emaila molimo vas da upišete email u polje za unos.');
+      Alert.alert('Obavještenje','Greška prilikom slanja email-a molimo vas da upišete email u polje za unos.');
     } finally {
       setIsResetLoading(false);
     }
@@ -58,7 +51,6 @@ const LoginScreen = ({ navigation, setIsAuthenticated }) => {
         </View>
       ) : (
         <>
-          {/* Header */}
           <View style={styles.header}>
             <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
               <Image
@@ -69,18 +61,17 @@ const LoginScreen = ({ navigation, setIsAuthenticated }) => {
             <Text style={styles.title}>PRIJAVA KORISNIKA</Text>
           </View>
 
-          {/* Logo */}
           <View style={styles.logoContainer}>
             <Image source={require('../assets/logo.png')} style={styles.logo} />
           </View>
 
-          {/* Login Form */}
           <KeyboardAvoidingView behavior="padding" style={styles.form}>
             <View style={styles.inputContainer}>
               <Image source={require('../assets/email.png')} style={styles.icon} />
               <TextInput
                 style={styles.input}
                 placeholder="Email"
+                keyboardType="email-address"
                 autoCapitalize="none"
                 value={email}
                 onChangeText={setEmail}
@@ -92,25 +83,23 @@ const LoginScreen = ({ navigation, setIsAuthenticated }) => {
                 style={styles.input}
                 placeholder="Šifra"
                 autoCapitalize="none"
-                secureTextEntry={!isPasswordVisible}  // Prikazivanje/skrivanje lozinke
+                secureTextEntry={!isPasswordVisible}
                 value={password}
                 onChangeText={setPassword}
               />
               <TouchableOpacity onPress={() => setIsPasswordVisible(prevState => !prevState)} style={styles.iconButton}>
                 <Image
-                  source={isPasswordVisible ? require('../assets/visibility.png') : require('../assets/visibilitiOff.png')} // Ikona za otvaranje/zatvaranje oka
+                  source={isPasswordVisible ? require('../assets/visibility.png') : require('../assets/visibilitiOff.png')}
                   style={styles.iconVisibility}
                 />
               </TouchableOpacity>
             </View>
           </KeyboardAvoidingView>
 
-          {/* Login Button */}
           <TouchableOpacity onPress={handleLogin} style={styles.loginButton}>
             <Text style={styles.buttonText}>ULOGUJTE SE</Text>
           </TouchableOpacity>
 
-          {/* Forgot Password Link */}
           <TouchableOpacity onPress={handleResetPassword} style={styles.forgotPasswordLink}>
             {isResetLoading ? (
               <ActivityIndicator size="small" color={colors.primary} />
@@ -119,7 +108,6 @@ const LoginScreen = ({ navigation, setIsAuthenticated }) => {
             )}
           </TouchableOpacity>
 
-          {/* Register Link */}
           <TouchableOpacity onPress={() => navigation.navigate('REGISTER')} style={styles.footerLink}>
             <Text style={styles.footerText}>
               Nemate nalog?{' '}

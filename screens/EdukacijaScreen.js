@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, StyleSheet, Linking, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { View, Text, StyleSheet, Linking, TouchableOpacity, ScrollView } from 'react-native';
 import colors from '../constants/colors';
 
 const EdukacijaScreen = () => {
@@ -61,15 +61,6 @@ const EdukacijaScreen = () => {
     "Naučite se mjerenju krvnog pritiska – Redovno mjerenje krvnog pritiska može pomoći u prevenciji komplikacija.",
     "Podržite mentalno zdravlje – Posvetite pažnju i svom mentalnom zdravlju; meditacija, čitanje i razgovor s prijateljima mogu puno značiti."
   ];
-
-  const recipes = [
-    "Zdrava ovsena kaša s voćem",
-    "Pečeni losos s povrćem",
-    "Grčka salata s integralnim hlebom",
-    "Smoothie od špinata i badema",
-    "Piletina na žaru s brokolijem",
-  ];
-
   const books = [
     "Živjeti sa dijabetesom – Dr. Jane Doe",
     "Dijabetes i ishrana – John Smith",
@@ -93,7 +84,6 @@ const EdukacijaScreen = () => {
   const [randomLinks, setRandomLinks] = useState([]);
 
   useEffect(() => {
-    // Funkcija za biranje 5 nasumičnih linkova
     const getRandomLinks = (links, count) => {
       const shuffled = links.sort(() => 0.5 - Math.random());
       return shuffled.slice(0, count);
@@ -119,15 +109,6 @@ const EdukacijaScreen = () => {
 
         <Text style={styles.subtitle}>Nasumičan savjet:</Text>
         <Text style={styles.tip}>{randomTip}</Text>
-
-        <Text style={styles.subtitle}>Recepti za zdravu ishranu:</Text>
-        <ScrollView horizontal style={styles.horizontalScroll}>
-          {recipes.map((recipe, index) => (
-            <View key={index} style={styles.card}>
-              <Text style={styles.cardText}>{recipe}</Text>
-            </View>
-          ))}
-        </ScrollView>
 
         <Text style={styles.subtitle}>Knjige za edukaciju:</Text>
         <ScrollView horizontal style={styles.horizontalScroll}>
@@ -173,15 +154,16 @@ const styles = StyleSheet.create({
   },
   linkContainer: {
     padding: 10,
-    backgroundColor: '#e0e0e0',
-    borderRadius: 5,
+    backgroundColor: "#fff",
+    borderRadius: 20,
     marginBottom: 10,
     textAlign: 'center'
   },
   linkText: {
     fontSize: 16,
-    color: '#007bff',
+    color: colors.primary,
     textDecorationLine: 'underline',
+    textAlign: 'center'
   },
   subtitle: {
     fontSize: 18,
@@ -199,7 +181,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   card: {
-    backgroundColor: '#f0f0f0',
+    backgroundColor: "#fff",
     borderRadius: 10,
     padding: 15,
     marginHorizontal: 10,

@@ -14,7 +14,7 @@ const TableteScreen = () => {
     const [selectedTimes, setSelectedTimes] = useState([]);
     const userId = getAuth().currentUser?.uid;
 
-    const timeOrder = ["Jutro", "Podne", "Veče"]; // Definiši redosled vremena
+    const timeOrder = ["Jutro", "Podne", "Veče"];
 
     useEffect(() => {
         if (userId) {
@@ -27,10 +27,8 @@ const TableteScreen = () => {
                         ...doc.data(),
                     }));
 
-                    // Sortiraj prema timestamp-u, tako da najnoviji podaci budu na vrhu
                     tableteData.sort((a, b) => b.timestamp - a.timestamp);
 
-                    // Sortiraj vremena unutar svakog unosa
                     tableteData.forEach(tablet => {
                         if (Array.isArray(tablet.times)) {
                             tablet.times.sort((a, b) => timeOrder.indexOf(a) - timeOrder.indexOf(b));
@@ -39,7 +37,7 @@ const TableteScreen = () => {
 
                     setTablete(tableteData);
                 } catch (error) {
-                    console.error("Greška pri preuzimanju tableta:", error);
+                    console.error("Greška pri preuzimanju lijekova:", error);
                 }
             };
 
@@ -74,7 +72,6 @@ const TableteScreen = () => {
                     ...doc.data(),
                 }));
 
-                // Sortiraj prema timestamp-u i hronološki sortiraj vremena
                 tableteData.sort((a, b) => b.timestamp - a.timestamp);
                 tableteData.forEach(tablet => {
                     if (Array.isArray(tablet.times)) {
@@ -103,7 +100,6 @@ const TableteScreen = () => {
                 ...doc.data(),
             }));
 
-            // Ponovo sortiraj prema timestamp-u i hronološki sortiraj vremena
             tableteData.sort((a, b) => b.timestamp - a.timestamp);
             tableteData.forEach(tablet => {
                 if (Array.isArray(tablet.times)) {
@@ -118,10 +114,10 @@ const TableteScreen = () => {
 
     return (
         <View style={styles.screen}>
-            <Text style={styles.title}>Unesite naziv tablete</Text>
+            <Text style={styles.title}>Unesite naziv lijeka</Text>
             <TextInput
                 style={styles.input}
-                placeholder="Naziv tablete"
+                placeholder="Naziv lijeka"
                 value={nazivTablete}
                 onChangeText={setNazivTablete}
             />
@@ -137,7 +133,7 @@ const TableteScreen = () => {
                 ))}
             </View>
             <TouchableOpacity style={styles.addButton} onPress={addTablet}>
-                <Text style={styles.addButtonText}>Dodaj Tabletu</Text>
+                <Text style={styles.addButtonText}>Dodaj Lijek</Text>
             </TouchableOpacity>
             <FlatList
                 data={tablete || []}
@@ -204,13 +200,13 @@ const styles = StyleSheet.create({
     addButton: {
         padding: 10,
         backgroundColor: colors.primary,
-        borderRadius: 5,
+        borderRadius: 20,
         alignItems: 'center',
         marginBottom: 20,
     },
     addButtonText: {
-        color: '#fff',
         fontWeight: 'bold',
+        color: '#fff'
     },
     item: {
         flex: 1,
@@ -234,7 +230,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     flatListContent: {
-        paddingBottom: 120, // Dodano padding ispod FlatList-a
+        paddingBottom: 120,
     },
 });
 

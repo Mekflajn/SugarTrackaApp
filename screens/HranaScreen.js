@@ -24,8 +24,6 @@ const HranaScreen = () => {
                         id: doc.id,
                         ...doc.data(),
                     }));
-
-                    // Sortiraj obroke po timestamp-u, da najnoviji budu na vrhu
                     hranaData.sort((a, b) => b.timestamp.seconds - a.timestamp.seconds);
 
                     setHrana(hranaData);
@@ -56,7 +54,6 @@ const HranaScreen = () => {
                     ...doc.data(),
                 }));
 
-                // Sortiraj obroke po timestamp-u
                 hranaData.sort((a, b) => b.timestamp.seconds - a.timestamp.seconds);
 
                 setHrana(hranaData);
@@ -74,7 +71,6 @@ const HranaScreen = () => {
         try {
             const foodDocRef = doc(FIREBASE_DB, "users", userId, "food", hranaId);
             await deleteDoc(foodDocRef);
-            // Osvežavanje liste
             const foodRef = collection(FIREBASE_DB, "users", userId, "food");
             const querySnapshot = await getDocs(foodRef);
             const hranaData = querySnapshot.docs.map(doc => ({
@@ -82,7 +78,6 @@ const HranaScreen = () => {
                 ...doc.data(),
             }));
 
-            // Sortiraj obroke po timestamp-u
             hranaData.sort((a, b) => b.timestamp.seconds - a.timestamp.seconds);
 
             setHrana(hranaData);
@@ -183,7 +178,7 @@ const styles = StyleSheet.create({
     addButton: {
         padding: 10,
         backgroundColor: colors.primary,
-        borderRadius: 5,
+        borderRadius: 20,
         alignItems: 'center',
     },
     addButtonText: {

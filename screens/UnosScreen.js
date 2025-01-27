@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Image, StyleSheet, TouchableWithoutFeedback, Keyboard, Alert, Platform, ScrollView } from 'react-native';
-import { doc, collection, addDoc } from 'firebase/firestore'; // Za rad sa Firestore
-import { FIREBASE_DB } from '../config/FirebaseConfig'; // Tvoj Firebase DB objekat
-import { getAuth } from 'firebase/auth'; // Za rad sa Firebase Authentication
+import { doc, collection, addDoc } from 'firebase/firestore'; 
+import { FIREBASE_DB } from '../config/FirebaseConfig';
+import { getAuth } from 'firebase/auth';
 import colors from '../constants/colors';
 import { useNavigation } from '@react-navigation/native';
-import DateTimePicker from '@react-native-community/datetimepicker'; // Dodaj ovu liniju
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const UnosScreen = () => {
   const [glukoza, setGlukoza] = useState('');
@@ -13,14 +13,14 @@ const UnosScreen = () => {
   const [donjiPritisak, setDonjiPritisak] = useState('');
   const [puls, setPuls] = useState('');
   const [biljeske, setBiljeske] = useState('');
-  const [date, setDate] = useState(new Date());  // Novi state za datum
-  const [showDatePicker, setShowDatePicker] = useState(false);  // State za kontrolisanje prikaza date picker-a
+  const [date, setDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const navigation = useNavigation();
 
   const handleDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
-    setShowDatePicker(Platform.OS === 'ios' ? true : false);  // Drži picker otvorenim na iOS
-    setDate(currentDate);  // Postavi odabrani datum
+    setShowDatePicker(Platform.OS === 'ios' ? true : false);
+    setDate(currentDate); 
   };
 
   const saveData = async () => {
@@ -31,12 +31,12 @@ const UnosScreen = () => {
 
     try {
       const auth = getAuth();
-      const user = auth.currentUser; // Uzmi trenutno prijavljenog korisnika
+      const user = auth.currentUser;
       if (!user) {
         Alert.alert('Greška', 'Morate biti prijavljeni!');
         return;
       }
-      const uid = user.uid; // Uzmi UID korisnika
+      const uid = user.uid;
 
       const userDoc = doc(FIREBASE_DB, 'users', uid);
       const measurementsCollection = collection(userDoc, 'measurements');
@@ -47,12 +47,11 @@ const UnosScreen = () => {
         diastolicPressure: donjiPritisak,
         pulse: puls,
         notes: biljeske,
-        timestamp: date,  // Koristi izabrani datum
+        timestamp: date,
       };
 
-      await addDoc(measurementsCollection, newMeasurement); // Dodavanje novog dokumenta u Firestore
-      Alert.alert('Uspešno sačuvano', 'Podaci su uspešno sačuvani!');
-      // Resetovanje unosa nakon što su podaci sačuvani
+      await addDoc(measurementsCollection, newMeasurement);
+      Alert.alert('Obavještenje', 'Podaci su uspješno sačuvani!');
       setGlukoza('');
       setGornjiPritisak('');
       setDonjiPritisak('');
@@ -68,7 +67,6 @@ const UnosScreen = () => {
   return (
     <ScrollView>
     <View style={styles.container}>
-      {/* Unos glukoze */}
       <View style={styles.polja}>
         <Text style={styles.text}>VRIJEDNOST GLUKOZE</Text>
         <View style={styles.inputContainer}>
@@ -79,7 +77,6 @@ const UnosScreen = () => {
             keyboardType="decimal-pad"
             value={glukoza}
             onChangeText={(text) => {
-              // Dozvoljava samo brojeve i opcionalnu zapetu
               if (/^\d*\.?\d*$/.test(text)) {
                 setGlukoza(text);
               }
@@ -88,7 +85,6 @@ const UnosScreen = () => {
         </View>
       </View>
 
-      {/* Unos pritiska */}
       <View style={styles.polja}>
         <Text style={styles.text}>PRITISAK</Text>
         <View style={styles.inputContainer}>
@@ -99,9 +95,8 @@ const UnosScreen = () => {
           keyboardType="numeric"
           value={gornjiPritisak}
           onChangeText={(text) => {
-            // Dozvoljava samo brojeve ili prazno polje (za brisanje)
             if (/^\d*$/.test(text)) {
-              setGornjiPritisak(text); // Ažuriranje vrednosti
+              setGornjiPritisak(text);
             }
           }}
         />
@@ -114,16 +109,14 @@ const UnosScreen = () => {
           keyboardType="numeric"
           value={donjiPritisak}
           onChangeText={(text) => {
-            // Dozvoljava samo brojeve ili prazno polje (za brisanje)
             if (/^\d*$/.test(text)) {
-              setDonjiPritisak(text); // Ažuriranje vrednosti
+              setDonjiPritisak(text);
             }
           }}
         />
         </View>
       </View>
 
-      {/* Unos pulsa */}
       <View style={styles.polja}>
         <Text style={styles.text}>PULS</Text>
         <View style={styles.inputContainer}>
@@ -134,22 +127,20 @@ const UnosScreen = () => {
           keyboardType="numeric"
           value={puls}
           onChangeText={(text) => {
-            // Dozvoljava samo brojeve ili prazno polje (za brisanje)
             if (/^\d*$/.test(text)) {
-              setPuls(text); // Ažuriranje vrednosti
+              setPuls(text);
             }
           }}
         />
         </View>
       </View>
 
-      {/* Dodatne bilješke */}
       <View style={styles.polja}>
         <Text style={styles.text}>DODATNE BILJEŠKE</Text>
         <View style={styles.inputContainer}>
           <Image source={require('../assets/notes.png')} style={styles.icon} />
           <TextInput
-            style={[styles.input]} // Povećana visina za bilješke
+            style={[styles.input]}
             placeholder="Unesite dodatne bilješke ukoliko imate"
             multiline={true}
             value={biljeske}
@@ -158,7 +149,6 @@ const UnosScreen = () => {
         </View>
       </View>
 
-      {/* Dodaj dugme za odabir datuma */}
       <View style={styles.polja}>
         <Text style={styles.text}>DATUM I VRIJEME</Text>
         <TouchableWithoutFeedback onPress={() => setShowDatePicker(true)}>
@@ -169,7 +159,6 @@ const UnosScreen = () => {
         </TouchableWithoutFeedback>
       </View>
 
-      {/* DateTime Picker */}
       {showDatePicker && (
         <DateTimePicker
           value={date}
@@ -179,7 +168,6 @@ const UnosScreen = () => {
         />
       )}
 
-      {/* Potvrda */}
       <View style={styles.button}>
         <TouchableWithoutFeedback onPress={saveData}>
           <Text style={styles.editButtonText}>POTVRDI</Text>
@@ -220,7 +208,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 50,
     borderColor: colors.linija,
-    textAlignVertical: 'center', // Vertikalno centriranje teksta u inputu
+    textAlignVertical: 'center',
   },
   icon: {
     width: 24,

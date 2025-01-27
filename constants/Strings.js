@@ -67,7 +67,29 @@ const strings = {
   • Ograničite obradu podataka ili prigovorite na njihovu upotrebu.
 
 6. **Ažuriranja politike privatnosti**
-• Zadržavamo pravo izmjene ove politike. Svaka izmjena će biti objavljena u aplikaciji, a vi ćete biti obavešteni.`
+• Zadržavamo pravo izmjene ove politike. Svaka izmjena će biti objavljena u aplikaciji, a vi ćete biti obavešteni.`,
+
+modalText3: `
+**Ovaj sadržaj je zaštićen autorskim pravima.**
+
+1. **Vlasništvo**
+• Svi sadržaji u ovoj aplikaciji, uključujući tekstove, slike, logotipe, dizajn, grafiku, ikone i druge materijale, zaštićeni su autorskim pravima, zaštitnim znakovima i drugim pravima intelektualne svojine. Svi ovi sadržaji su vlasništvo autora ili lica koja su odobrila njihovo korišćenje. 
+
+2. **Zabrana kopiranja i distribucije**
+• Nije dozvoljeno kopiranje, reprodukcija, distribucija, prodaja, iznajmljivanje ili bilo kakvo drugo korišćenje sadržaja sa ove aplikacije u komercijalne svrhe bez prethodnog pisanog odobrenja autora.
+
+3. **Dozvoljene radnje**
+• Korišćenje aplikacije je dozvoljeno samo za ličnu, nekomercijalnu upotrebu u skladu sa zakonima o autorskim pravima. Zabranjeno je korišćenje bilo kojih delova sadržaja aplikacije u bilo kojoj formi, bez obzira na to da li je sadržaj modifikovan ili ne, osim ako nije izričito dozvoljeno u skladu sa pravilima.
+
+4. **Autorska prava trećih strana**
+• Svi materijali koji nisu u vlasništvu autora aplikacije i koji su korišćeni u aplikaciji (kao što su slike, softver, i drugi sadržaji) imaju svoje odgovarajuće nosioce prava. Korišćenje tih materijala podložno je uslovima koji se odnose na ta prava. 
+
+5. **Zaštita intelektualne svojine**
+• Intelektualna svojina koju posjeduje autor aplikacije uključuje, ali nije ograničena na: autorska prava, zaštitne znakove, patente, dizajn i druge oblike intelektualne svojine. Svi ovi oblici zaštite intelektualne svojine su zaštićeni važećim zakonima.
+
+© Sva prava zadržana 2025 | © Copyright 2025.
+SUGARTRACK© - Sve što vam treba za kontrolu dijabetesa na jednom mestu.
+`,
 
   };
   

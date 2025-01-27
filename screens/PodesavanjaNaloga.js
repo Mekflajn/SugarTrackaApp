@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity, Alert, TextInput, ScrollView, SafeAreaView, Modal, FlatList } from "react-native";
+import { View, Text, StyleSheet, Image, TouchableOpacity, Alert, TextInput, ScrollView, Modal, FlatList } from "react-native";
 import { getAuth } from "firebase/auth";
-import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
+import { getFirestore, doc, getDoc, setDoc, onSnapshot  } from "firebase/firestore";
 import colors from "../constants/colors";
 import { useUser } from "../context/UserContext";
 import Card from "../components/Card";
+import strings from "../constants/Strings";
+import { setLogLevel } from "firebase/app";
 
+setLogLevel('silent');
 const PodesavanjaNaloga = () => {
 const [profileImage, setProfileImage] = useState(null);
 const user = useUser();
@@ -15,31 +18,40 @@ const [updatedData, setUpdatedData] = useState({
     surname: user?.surname || "",
     gender: user?.gender || "",
   });
-const [isModalVisible, setIsModalVisible] = useState(false); // State za modal
+const [isModalVisible, setIsModalVisible] = useState(false);
+const [isInfoVisible, setIsInfoVisible] = useState(false);
 
-const db = getFirestore(); // Koristimo Firestore
+const handleInfoPress = () => {
+  setIsInfoVisible(true);
+}
+
+const handleCloseInfo = () => {
+  setIsInfoVisible(false);
+}
+
+const db = getFirestore();
 
 const getDefaultProfileImage = (gender) => {
   if (gender === "Žensko") {
-    return require("../assets/nalozi/female_account.png");
+    return require("../assets/nalozi/zenski_nalog/female_account.png");
   } else if (gender === "Muško") {
-    return require("../assets/nalozi/male_account.png");
+    return require("../assets/nalozi/muski_nalog/male_account.png");
   } else {
-    return require("../assets/nalozi/nalog.png"); // Ako nije Muško ni Žensko, vraća nalog.png
+    return require("../assets/nalozi/nalog.png");
   }
 };
 const maleImages = [
-  {id: "1", source: require("../assets/nalozi/male1.png")},
-  {id: "2", source: require("../assets/nalozi/male2.png") },
-  {id: "3", source: require("../assets/nalozi/male3.png") },
-  {id: "4", source: require("../assets/nalozi/male_account.png") },
+  {id: "1", source: require("../assets/nalozi/muski_nalog/male1.png")},
+  {id: "2", source: require("../assets/nalozi/muski_nalog/male2.png") },
+  {id: "3", source: require("../assets/nalozi/muski_nalog/male3.png") },
+  {id: "4", source: require("../assets/nalozi/muski_nalog/male_account.png") },
 ];
 
 const femaleImages = [
-  {id: "1", source: require("../assets/nalozi/female1.png") },
-  {id: "2", source: require("../assets/nalozi/female2.png") },
-  {id: "3", source: require("../assets/nalozi/female3.png") },
-  {id: "4", source: require("../assets/nalozi/female_account.png") },
+  {id: "1", source: require("../assets/nalozi/zenski_nalog/female1.png") },
+  {id: "2", source: require("../assets/nalozi/zenski_nalog/female2.png") },
+  {id: "3", source: require("../assets/nalozi/zenski_nalog/female3.png") },
+  {id: "4", source: require("../assets/nalozi/zenski_nalog/female_account.png") },
 ];
 
 const handleProfileImageChange = async (image) => {
@@ -75,6 +87,10 @@ useEffect(() => {
     const auth = getAuth();
     const user = auth.currentUser;
 
+    if (!user) {
+      return;
+    }
+
     if (user) {
       const userId = user.uid;
       const userRef = doc(db, "users", userId);
@@ -93,7 +109,6 @@ useEffect(() => {
             height: data.height || ""
           });
 
-          // Set profileImage nakon što je korisnikov podatak učitan
           if (data.profileImage) {
             setProfileImage(data.profileImage);
           } else {
@@ -113,17 +128,25 @@ useEffect(() => {
   fetchUserData();
 }, []);
 
+useEffect(() => {
+  const auth = getAuth();
+  const unsubscribe = onSnapshot(doc(db, "users", auth.currentUser?.uid), (snapshot) => {
+  });
+
+  return () => unsubscribe();
+}, []);
+
   const handleSave = async () => {
     console.log("Dugme je pritisnuto!");
     const auth = getAuth();
-    const user = auth.currentUser; // Dobijamo trenutnog korisnika
+    const user = auth.currentUser; 
 
     if (user) {
-      const userId = user.uid; // Koristi UID korisnika za putanju
-      const userRef = doc(db, "users", userId); // Koristi Firestore doc() umesto ref()
+      const userId = user.uid;
+      const userRef = doc(db, "users", userId); 
 
       const age = parseInt(updatedData.age, 10);
-      const weight = parseFloat(updatedData.weight.replace(',', '.')); // Zameni zapetu sa tačkom za decimalne brojeve
+      const weight = parseFloat(updatedData.weight.replace(',', '.'));
       const height = parseFloat(updatedData.height.replace(',', '.'));
 
       if (isNaN(age) || age <= 0) {
@@ -147,14 +170,14 @@ useEffect(() => {
       }
 
       const updatedUserData = {
-        ...updatedData, // uključuje ime, prezime, pol, itd.
-        dijabetes: updatedData.dijabetes, // dodajemo godine
+        ...updatedData,
+        dijabetes: updatedData.dijabetes,
       };
 
       try {
-        await setDoc(userRef, updatedData, { merge: true }); // Spremanje podataka sa merge za ažuriranje postojećih podataka
+        await setDoc(userRef, updatedData, { merge: true });
         console.log("Podaci za čuvanje:", updatedData);
-        Alert.alert("Uspešno", "Podaci su sačuvani.");
+        Alert.alert("Obavještenje", "Podaci su uspješno sačuvani.");
         setIsEditing(false);
       } catch (error) {
         console.log("Greška pri čuvanju podataka:", error);
@@ -167,14 +190,14 @@ useEffect(() => {
 
   const handleCancel = () => {
     setIsEditing(false);
-    Alert.alert("Poništeno", "Izmjene su odbačene.");
+    Alert.alert("Obavještenje", "Izmjene su odbačene.");
   };
 
   const handleLogout = async () => {
     const auth = getAuth();
     try {
-      await auth.signOut(); // Odjavite korisnika
-      Alert.alert('Odjavili ste se', 'Uspešno ste se odjavili sa naloga.');
+      await auth.signOut();
+      Alert.alert('Odjavili ste se', 'Uspješno ste se odjavili sa naloga.');
     } catch (error) {
       console.log("Greška pri odjavi:", error);
       Alert.alert('Greška', 'Došlo je do greške pri odjavi.');
@@ -201,6 +224,35 @@ useEffect(() => {
         <Image source={profileImage || getDefaultProfileImage(user?.gender)} style={styles.image} />
         <Text style={styles.editImageText}>Promijeni sliku</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity style={styles.infoIconContainer} onPress={handleInfoPress}>
+          <Image source={require('../assets/info.png')} style={styles.infoIcon} />
+      </TouchableOpacity>
+
+      <Modal
+          visible={isInfoVisible}
+          animationType="fade"
+          transparent={true}
+          onRequestClose={setIsInfoVisible}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <TouchableOpacity onPress={handleCloseInfo} style={styles.closeButton}>
+                <Image source={require("../assets/arrowBack.png")} style={styles.backArrow} />
+              </TouchableOpacity>
+              <Image source={require("../assets/logo96.png")}/>
+              <ScrollView style={styles.modalTextContainer}>                
+                <Text style={styles.modalTitle}>Autorska prava (Copy Rights)</Text>
+                <Text style={styles.modalText}>{strings.modalText3}</Text>
+                <Text>{"\n"}</Text>
+                <Text style={styles.modalTitle}>Uslovi korišćenja (Terms of Use)</Text>
+                <Text style={styles.modalText}>{strings.modalText1}</Text>
+                <Text>{"\n"}</Text>
+                <Text style={styles.modalTitle}>Politika privatnosti (Privacy Policy)</Text>
+                <Text style={styles.modalText}>{strings.modalText2}</Text>
+              </ScrollView>
+            </View>
+          </View>
+        </Modal>
 
       <Modal
         visible={isModalVisible}
@@ -286,7 +338,6 @@ useEffect(() => {
               value={updatedData.age}
               placeholder="Godine"
               onChangeText={(text) => {
-                // Provera da li je unos samo broj
                 if (/^\d+$/.test(text)) {
                   setUpdatedData({ ...updatedData, age: text });
                 }
@@ -317,7 +368,6 @@ useEffect(() => {
               value={updatedData.weight}
               placeholder="Masa"
               onChangeText={(text) => {
-                // Provera da li je unos validan broj
                 if (/^\d*\.?\d*$/.test(text)) {
                   setUpdatedData({ ...updatedData, weight: text });
                 }
@@ -335,7 +385,6 @@ useEffect(() => {
               value={updatedData.height}
               placeholder="Visina"
               onChangeText={(text) => {
-                // Provera da li je unos validan broj
                 if (/^\d*\.?\d*$/.test(text)) {
                   setUpdatedData({ ...updatedData, height: text });
                 }
@@ -434,7 +483,7 @@ const styles = StyleSheet.create({
   },
   genderContainer: {
     marginBottom: 20,
-    flexDirection: 'row',  // Postavi dugmadi u horizontalni red 
+    flexDirection: 'row', 
     alignItems: 'center',
     justifyContent: 'center'
   },
@@ -445,19 +494,19 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.primary,
     borderRadius: 5,
-    marginHorizontal: 10, // Razmak između dugmadi
+    marginHorizontal: 10,
     width: 48,
   },
   selectedGenderButton: {
     backgroundColor: colors.primary,
   },
   genderIcon: {
-    width: 36,  // Manje dimenzije za ikone
+    width: 36, 
     height: 36,
-    marginRight: 0, // Razmak između ikone i teksta
+    marginRight: 0,
   },
   genderButtonText: {
-    fontSize: 12, // Možda želiš smanjiti tekst da bude proporcionalan
+    fontSize: 12,
     color: 'black',
   },
   editButton: {
@@ -523,7 +572,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 10,
     alignItems: "center",
-    width: "80%",  // Modal širi širinu
+    width: "80%",
     maxHeight: "80%"
   },
   modalImage: {
@@ -543,6 +592,36 @@ const styles = StyleSheet.create({
     height: 30,
     tintColor: 'black',
   },
+  infoIconContainer: {
+    position: "absolute",
+    top: 20,
+    right: 20,
+    zIndex: 1,
+  },
+  infoIcon: {
+    width: 32,
+    height: 32,
+  },
+  modalTextContainer: {
+    marginTop: 30,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+    marginTop: 20,
+    textAlign: 'center'
+  },
+  modalText: {
+    fontSize: 14,
+    marginBottom: 10,
+  },
+  closeButton: {
+    position: "absolute",
+    top: 10,
+    left: 10,
+  },
+
 });
 
 export default PodesavanjaNaloga;
