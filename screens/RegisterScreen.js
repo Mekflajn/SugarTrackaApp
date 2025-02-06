@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { doc, setDoc } from "firebase/firestore";
 import { FIREBASE_DB } from '../config/FirebaseConfig';
 import { FIREBASE_AUTH } from '../config/FirebaseConfig';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, getAuth } from 'firebase/auth';
 import colors from '../constants/colors';
 import strings from '../constants/Strings';
 import zxcvbn from 'zxcvbn';
@@ -30,9 +30,33 @@ const RegisterScreen = ({ navigation, setIsAuthenticated }) => {
   const toggleTermsModal = () => setTermsModalVisible(!isTermsModalVisible);
   const togglePrivacyModal = () => setPrivacyModalVisible(!isPrivacyModalVisible);
 
+  // Funkcija za validaciju email formata
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleRegister = async () => {
     if (!name || !surname || !email || !password || !height || !weight || !age || !dijabetes || !gender) {
       Alert.alert('Obavještenje',"Molimo vas unesite sve potrebne podatke.");
+      return;
+    }
+
+    // Validacija email formata
+    if (!isValidEmail(email)) {
+      Alert.alert(
+        "Greška",
+        "Unesite email adresu u ispravnom formatu!"
+      );
+      return;
+
+    }
+
+    if (password.length < 8) {
+      Alert.alert(
+        "Greška",
+        "Šifra mora sadržati najmanje 8 karaktera!"
+      );
       return;
     }
 

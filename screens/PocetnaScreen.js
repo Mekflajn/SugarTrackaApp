@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
   },
   card1: {
     width: '90%',
-    minHeight: 200,
+    minHeight: 300,
     backgroundColor: 'white',
     borderRadius: 10,
     padding: 15,
@@ -270,6 +270,7 @@ const styles = StyleSheet.create({
     marginVertical: 6,
     alignSelf: 'center',
     backgroundColor: colors.pozadina,
+    minHeight: 150,
     borderRadius: 8,
     padding: 12,
   },
@@ -321,7 +322,7 @@ const styles = StyleSheet.create({
   },
   measurementsScrollView: {
     width: '100%',
-    maxHeight: 200,
+    maxHeight: 250,
   },
   measurementHeader: {
     flexDirection: 'row',

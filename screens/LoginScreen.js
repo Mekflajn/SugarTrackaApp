@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, ActivityIndicator, Image, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, ActivityIndicator, Image, Platform, Alert } from 'react-native';
 import { FIREBASE_AUTH } from '../config/FirebaseConfig';
 import { FIREBASE_DB } from '../config/FirebaseConfig';
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";  // Dodajte sendPasswordResetEmail
 import { doc, getDoc } from "firebase/firestore";
+
 import colors from '../constants/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -17,6 +18,13 @@ const LoginScreen = ({ navigation, setIsAuthenticated }) => {
   const handleLogin = async () => {
     setLoading(true);
     try {
+      if (!email || !password) {
+        Alert.alert(
+          "Greška",
+          "Molimo popunite sva polja!"
+        );
+        return;
+      }
       const userCredential = await signInWithEmailAndPassword(FIREBASE_AUTH, email, password);
       const user = userCredential.user;
       
@@ -35,7 +43,9 @@ const LoginScreen = ({ navigation, setIsAuthenticated }) => {
         Alert.alert('Greška','Nalog sa ovim podacima ne postoji.');
       } else if (error.code === 'auth/wrong-password') {
         Alert.alert('Greška','Pogrešna lozinka.');
-      } else {
+      } else if (error.code === 'auth/invalid-credential'){
+        Alert.alert('Obavještenje','Pogrešan email ili lozinka.');
+      }else {
         Alert.alert('Obavješenje','Greška prilikom prijave');
       }
     } finally {
