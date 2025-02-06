@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { UserProvider } from './context/UserContext';
-import { SafeAreaView, StyleSheet, View, Image, Text } from 'react-native';
+import { SafeAreaView, StyleSheet, View, Image, Text, Keyboard, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -96,6 +96,23 @@ function PocetnaStack() {
 }
 
 function MainApp() {
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", () => {
+      setKeyboardVisible(true);
+    });
+
+    const keyboardDidHideListener = Keyboard.addListener("keyboardDidHide", () => {
+      setKeyboardVisible(false);
+    });
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
+
   return (
     <Tab.Navigator
       initialRouteName="POČETNA"
@@ -122,7 +139,7 @@ function MainApp() {
         },
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.neaktivna,
-        tabBarStyle: styles.tabBarStyle,
+        tabBarStyle: isKeyboardVisible ? { display: 'none' } : styles.tabBarStyle,
         tabBarLabelStyle: { fontSize: 10 },
       })}
     >
@@ -174,7 +191,7 @@ export default function App() {
           <StatusBar style="auto" />
           <NavigationContainer>
             {isAuthenticated ? <MainApp /> : <AuthStack setIsAuthenticated={setIsAuthenticated} />}
-            <View style={{alignItems: 'center', backgroundColor: colors.pozadina, marginBottom: 5}}><Text style={{fontSize: 10, fontWeight: 'bold'}}>SugarTrack©</Text></View>
+            {/*<View style={{alignItems: 'center', backgroundColor: colors.pozadina, marginBottom: 5}}><Text style={{fontSize: 10, fontWeight: 'bold'}}>SugarTrack©</Text></View>*/}
           </NavigationContainer>
         </SafeAreaView>
       </View>
@@ -197,7 +214,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginHorizontal: '10%',
     bottom: 0,
-    marginTop: 110
+    marginTop: 110,
   },
   icon: {
     width: 48,

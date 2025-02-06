@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, ActivityIndicator, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, ActivityIndicator, Image, Platform } from 'react-native';
 import { FIREBASE_AUTH } from '../config/FirebaseConfig';
 import { FIREBASE_DB } from '../config/FirebaseConfig';
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";  // Dodajte sendPasswordResetEmail
@@ -16,8 +16,14 @@ const LoginScreen = ({ navigation, setIsAuthenticated }) => {
   const handleLogin = async () => {
     setLoading(true);
     try {
-      await signInWithEmailAndPassword(FIREBASE_AUTH, email, password);
-      // Nema potrebe za ručnim setovanjem isAuthenticated
+      const userCredential = await signInWithEmailAndPassword(FIREBASE_AUTH, email, password);
+      const user = userCredential.user;
+      const userDoc = await getDoc(doc(FIREBASE_DB, "users", user.uid));
+      if (userDoc.exists()) {
+        setIsAuthenticated(true);
+      } else {
+        alert('Došlo je do greške prilikom preuzimanja podataka.');
+      }
     } catch (error) {
       if (error.code === 'auth/user-not-found') {
         Alert.alert('Greška','Nalog sa ovim podacima ne postoji.');

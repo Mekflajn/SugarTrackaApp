@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity, Alert, TextInput, ScrollView, Modal, FlatList } from "react-native";
+import React, { useState, useEffect, useCallback  } from "react";
+import { View, Text, StyleSheet, Image, TouchableOpacity, Alert, TextInput, ScrollView, Modal, FlatList, KeyboardAvoidingView, Platform } from "react-native";
 import { getAuth } from "firebase/auth";
 import { getFirestore, doc, getDoc, setDoc, onSnapshot  } from "firebase/firestore";
 import colors from "../constants/colors";
@@ -7,6 +7,7 @@ import { useUser } from "../context/UserContext";
 import Card from "../components/Card";
 import strings from "../constants/Strings";
 import { setLogLevel } from "firebase/app";
+import { useFocusEffect } from "@react-navigation/native";
 
 setLogLevel('silent');
 const PodesavanjaNaloga = () => {
@@ -18,7 +19,6 @@ const [updatedData, setUpdatedData] = useState({
     surname: user?.surname || "",
     gender: user?.gender || "",
   });
-const [isModalVisible, setIsModalVisible] = useState(false);
 const [isInfoVisible, setIsInfoVisible] = useState(false);
 
 const handleInfoPress = () => {
@@ -33,50 +33,11 @@ const db = getFirestore();
 
 const getDefaultProfileImage = (gender) => {
   if (gender === "Žensko") {
-    return require("../assets/nalozi/zenski_nalog/female_account.png");
+    return require("../assets/female_account.png");
   } else if (gender === "Muško") {
-    return require("../assets/nalozi/muski_nalog/male_account.png");
+    return require("../assets/male_account.png");
   } else {
-    return require("../assets/nalozi/nalog.png");
-  }
-};
-const maleImages = [
-  {id: "1", source: require("../assets/nalozi/muski_nalog/male1.png")},
-  {id: "2", source: require("../assets/nalozi/muski_nalog/male2.png") },
-  {id: "3", source: require("../assets/nalozi/muski_nalog/male3.png") },
-  {id: "4", source: require("../assets/nalozi/muski_nalog/male_account.png") },
-];
-
-const femaleImages = [
-  {id: "1", source: require("../assets/nalozi/zenski_nalog/female1.png") },
-  {id: "2", source: require("../assets/nalozi/zenski_nalog/female2.png") },
-  {id: "3", source: require("../assets/nalozi/zenski_nalog/female3.png") },
-  {id: "4", source: require("../assets/nalozi/zenski_nalog/female_account.png") },
-];
-
-const handleProfileImageChange = async (image) => {
-  if (!image) {
-    Alert.alert("Greška", "Nema slike za postaviti.");
-    return;
-  }
-
-  setProfileImage(image);
-  setIsModalVisible(false);
-
-  const auth = getAuth();
-  const user = auth.currentUser;
-
-  if (user) {
-    const userId = user.uid;
-    const userRef = doc(db, "users", userId);
-
-    try {
-      await setDoc(userRef, { profileImage: image }, { merge: true });
-      console.log("Slika je uspešno sačuvana.");
-    } catch (error) {
-      console.log("Greška pri čuvanju slike:", error);
-      Alert.alert("Greška", "Došlo je do greške prilikom čuvanja slike.");
-    }
+    return require("../assets/nalog.png");
   }
 };
 
@@ -127,6 +88,14 @@ useEffect(() => {
 
   fetchUserData();
 }, []);
+
+useFocusEffect(
+  useCallback(() => {
+    return () => {
+      setIsEditing(false);
+    };
+  }, [])
+);
 
 useEffect(() => {
   const auth = getAuth();
@@ -204,26 +173,18 @@ useEffect(() => {
     }
   };
 
-  const imagesToDisplay = user?.gender === "Muško" ? maleImages :
-  user?.gender === "Žensko" ? femaleImages :
-  [{ id: "1", source: require("../assets/nalozi/nalog.png") }];
-  useEffect(() => {
-    const defaultImage = getDefaultProfileImage();
-    setProfileImage(defaultImage);
-  }, []);
-
   useEffect(() => {
     const defaultImage = getDefaultProfileImage(user?.gender);
     setProfileImage(defaultImage);
   }, [user?.gender]);
 
   return (
+    <KeyboardAvoidingView style={{flex: 1, backgroundColor: colors.pozadina, paddingBottom: 110}} behavior='padding' keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}>
     <ScrollView style={styles.scrollContainer}>
     <View style={styles.screen}>
-      <TouchableOpacity style={styles.imageContainer} onPress={() => setIsModalVisible(true)}>
-        <Image source={profileImage || getDefaultProfileImage(user?.gender)} style={styles.image} />
-        <Text style={styles.editImageText}>Promijeni sliku</Text>
-      </TouchableOpacity>
+      <View style={styles.imageContainer}>
+        <Image source={getDefaultProfileImage(user?.gender)} style={styles.image} />
+      </View>
 
       <TouchableOpacity style={styles.infoIconContainer} onPress={handleInfoPress}>
           <Image source={require('../assets/info.png')} style={styles.infoIcon} />
@@ -254,34 +215,7 @@ useEffect(() => {
           </View>
         </Modal>
 
-      <Modal
-        visible={isModalVisible}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setIsModalVisible(false)}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-          <TouchableOpacity onPress={() => setIsModalVisible(false)} style={styles.backButton}>
-              <Image source={require("../assets/arrowBack.png")} style={styles.backArrow} />
-            </TouchableOpacity>
-            <FlatList
-              data={imagesToDisplay}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <TouchableOpacity onPress={() => handleProfileImageChange(item.source)}>
-                  <Image source={item.source} style={styles.modalImage} />
-                </TouchableOpacity>
-              )}
-            />
-            <TouchableOpacity onPress={() => setIsModalVisible(false)} style={styles.closeButton}>
-              <Text style={styles.buttonText}>Zatvori</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Korišćenje Card komponente */}
-      <Card style={styles.card}>
+      <View style={styles.card}>
         <View style={styles.infoContainer}>
           <Text style={styles.infoLabel}>Ime i prezime</Text>
           {isEditing ? (
@@ -338,7 +272,7 @@ useEffect(() => {
               value={updatedData.age}
               placeholder="Godine"
               onChangeText={(text) => {
-                if (/^\d+$/.test(text)) {
+                if (/^\d*\.?\d*$/.test(text)) {
                   setUpdatedData({ ...updatedData, age: text });
                 }
               }}
@@ -395,7 +329,7 @@ useEffect(() => {
           <Text style={styles.infoValue}>{user?.height || "N/A"} cm</Text>
           )}
         </View>
-      </Card>
+      </View>
 
       {!isEditing ? (
         <View style={styles.editDugmad}>
@@ -420,6 +354,7 @@ useEffect(() => {
       )}
     </View>
     </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -431,7 +366,7 @@ const styles = StyleSheet.create({
   screen: {
     padding: 20,
     flex: 1,
-    paddingBottom: 120,
+    paddingBottom: 150,
     alignItems: 'center'
   },
   imageContainer: {
@@ -450,58 +385,75 @@ const styles = StyleSheet.create({
   card: {
     marginBottom: 20,
     width: '90%',
-    borderRadius: 20
+    borderRadius: 20,
+    justifyContent: 'center',
+    flexDirection: 'column',
+    marginHorizontal: '5%',
+    backgroundColor: 'white',
+    padding: 15,
+    // Elevation for Android
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.8,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 5,
+      },
+    }),
   },
   infoContainer: {
     marginBottom: 20,
   },
   infoLabel: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginBottom: 8,
   },
   infoValue: {
     fontSize: 16,
-    color: "#333",
+    color: '#333',
     marginBottom: 12,
   },
   input: {
-    width: "100%",
+    width: '100%',
     padding: 10,
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: '#ccc',
     borderRadius: 5,
     marginBottom: 12,
   },
   inputHalf: {
-    width: "48%",
-    marginRight: "4%",
+    width: '48%',
+    marginRight: '4%',
   },
   row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   genderContainer: {
     marginBottom: 20,
-    flexDirection: 'row', 
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   genderButton: {
     flexDirection: 'column',
     alignItems: 'center',
     padding: 10,
     borderWidth: 1,
-    borderColor: colors.primary,
+    borderColor: colors.primary, // Replace with your primary color
     borderRadius: 5,
     marginHorizontal: 10,
     width: 48,
   },
   selectedGenderButton: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.primary, // Replace with your primary color
   },
   genderIcon: {
-    width: 36, 
+    width: 36,
     height: 36,
     marginRight: 0,
   },

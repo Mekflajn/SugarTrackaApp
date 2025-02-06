@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TextInput, ActivityIndicator, TouchableOpacity, Image, ScrollView, Modal, Alert } from 'react-native';
+import { View, Text, StyleSheet, TextInput, ActivityIndicator, TouchableOpacity, Image, ScrollView, Modal, Alert, KeyboardAvoidingView, Platform  } from 'react-native';
 import { useState } from 'react';
 import { doc, setDoc } from "firebase/firestore";
 import { FIREBASE_DB } from '../config/FirebaseConfig';
@@ -69,6 +69,7 @@ const RegisterScreen = ({ navigation, setIsAuthenticated }) => {
   };
 
   return (
+    <KeyboardAvoidingView style={{backgroundColor: colors.pozadina}} behavior='padding' keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}>
     <ScrollView contentContainerStyle={styles.screen}>
       {loading ? (
         <View style={styles.loadingContainer}>
@@ -217,7 +218,7 @@ const RegisterScreen = ({ navigation, setIsAuthenticated }) => {
                   if (text === '1' || text === '2' || text === '') {
                     setDijabetes(text);
                   } else {
-                    alert('Unesite samo "1" za Tip 1 ili "2" za Tip 2');
+                    Alert.alert('Obavještenje','Unesite samo "1" za Tip 1 ili "2" za Tip 2');
                   }
                 }}
                 keyboardType="numeric"
@@ -327,6 +328,7 @@ const RegisterScreen = ({ navigation, setIsAuthenticated }) => {
   </View>
 </Modal>
     </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 

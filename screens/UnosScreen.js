@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Image, StyleSheet, TouchableWithoutFeedback, Keyboard, Alert, Platform, ScrollView } from 'react-native';
+import { View, Text, TextInput, Image, StyleSheet, TouchableWithoutFeedback, Keyboard, Alert, Platform, ScrollView, KeyboardAvoidingView } from 'react-native';
 import { doc, collection, addDoc } from 'firebase/firestore'; 
 import { FIREBASE_DB } from '../config/FirebaseConfig';
 import { getAuth } from 'firebase/auth';
@@ -29,6 +29,24 @@ const UnosScreen = () => {
       return;
     }
 
+    let upozorenje = "";
+
+  if (parseInt(gornjiPritisak) > 140) {
+    upozorenje += "Povišen gornji pritisak!";
+  }
+  if (parseInt(donjiPritisak) > 100) {
+    upozorenje += "Povišen donji pritisak!";
+  }
+  if (parseInt(puls) > 100) {
+    upozorenje += "Povišen puls!";
+  }
+
+  let noveBiljeske = biljeske;
+  if (upozorenje) {
+    noveBiljeske = biljeske ? `${biljeske}\n${upozorenje}` : upozorenje;
+  }
+
+
     try {
       const auth = getAuth();
       const user = auth.currentUser;
@@ -46,7 +64,7 @@ const UnosScreen = () => {
         systolicPressure: gornjiPritisak,
         diastolicPressure: donjiPritisak,
         pulse: puls,
-        notes: biljeske,
+        notes: noveBiljeske,
         timestamp: date,
       };
 
@@ -65,6 +83,7 @@ const UnosScreen = () => {
   };
 
   return (
+    
     <ScrollView>
     <View style={styles.container}>
       <View style={styles.polja}>
@@ -77,7 +96,7 @@ const UnosScreen = () => {
             keyboardType="decimal-pad"
             value={glukoza}
             onChangeText={(text) => {
-              if (/^\d*\.?\d*$/.test(text)) {
+              if (/^\d*\.?\d*$/.test(text) && (text === "" || parseFloat(text) <= 33.3)) {
                 setGlukoza(text);
               }
             }}
@@ -90,16 +109,16 @@ const UnosScreen = () => {
         <View style={styles.inputContainer}>
           <Image source={require('../assets/heart.png')} style={styles.icon} />
           <TextInput
-          style={styles.input}
-          placeholder="Unesite vrijednost gornjeg pritiska"
-          keyboardType="numeric"
-          value={gornjiPritisak}
-          onChangeText={(text) => {
-            if (/^\d*$/.test(text)) {
-              setGornjiPritisak(text);
-            }
-          }}
-        />
+            style={styles.input}
+            placeholder="Unesite vrijednost gornjeg pritiska"
+            keyboardType="numeric"
+            value={gornjiPritisak}
+            onChangeText={(text) => {
+              if (/^\d*$/.test(text) && (text === "" || parseInt(text) <= 200)) {
+                setGornjiPritisak(text);
+              }
+            }}
+          />
         </View>
         <View style={styles.inputContainer}>
           <Image source={require('../assets/heart.png')} style={styles.icon} />
@@ -109,7 +128,7 @@ const UnosScreen = () => {
           keyboardType="numeric"
           value={donjiPritisak}
           onChangeText={(text) => {
-            if (/^\d*$/.test(text)) {
+            if (/^\d*$/.test(text) && (text === "" || parseInt(text) <= 120)) {
               setDonjiPritisak(text);
             }
           }}
@@ -127,7 +146,7 @@ const UnosScreen = () => {
           keyboardType="numeric"
           value={puls}
           onChangeText={(text) => {
-            if (/^\d*$/.test(text)) {
+            if (/^\d*$/.test(text) && (text === "" || parseInt(text) <= 200)) {
               setPuls(text);
             }
           }}

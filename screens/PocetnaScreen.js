@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, ScrollView, Image, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useUser } from '../context/UserContext';
 import Card from '../components/Card';
@@ -92,7 +92,7 @@ const PocetnaScreen = () => {
           </View>
         </Card>
 
-        <Card style={styles.card}>
+        <View style={styles.card2}>
           {measurements.length === 0 ? (
             <Text style={styles.text}>TRENUTNO NEMATE NITI JEDNO MJERENJE.</Text>
           ) : (
@@ -123,14 +123,14 @@ const PocetnaScreen = () => {
               />
             </>
           )}
-        </Card>
+        </View>
 
-        <Card style={styles.card1}>
+        <View style={styles.card1}>
           {measurements.length === 0 ? (
             <Text style={styles.text}>TRENUTNO NEMATE NITI JEDNO MJERENJE.</Text>
           ) : (
             <>
-              <Text style={styles.text}>LISTA ZADNJIH 5 MJERENJA</Text>
+              <Text style={[styles.text, { textAlign: 'center', width: '100%' }]}>LISTA ZADNJIH 5 MJERENJA</Text>
               <ScrollView
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.verticalListContainer}
@@ -169,7 +169,7 @@ const PocetnaScreen = () => {
               </ScrollView>
             </>
           )}
-        </Card>
+        </View>
       </View>
     </ScrollView>
   );
@@ -201,9 +201,45 @@ const styles = StyleSheet.create({
     marginBottom: 50,
     padding: 10,
     borderRadius: 10,
+    backgroundColor: 'white',
     overflow: 'hidden',
     flexDirection: 'column',
     alignSelf: 'center',  
+    borderRadius: 10,
+    shadowRadius: 6,
+        ...Platform.select({
+          ios: {
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.8,
+            shadowRadius: 4,
+          },
+          android: {
+            elevation: 5,
+          },
+        }),
+  },
+  card2: {
+    width: '90%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 50,
+    backgroundColor: 'white',
+    height: 300,
+    alignSelf: 'center',
+    borderRadius: 10,
+    shadowRadius: 6,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.8,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 5,
+      },
+    }),
   },
   scrollableContainer: {
     height: '100%',
@@ -215,7 +251,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   measurementCard: {
-    width: '100%',
+    width: '90%',
     padding: 15,
     backgroundColor: colors.pozadina,
     borderRadius: 10,
@@ -225,7 +261,7 @@ const styles = StyleSheet.create({
     minHeight: 120,
     alignSelf: 'center',
     flex: 1,
-    marginHorizontal: 20
+    marginHorizontal: 20,
   },
   cardContent: {
     justifyContent: 'center',
@@ -236,7 +272,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
     textAlign: 'center',
-    marginBottom: 5
+    marginBottom: 5,
   },
   subText: {
     fontSize: 14,
