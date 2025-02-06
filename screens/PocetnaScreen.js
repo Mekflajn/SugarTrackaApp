@@ -75,7 +75,11 @@ const PocetnaScreen = () => {
   };
 
   return (
-    <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContentContainer}>
+    <ScrollView 
+      style={styles.scrollContainer} 
+      contentContainerStyle={styles.scrollContentContainer}
+      showsVerticalScrollIndicator={false}
+    >
       <View style={styles.screen}>
         <Card style={styles.card}>
           <View style={styles.inputContainer}>
@@ -130,43 +134,56 @@ const PocetnaScreen = () => {
             <Text style={styles.text}>TRENUTNO NEMATE NITI JEDNO MJERENJE.</Text>
           ) : (
             <>
-              <Text style={[styles.text, { textAlign: 'center', width: '100%' }]}>LISTA ZADNJIH 5 MJERENJA</Text>
+              <Text style={[styles.text, { textAlign: 'center', width: '100%', marginBottom: 10 }]}>
+                LISTA ZADNJIH 5 MJERENJA
+              </Text>
               <ScrollView
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.verticalListContainer}
-                scrollEnabled={true}
                 nestedScrollEnabled={true}
-                keyboardShouldPersistTaps="always"
-                style={styles.scrollableContainer}
+                style={styles.measurementsScrollView}
               >
-                <Image source={require('../assets/up.png')} style={styles.scrollIcon} />
-                {measurements
-                  .sort((a, b) => b.timestamp.toDate() - a.timestamp.toDate())
-                  .slice(0, 5)
-                  .map((item) => (
-                    <Card key={item.id} style={styles.measurementCard}>
-                      <View style={styles.cardContent}>
-                        <Text>Glukoza: {item.glucose}</Text>
-                        <Text>Puls: {item.pulse}</Text>
-                        <Text>
-                          Pritisak: {item.systolicPressure}/{item.diastolicPressure}
+              <Image
+                source={require('../assets/up.png')}
+                style={styles.scrollIcon}
+              />
+                {measurements.slice(0, 5).map((item) => (
+                  <Card key={item.id} style={styles.measurementCard}>
+                    <View style={styles.cardContent}>
+                      <View style={styles.measurementHeader}>
+                        <Text style={styles.dateText}>
+                          {item.timestamp.toDate().toLocaleDateString('sr-Latn-RS', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                          })}
                         </Text>
-                        <Text>Bilješke: {item.notes || 'Nema bilješki'}</Text>
-                        <Text>
-                          Vrijeme:{' '}
-                          {item.timestamp
-                            ? new Intl.DateTimeFormat('sr-RS', {
-                                dateStyle: 'short',
-                                timeStyle: 'short',
-                                hour12: false,
-                              }).format(item.timestamp.toDate())
-                            : 'N/A'}
+                        <Text style={styles.timeText}>
+                          {item.timestamp.toDate().toLocaleTimeString('sr-Latn-RS', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
                         </Text>
                       </View>
-                    </Card>
-                  ))}
-                <Image source={require('../assets/down.png')} style={styles.scrollIcon} />
+                      
+                      <View style={styles.measurementDetails}>
+                        <Text style={styles.measurementText}>Glukoza: {item.glucose} mmol/L</Text>
+                        <Text style={styles.measurementText}>Puls: {item.pulse} o/min</Text>
+                        <Text style={styles.measurementText}>
+                          Pritisak: {item.systolicPressure}/{item.diastolicPressure} mmHg
+                        </Text>
+                        {item.notes && (
+                          <Text style={styles.notesText}>Bilješke: {item.notes}</Text>
+                        )}
+                      </View>
+                    </View>
+                  </Card>
+                ))}
+                  <Image
+                source={require('../assets/down.png')}
+                style={styles.scrollIcon}
+              />
               </ScrollView>
+
             </>
           )}
         </View>
@@ -177,15 +194,19 @@ const PocetnaScreen = () => {
 
 const styles = StyleSheet.create({
   scrollContainer: {
+    flex: 1,
+    backgroundColor: colors.pozadina,
+  },
+  scrollContentContainer: {
+    flexGrow: 1,
+    paddingHorizontal: 10,
+    paddingTop: 10,
+    paddingBottom: 120,
     backgroundColor: colors.pozadina,
   },
   screen: {
-    flex: 1,
     width: '100%',
-    padding: 10,
-    paddingBottom: 120,
     alignItems: 'center',
-    backgroundColor: colors.pozadina,
   },
   card: {
     width: '90%',
@@ -195,29 +216,23 @@ const styles = StyleSheet.create({
   },
   card1: {
     width: '90%',
-    height: 240,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 50,
-    padding: 10,
-    borderRadius: 10,
+    minHeight: 200,
     backgroundColor: 'white',
-    overflow: 'hidden',
-    flexDirection: 'column',
-    alignSelf: 'center',  
     borderRadius: 10,
-    shadowRadius: 6,
-        ...Platform.select({
-          ios: {
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.8,
-            shadowRadius: 4,
-          },
-          android: {
-            elevation: 5,
-          },
-        }),
+    padding: 15,
+    marginBottom: 50,
+    alignSelf: 'center',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+      },
+      android: {
+        elevation: 5,
+      },
+    }),
   },
   card2: {
     width: '90%',
@@ -252,20 +267,14 @@ const styles = StyleSheet.create({
   },
   measurementCard: {
     width: '90%',
-    padding: 15,
-    backgroundColor: colors.pozadina,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 15,
-    minHeight: 120,
+    marginVertical: 6,
     alignSelf: 'center',
-    flex: 1,
-    marginHorizontal: 20,
+    backgroundColor: colors.pozadina,
+    borderRadius: 8,
+    padding: 12,
   },
   cardContent: {
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: '100%',
   },
   text: {
     fontSize: 16,
@@ -306,7 +315,44 @@ const styles = StyleSheet.create({
   scrollIcon: {
     width: 30,
     height: 30,
-    marginVertical: 0,
+    alignSelf: 'center',
+    marginVertical: 5,
+    tintColor: colors.primary,
+  },
+  measurementsScrollView: {
+    width: '100%',
+    maxHeight: 200,
+  },
+  measurementHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+    paddingHorizontal: 4,
+  },
+  measurementDetails: {
+    width: '100%',
+    paddingHorizontal: 4,
+  },
+  dateText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: colors.primary,
+  },
+  timeText: {
+    fontSize: 14,
+    color: colors.primary,
+  },
+  measurementText: {
+    fontSize: 14,
+    marginVertical: 2,
+    color: '#333',
+  },
+  notesText: {
+    fontSize: 14,
+    marginTop: 4,
+    color: '#666',
+    fontStyle: 'italic',
   },
 });
 

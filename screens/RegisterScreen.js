@@ -69,7 +69,7 @@ const RegisterScreen = ({ navigation, setIsAuthenticated }) => {
   };
 
   return (
-    <KeyboardAvoidingView style={{backgroundColor: colors.pozadina}} behavior='padding' keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}>
+    <KeyboardAvoidingView style={{backgroundColor: colors.pozadina}} behavior='padding' keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}>
     <ScrollView contentContainerStyle={styles.screen}>
       {loading ? (
         <View style={styles.loadingContainer}>

@@ -5,6 +5,7 @@ import { FIREBASE_DB } from '../config/FirebaseConfig';
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";  // Dodajte sendPasswordResetEmail
 import { doc, getDoc } from "firebase/firestore";
 import colors from '../constants/colors';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginScreen = ({ navigation, setIsAuthenticated }) => {
   const [email, setEmail] = useState('');
@@ -18,6 +19,11 @@ const LoginScreen = ({ navigation, setIsAuthenticated }) => {
     try {
       const userCredential = await signInWithEmailAndPassword(FIREBASE_AUTH, email, password);
       const user = userCredential.user;
+      
+      // Sačuvaj token u AsyncStorage
+      const token = await user.getIdToken();
+      await AsyncStorage.setItem('userToken', token);
+      
       const userDoc = await getDoc(doc(FIREBASE_DB, "users", user.uid));
       if (userDoc.exists()) {
         setIsAuthenticated(true);
@@ -50,7 +56,7 @@ const LoginScreen = ({ navigation, setIsAuthenticated }) => {
   };
 
   return (
-    <View style={styles.screen}>
+    <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}>
       {loading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.primary} />
@@ -122,7 +128,7 @@ const LoginScreen = ({ navigation, setIsAuthenticated }) => {
           </TouchableOpacity>
         </>
       )}
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 

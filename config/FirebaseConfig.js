@@ -2,8 +2,9 @@
 import { initializeApp } from "firebase/app";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
-import { getAuth } from "firebase/auth"
+import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
 import { getFirestore } from "firebase/firestore";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { firebase } from '@react-native-firebase/app';
 
 // Your web app's Firebase configuration
@@ -16,15 +17,15 @@ const firebaseConfig = {
   appId: "1:25011344869:web:eeb590952c7ec7dd5c4b0c"
 };
 
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
-} else {
-  firebase.app(); // Ako je već inicijalizovano
-}
-
-// Initialize Firebase
 const FIREBASE_APP = initializeApp(firebaseConfig);
-export const FIREBASE_AUTH = getAuth(FIREBASE_APP);
-export const FIREBASE_DB = getFirestore(FIREBASE_APP);
+
+// Inicijalizacija Auth sa perzistencijom
+const FIREBASE_AUTH = initializeAuth(FIREBASE_APP, {
+  persistence: getReactNativePersistence(AsyncStorage)
+});
+
+const FIREBASE_DB = getFirestore(FIREBASE_APP);
+
+export { FIREBASE_AUTH, FIREBASE_DB, firebaseConfig };
 
 export { firebase };

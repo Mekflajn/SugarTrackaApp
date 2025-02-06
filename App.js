@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { StatusBar } from 'expo-status-bar';
+import { StatusBar, ActivityIndicator } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UserProvider } from './context/UserContext';
 import { SafeAreaView, StyleSheet, View, Image, Text, Keyboard, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
@@ -23,7 +24,7 @@ import { FIREBASE_AUTH, FIREBASE_DB } from './config/FirebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
 import { onSnapshot } from 'firebase/firestore';
 import { firebase } from '@react-native-firebase/app';
-import { firebaseConfig } from '../SugarTrackApp/config/FirebaseConfig';
+import { firebaseConfig } from './config/FirebaseConfig';
 import HranaScreen from './screens/HranaScreen';
 import EdukacijaScreen from './screens/EdukacijaScreen';
 import PreporuceniObrociScreen from './screens/PreporuceniObrociScreen';
@@ -155,40 +156,63 @@ function MainApp() {
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userData, setUserData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, (user) => {
-      if (user) {
-        const docRef = doc(FIREBASE_DB, 'users', user.uid);
-
-        const unsubscribeSnapshot = onSnapshot(docRef, (docSnap) => {
-          if (docSnap.exists()) {
-            setUserData({
-              uid: user.uid,
-              email: user.email,
-              ...docSnap.data(),
-            });
-            setIsAuthenticated(true);
+    const checkAuthStatus = async () => {
+      try {
+        const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, async (user) => {
+          if (user) {
+            try {
+              const docRef = doc(FIREBASE_DB, 'users', user.uid);
+              const docSnap = await getDoc(docRef);
+              
+              if (docSnap.exists()) {
+                setUserData({
+                  uid: user.uid,
+                  email: user.email,
+                  ...docSnap.data(),
+                });
+                setIsAuthenticated(true);
+              } else {
+                console.warn('Dokument ne postoji za korisnika:', user.uid);
+                setIsAuthenticated(false);
+              }
+            } catch (error) {
+              console.error('Greška pri dohvatanju korisničkih podataka:', error);
+              setIsAuthenticated(false);
+            }
           } else {
-            console.warn('Dokument ne postoji za korisnika:', user.uid);
+            setIsAuthenticated(false);
+            setUserData(null);
           }
+          setIsLoading(false);
         });
 
-        return unsubscribeSnapshot;
-      } else {
+        return unsubscribe;
+      } catch (error) {
+        console.error('Greška pri provjeri autentifikacije:', error);
+        setIsLoading(false);
         setIsAuthenticated(false);
-        setUserData(null);
       }
-    });
+    };
 
-    return unsubscribe;
+    checkAuthStatus();
   }, []);
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
 
   return (
     <UserProvider value={userData}>
       <View style={{ flex: 1 }}>
         <SafeAreaView style={{ flex: 1 }}>
-          <StatusBar style="auto" />
+          <StatusBar barStyle="dark-content" backgroundColor={colors.primary} hidden={true}/>
           <NavigationContainer>
             {isAuthenticated ? <MainApp /> : <AuthStack setIsAuthenticated={setIsAuthenticated} />}
             {/*<View style={{alignItems: 'center', backgroundColor: colors.pozadina, marginBottom: 5}}><Text style={{fontSize: 10, fontWeight: 'bold'}}>SugarTrack©</Text></View>*/}
