@@ -170,20 +170,52 @@ const IstorijaScreen = () => {
               </TouchableOpacity>
             </View>
 
-            {(dateFrom || dateTo) && (
-              <View style={styles.clearDatesContainer}>
+            <View style={styles.filterActionsContainer}>
+              {(dateFrom || dateTo) ? (
+                <>
+                  <TouchableOpacity 
+                    style={styles.sortButton}
+                    onPress={() => setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc')}
+                  >
+                    <FontAwesomeIcon 
+                      icon={faSort} 
+                      size={16} 
+                      color={colors.primary}
+                      style={styles.sortIcon} 
+                    />
+                    <Text style={styles.sortButtonText}>
+                      {sortOrder === 'desc' ? 'Najnovije prvo' : 'Najstarije prvo'}
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity 
+                    style={styles.clearDatesButton}
+                    onPress={() => {
+                      setDateFrom(null);
+                      setDateTo(null);
+                    }}
+                  >
+                    <FontAwesomeIcon icon={faTimes} size={14} color="white" />
+                    <Text style={styles.clearDatesText}>Obriši datume</Text>
+                  </TouchableOpacity>
+                </>
+              ) : (
                 <TouchableOpacity 
-                  style={styles.clearDatesButton}
-                  onPress={() => {
-                    setDateFrom(null);
-                    setDateTo(null);
-                  }}
+                  style={styles.sortButtonCentered}
+                  onPress={() => setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc')}
                 >
-                  <FontAwesomeIcon icon={faTimes} size={14} color="white" />
-                  <Text style={styles.clearDatesText}>Obriši datume</Text>
+                  <FontAwesomeIcon 
+                    icon={faSort} 
+                    size={16} 
+                    color={colors.primary}
+                    style={styles.sortIcon} 
+                  />
+                  <Text style={styles.sortButtonText}>
+                    {sortOrder === 'desc' ? 'Najnovije prvo' : 'Najstarije prvo'}
+                  </Text>
                 </TouchableOpacity>
-              </View>
-            )}
+              )}
+            </View>
 
             <View style={styles.filterTypeRow}>
               {['all', 'high', 'low', 'normal'].map((type) => (
@@ -205,22 +237,6 @@ const IstorijaScreen = () => {
                   </Text>
                 </TouchableOpacity>
               ))}
-            </View>
-            <View style={{alignSelf: 'center', width: '100%'}}>
-              <TouchableOpacity 
-                style={styles.sortButton}
-                onPress={() => setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc')}
-              >
-                <FontAwesomeIcon 
-                  icon={faSort} 
-                  size={16} 
-                  color={colors.primary}
-                  style={styles.sortIcon} 
-                />
-                <Text style={styles.sortButtonText}>
-                  {sortOrder === 'desc' ? 'Najnovije prvo' : 'Najstarije prvo'}
-                </Text>
-              </TouchableOpacity>
             </View>
           </Card>
         )}
@@ -440,27 +456,43 @@ const styles = StyleSheet.create({
   },
   dateButtonText: {
     marginLeft: 8,
-
     color: '#444',
     fontSize: 14,
   },
-  clearDatesContainer: {
+  filterActionsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 5,
-    marginBottom: 15,
+    marginVertical: 20, // Povećan vertikalni razmak
+    paddingHorizontal: 5,
+  },
+  sortButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+    padding: 10,
+    borderRadius: 8,
+    flex: 0.48,
+    justifyContent: 'center',
+  },
+  sortButtonCentered: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+    padding: 10,
+    borderRadius: 8,
     alignSelf: 'center',
+    minWidth: '60%',
+    justifyContent: 'center',
   },
   clearDatesButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#ff6b6b',
-    padding: 8,
-    borderRadius: 6,
-    paddingHorizontal: 15,
-    width: 'auto',
-    marginVertical: 10,
-    marginBottom: 10,
+    padding: 10,
+    borderRadius: 8,
+    flex: 0.48,
   },
   clearDatesText: {
     color: 'white',
@@ -468,14 +500,23 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
   },
+  sortButtonText: {
+    color: colors.primary,
+    fontSize: 14,
+    fontWeight: '500',
+    marginLeft: 6,
+  },
   filterTypeRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 12,
     alignSelf: 'center',
+    marginTop: 10,
+    paddingTop: 10,
   },
   filterTypeButton: {
     padding: 10,
+
     borderRadius: 20,
     backgroundColor: '#f5f5f5',
     flex: 0.23,
@@ -484,33 +525,19 @@ const styles = StyleSheet.create({
   },
   filterTypeText: {
     color: '#444',
-    fontSize: 11, // Smanjen font
+    fontSize: 10,
     fontWeight: '600',
     textAlign: 'center',
-},
+  },
   activeFilterType: {
     backgroundColor: colors.primary,
   },
   activeFilterTypeText: {
     color: 'white',
-  },
-  sortButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#f5f5f5',
-    padding: 10,
-    borderRadius: 8,
-    alignSelf: 'center',
-    marginTop: 10,
+    fontSize: 10,
   },
   sortIcon: {
     marginRight: 8,
-  },
-  sortButtonText: {
-    color: colors.primary,
-    fontSize: 14,
-    fontWeight: '500',
   },
 });
 

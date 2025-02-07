@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Linking, TouchableOpacity, ScrollView } from 'react-native';
 import colors from '../constants/colors';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faAppleAlt, faCarrot, faEgg, faBreadSlice } from '@fortawesome/free-solid-svg-icons';
 
 const EdukacijaScreen = () => {
 
@@ -92,6 +94,79 @@ const EdukacijaScreen = () => {
     setRandomLinks(getRandomLinks(allLinks, 5));
   }, []);
 
+  const foodCategories = [
+    {
+      title: 'Voće',
+      icon: faAppleAlt,
+      items: [
+        { name: 'Jabuka', gi: 'Nizak GI (38)', info: 'Bogata vlaknima' },
+        { name: 'Borovnice', gi: 'Nizak GI (53)', info: 'Antioksidansi' },
+        { name: 'Kruška', gi: 'Nizak GI (38)', info: 'Dobar izvor vlakana' },
+        { name: 'Narandža', gi: 'Srednji GI (43)', info: 'Vitamin C' },
+        { name: 'Malina', gi: 'Nizak GI (25)', info: 'Antioksidansi' },
+        { name: 'Jagoda', gi: 'Nizak GI (40)', info: 'Vitamin C' },
+        { name: 'Breskva', gi: 'Nizak GI (42)', info: 'Vlakna' },
+        { name: 'Šljiva', gi: 'Nizak GI (39)', info: 'Antioksidansi' },
+        { name: 'Grejpfrut', gi: 'Nizak GI (25)', info: 'Vitamin C' },
+        { name: 'Trešnja', gi: 'Nizak GI (22)', info: 'Antioksidansi' }
+      ]
+    },
+    {
+      title: 'Povrće',
+      icon: faCarrot,
+      items: [
+        { name: 'Brokoli', gi: 'Vrlo nizak GI (15)', info: 'Bogat vitaminima' },
+        { name: 'Karfiol', gi: 'Vrlo nizak GI (15)', info: 'Nizak CH' },
+        { name: 'Zelena salata', gi: 'Vrlo nizak GI (15)', info: 'Niska kalorijska vrednost' },
+        { name: 'Paradajz', gi: 'Nizak GI (30)', info: 'Likopen' },
+        { name: 'Krastavac', gi: 'Vrlo nizak GI (15)', info: 'Hidratacija' },
+        { name: 'Paprika', gi: 'Vrlo nizak GI (15)', info: 'Vitamin C' },
+        { name: 'Šargarepa', gi: 'Nizak GI (35)', info: 'Beta karoten' },
+        { name: 'Tikvice', gi: 'Vrlo nizak GI (15)', info: 'Nizak CH' },
+        { name: 'Spanać', gi: 'Vrlo nizak GI (15)', info: 'Gvožđe' },
+        { name: 'Kupus', gi: 'Vrlo nizak GI (15)', info: 'Vitamin K' }
+      ]
+    },
+    {
+      title: 'Proteini',
+      icon: faEgg,
+      items: [
+        { name: 'Piletina', gi: 'Nema GI', info: 'Mršavo meso' },
+        { name: 'Riba', gi: 'Nema GI', info: 'Omega-3' },
+        { name: 'Jaja', gi: 'Nema GI', info: 'Kompletan protein' },
+        { name: 'Ćuretina', gi: 'Nema GI', info: 'Nizak sadržaj masti' },
+        { name: 'Tofu', gi: 'Vrlo nizak GI', info: 'Biljni protein' },
+        { name: 'Sočivo', gi: 'Nizak GI (32)', info: 'Vlakna i protein' },
+        { name: 'Grčki jogurt', gi: 'Nizak GI', info: 'Probiotici' },
+        { name: 'Skuša', gi: 'Nema GI', info: 'Omega-3' },
+        { name: 'Pasulj', gi: 'Nizak GI (29)', info: 'Vlakna' },
+        { name: 'Leblebije', gi: 'Nizak GI (28)', info: 'Biljni protein' }
+      ]
+    },
+    {
+      title: 'Žitarice',
+      icon: faBreadSlice,
+      items: [
+        { name: 'Ovas', gi: 'Srednji GI (55)', info: 'Bogat vlaknima' },
+        { name: 'Kinoa', gi: 'Nizak GI (53)', info: 'Kompletan protein' },
+        { name: 'Ječam', gi: 'Nizak GI (28)', info: 'Vlakna' },
+        { name: 'Raž', gi: 'Nizak GI (34)', info: 'Vlakna' },
+        { name: 'Heljda', gi: 'Nizak GI (54)', info: 'Bez glutena' },
+        { name: 'Proso', gi: 'Srednji GI (71)', info: 'Minerali' },
+        { name: 'Amarant', gi: 'Nizak GI (35)', info: 'Protein' },
+        { name: 'Spelta', gi: 'Nizak GI (54)', info: 'Vitamin B' },
+        { name: 'Kamut', gi: 'Nizak GI (45)', info: 'Protein' },
+        { name: 'Bulgur', gi: 'Nizak GI (48)', info: 'Vlakna' }
+      ]
+    }
+  ];
+
+  // Funkcija za dobijanje 3 nasumična elementa iz niza
+  const getRandomItems = (items) => {
+    const shuffled = [...items].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, 3);
+  };
+
   return (
     <View style={{flex: 1, backgroundColor: colors.pozadina, paddingBottom: 110}}>
     <ScrollView style={styles.scrollContainer}>
@@ -125,6 +200,25 @@ const EdukacijaScreen = () => {
           {stories.map((story, index) => (
             <View key={index} style={styles.card}>
               <Text style={styles.cardText}>{story}</Text>
+            </View>
+          ))}
+        </ScrollView>
+
+        <Text style={styles.subtitle}>Preporučene Namirnice:</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          {foodCategories.map((category, index) => (
+            <View key={index} style={styles.foodCategoryCard}>
+              <View style={styles.categoryHeader}>
+                <FontAwesomeIcon icon={category.icon} size={20} color={colors.primary} />
+                <Text style={styles.categoryTitle}>{category.title}</Text>
+              </View>
+              {getRandomItems(category.items).map((item, itemIndex) => (
+                <View key={itemIndex} style={styles.foodItem}>
+                  <Text style={styles.foodName}>{item.name}</Text>
+                  <Text style={styles.foodGi}>{item.gi}</Text>
+                  <Text style={styles.foodInfo}>{item.info}</Text>
+                </View>
+              ))}
             </View>
           ))}
         </ScrollView>
@@ -192,6 +286,49 @@ const styles = StyleSheet.create({
   cardText: {
     fontSize: 16,
     textAlign: 'center',
+  },
+  foodCategoryCard: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 15,
+    marginHorizontal: 10,
+    width: 250,
+    marginBottom: 20,
+  },
+  categoryHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+    paddingBottom: 10,
+  },
+  categoryTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginLeft: 10,
+    color: colors.primary,
+  },
+  foodItem: {
+    marginBottom: 12,
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  foodName: {
+    fontSize: 16,
+    fontWeight: '500',
+    marginBottom: 4,
+  },
+  foodGi: {
+    fontSize: 14,
+    color: colors.primary,
+    marginBottom: 2,
+  },
+  foodInfo: {
+    fontSize: 14,
+    color: '#666',
+    fontStyle: 'italic',
   },
 });
 
