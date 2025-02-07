@@ -93,6 +93,7 @@ const EdukacijaScreen = () => {
   }, []);
 
   return (
+    <View style={{flex: 1, backgroundColor: colors.pozadina, paddingBottom: 110}}>
     <ScrollView style={styles.scrollContainer}>
       <View style={styles.container}>
         <Text style={styles.header}>Edukacija o Dijabetesu</Text>
@@ -129,6 +130,7 @@ const EdukacijaScreen = () => {
         </ScrollView>
       </View>
     </ScrollView>
+    </View>
   );
 };
 
@@ -137,9 +139,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.pozadina,
   },
+
   container: {
     padding: 20,
-    paddingBottom: 110
   },
   header: {
     fontSize: 24,

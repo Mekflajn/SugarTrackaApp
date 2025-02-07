@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     width: "100%",
-    height: 100,
+    height: 75,
     paddingTop: 30,
     backgroundColor: colors.primary,
     alignItems: "center",
@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 23,
-    color: "black",
+    color: "white",
     fontWeight: "bold",
     textAlign: "center",
   },

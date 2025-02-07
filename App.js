@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { StatusBar, ActivityIndicator } from 'react-native';
+import { StatusBar, ActivityIndicator, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UserProvider } from './context/UserContext';
-import { SafeAreaView, StyleSheet, View, Image, Text, Keyboard, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { SafeAreaView, StyleSheet, View, Image, Text, Keyboard, KeyboardAvoidingView, ScrollView } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -28,6 +28,7 @@ import { firebaseConfig } from './config/FirebaseConfig';
 import HranaScreen from './screens/HranaScreen';
 import EdukacijaScreen from './screens/EdukacijaScreen';
 import PreporuceniObrociScreen from './screens/PreporuceniObrociScreen';
+import SystemNavigationBar from 'react-native-system-navigation-bar';
 
 
 
@@ -140,8 +141,23 @@ function MainApp() {
         },
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.neaktivna,
-        tabBarStyle: isKeyboardVisible ? { display: 'none' } : styles.tabBarStyle,
-        tabBarLabelStyle: { fontSize: 10 },
+        tabBarStyle: isKeyboardVisible ? { display: 'none' } : {
+          ...styles.tabBarStyle,
+          height: 70
+        },
+        tabBarLabelStyle: { 
+          fontSize: 10,
+          marginBottom: 0,
+        },
+        tabBarItemStyle: {
+          paddingVertical: 0,
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
+        contentContainerStyle: {
+          flex: 1,
+          paddingBottom: 90,
+        },
       })}
     >
       <Tab.Screen name="ISTORIJA" component={IstorijaScreen} options={{ header: () => <Header title="ISTORIJA MJERENJA"/> }} />
@@ -159,6 +175,9 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    if (Platform.OS === 'android') {
+      SystemNavigationBar.navigationHide()
+    }
     const checkAuthStatus = async () => {
       try {
         const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, async (user) => {
@@ -229,16 +248,24 @@ const styles = StyleSheet.create({
     backgroundColor: colors.pozadina,
   },
   tabBarStyle: {
-    position: 'absolute',
     backgroundColor: colors.pozadina,
-    height: 60,
-    justifyContent: 'center',
+    height: Platform.OS === 'android' ? 70 : 65,
+    paddingBottom: 0,
+    paddingTop: 5,
     width: '80%',
-    marginBottom: '5%',
     borderRadius: 20,
     marginHorizontal: '10%',
-    bottom: 0,
-    marginTop: 110,
+    position: 'absolute',
+    bottom: Platform.OS === 'android' ? 35 : 25,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    marginBottom: 0,
   },
   icon: {
     width: 48,

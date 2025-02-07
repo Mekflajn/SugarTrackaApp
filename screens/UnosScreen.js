@@ -17,6 +17,13 @@ const UnosScreen = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const navigation = useNavigation();
 
+  const formatDate = (date) => {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}.${month}.${year}`;
+  };
+
   const handleDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
     setShowDatePicker(Platform.OS === 'ios' ? true : false);
@@ -169,14 +176,15 @@ const UnosScreen = () => {
       </View>
 
       <View style={styles.polja}>
-        <Text style={styles.text}>DATUM I VRIJEME</Text>
-        <TouchableWithoutFeedback onPress={() => setShowDatePicker(true)}>
-          <View style={styles.inputContainer}>
-          <Image source={require('../assets/calendar.png')} style={styles.icon} />
-            <Text style={styles.input}>{date.toLocaleDateString()}</Text>
-          </View>
-        </TouchableWithoutFeedback>
-      </View>
+          <Text style={styles.text}>DATUM I VRIJEME</Text>
+          <TouchableWithoutFeedback onPress={() => setShowDatePicker(true)}>
+            <View style={styles.inputContainer}>
+              <Image source={require('../assets/calendar.png')} style={styles.icon} />
+              <Text style={styles.input}>{formatDate(date)}</Text>
+            </View>
+          </TouchableWithoutFeedback>
+        </View>
+
 
       {showDatePicker && (
         <DateTimePicker
@@ -202,7 +210,7 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: colors.pozadina,
     flex: 1, 
-    paddingBottom: 120
+    paddingBottom: 110
   },
   polja: { 
     marginBottom: 10

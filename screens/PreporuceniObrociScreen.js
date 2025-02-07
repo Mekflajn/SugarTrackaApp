@@ -47,6 +47,7 @@ const PreporuceniObrociScreen = () => {
   };
 
   return (
+    <View style={{flex: 1, backgroundColor: colors.pozadina, paddingBottom: 110}}>
     <FlatList
       contentContainerStyle={styles.screen}
       data={randomMeals}
@@ -90,6 +91,7 @@ const PreporuceniObrociScreen = () => {
         </>
       }
     />
+    </View>
   );
 };
 
@@ -97,8 +99,8 @@ const styles = StyleSheet.create({
   screen: {
     padding: 20,
     backgroundColor: colors.pozadina,
-    paddingBottom: 110
   },
+
   title: {
     fontSize: 24,
     fontWeight: "bold",

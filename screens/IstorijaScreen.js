@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert, Platform } from 'react-native';
 import { FIREBASE_DB } from '../config/FirebaseConfig';
 import { collection, doc, query, getDocs, orderBy, deleteDoc, onSnapshot } from 'firebase/firestore';
 import { useUser } from '../context/UserContext';
@@ -75,25 +75,43 @@ const IstorijaScreen = () => {
           renderItem={({ item }) => (
             <Card style={styles.card}>
               <View style={styles.cardContent}>
-                <View style={styles.textContent}>
-                  <Text style={styles.glucoseText}>Vrijednost glukoze: {item.glucose} mmol/L</Text>
-                  <Text style={styles.pulseText}>Puls: {item.pulse} OUM</Text>
-                  <Text style={styles.pressureText}>Pritisak: {item.systolicPressure}/{item.diastolicPressure} mmHg</Text>
-                  <Text style={styles.notesText}>Bilješke: {item.notes || 'Nema bilješki'}</Text>
-                  <Text style={styles.timestampText}>
-                    Vrijeme: {item.timestamp ? (() => {
+                <View style={styles.mainInfo}>
+                  <Text style={styles.dateText}>
+                    {item.timestamp ? (() => {
                       const date = item.timestamp.toDate();
                       const day = String(date.getDate()).padStart(2, '0');  
                       const month = String(date.getMonth() + 1).padStart(2, '0');  
                       const year = date.getFullYear();
                       const hours = String(date.getHours()).padStart(2, '0');  
                       const minutes = String(date.getMinutes()).padStart(2, '0');  
-                      return `${day}/${month}/${year} ${hours}:${minutes}`;
+                      return `${day}.${month}.${year} - ${hours}:${minutes}`;
                     })() : "N/A"}
                   </Text>
+                  
+                  <Text style={styles.glucoseText}>
+                    Glukoza: <Text style={[styles.valueText, styles.glucoseValue]}>{item.glucose} mmol/L</Text>
+                  </Text>
+                  
+                  <Text style={styles.pressureText}>
+                    Pritisak: <Text style={[styles.valueText, styles.pressureValue]}>{item.systolicPressure}/{item.diastolicPressure} mmHg</Text>
+                  </Text>
+                  
+                  <Text style={styles.pulseText}>
+                    Puls: <Text style={[styles.valueText, styles.pulseValue]}>{item.pulse} o/min</Text>
+                  </Text>
+
+                  {item.notes && (
+                    <Text style={styles.notesText}>
+                      Bilješke: <Text style={styles.notesValue}>{item.notes}</Text>
+                    </Text>
+                  )}
                 </View>
-                <TouchableOpacity onPress={() => handleDelete(item.id)} style={styles.iconContainer}>
-                  <FontAwesomeIcon icon={faTrash} size={24} color="red" />
+
+                <TouchableOpacity 
+                  onPress={() => handleDelete(item.id)} 
+                  style={styles.deleteButton}
+                >
+                  <FontAwesomeIcon icon={faTrash} size={20} color="#FF0000" />
                 </TouchableOpacity>
               </View>
             </Card>
@@ -110,69 +128,100 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
     backgroundColor: colors.pozadina,
+    paddingBottom: 110,
   },
   card: {
-    marginBottom: 15,
+    marginHorizontal: 10,
+    marginVertical: 8,
     padding: 15,
-    borderRadius: 10,
-    backgroundColor: colors.white,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 3,
+    borderRadius: 12,
+    backgroundColor: 'white',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 3,
+      },
+    }),
   },
   cardContent: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  textContent: {
+  mainInfo: {
     flex: 1,
+    marginRight: 10,
+  },
+  dateText: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 8,
   },
   glucoseText: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: colors.primary,
-    marginBottom: 5,
-  },
-  pulseText: {
-    fontSize: 16,
-    color: colors.secondary,
-    marginBottom: 5,
+    color: '#444',
+    marginBottom: 6,
+    fontWeight: '500',
   },
   pressureText: {
-    fontSize: 16,
-    color: colors.secondary,
-    marginBottom: 5,
+    fontSize: 15,
+    color: '#444',
+    marginBottom: 6,
+  },
+  pulseText: {
+    fontSize: 15,
+    color: '#444',
+    marginBottom: 6,
+  },
+  valueText: {
+    fontWeight: '600',
+  },
+  glucoseValue: {
+    color: colors.primary,
+    fontSize: 18,
+  },
+  pressureValue: {
+    color: colors.primary,
+  },
+  pulseValue: {
+    color: '#FF6B6B',
   },
   notesText: {
     fontSize: 14,
-    color: '#555',
-    marginBottom: 5,
+    color: '#666',
+    marginTop: 6,
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+    paddingTop: 6,
   },
-  timestampText: {
-    fontSize: 14,
-    color: '#777',
-    marginBottom: 5,
+  notesValue: {
+    fontStyle: 'italic',
+    color: '#444',
   },
-  iconContainer: {
+  deleteButton: {
+    padding: 8,
+    alignSelf: 'center',
     marginLeft: 10,
+  },
+  flatListContent: {
+    paddingBottom: 120,
   },
   noDataText: {
     textAlign: 'center',
     marginTop: 20,
-    fontSize: 20,
-    color: '#777',
+    fontSize: 16,
+    color: '#666',
   },
   loadingText: {
     textAlign: 'center',
     marginTop: 20,
     fontSize: 20,
     color: '#777',
-  },
-  flatListContent: {
-    paddingBottom: 120,
   },
 });
 

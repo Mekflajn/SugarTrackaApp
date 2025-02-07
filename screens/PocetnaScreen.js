@@ -75,6 +75,7 @@ const PocetnaScreen = () => {
   };
 
   return (
+    <View style={{flex: 1, backgroundColor: colors.pozadina, paddingBottom: 110}}>
     <ScrollView 
       style={styles.scrollContainer} 
       contentContainerStyle={styles.scrollContentContainer}
@@ -189,6 +190,7 @@ const PocetnaScreen = () => {
         </View>
       </View>
     </ScrollView>
+    </View>
   );
 };
 
@@ -201,7 +203,6 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingHorizontal: 10,
     paddingTop: 10,
-    paddingBottom: 120,
     backgroundColor: colors.pozadina,
   },
   screen: {

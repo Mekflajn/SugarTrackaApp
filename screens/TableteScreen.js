@@ -162,6 +162,7 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 20,
         backgroundColor: colors.pozadina,
+        paddingBottom: 110,
     },
     title: {
         fontSize: 24,
@@ -228,9 +229,6 @@ const styles = StyleSheet.create({
     },
     timeText: {
         textAlign: 'center',
-    },
-    flatListContent: {
-        paddingBottom: 120,
     },
 });
 

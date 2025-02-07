@@ -179,7 +179,8 @@ useEffect(() => {
   }, [user?.gender]);
 
   return (
-    <KeyboardAvoidingView style={{flex: 1, backgroundColor: colors.pozadina, paddingBottom: 110}} behavior='padding' keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}>
+    <View style={{flex: 1, backgroundColor: colors.pozadina, paddingBottom: 110}}>
+    <KeyboardAvoidingView style={{flex: 1, backgroundColor: colors.pozadina,}} behavior='padding' keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}>
     <ScrollView style={styles.scrollContainer}>
     <View style={styles.screen}>
       <View style={styles.imageContainer}>
@@ -355,18 +356,17 @@ useEffect(() => {
     </View>
     </ScrollView>
     </KeyboardAvoidingView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   scrollContainer: {
     backgroundColor: colors.pozadina,
-    paddingBottom: 110
   },
   screen: {
     padding: 20,
     flex: 1,
-    paddingBottom: 150,
     alignItems: 'center'
   },
   imageContainer: {
