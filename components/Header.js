@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     width: "100%",
     height: 75,
-    paddingTop: 30,
+    paddingTop: 20,
     backgroundColor: colors.primary,
     alignItems: "center",
     justifyContent: "center",
@@ -42,17 +42,18 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "bold",
     textAlign: "center",
+    marginBottom: 5
   },
   backButton: {
     position: "absolute",
     left: 10,
-    paddingTop: 30,
+    paddingTop: 15,
   },
   backIcon: {
     width: 30,   // dimenzije slike
     height: 30,
     resizeMode: "contain", // osiguraj da slika bude pravilno prilagođena
-    tintColor: 'black'
+    tintColor: 'white'
   }
 });
 

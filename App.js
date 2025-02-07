@@ -46,17 +46,18 @@ function IshranaStack() {
   return(
   <Stack.Navigator initialRouteName='ISHRANA'>
     <Stack2.Screen name='ISHRANA' component={IshranaScreen} options={{ 
-  header: (props) => <Header {...props} title="ISHRANA" showBackButton={false}/> 
+  header: (props) => <Header {...props} title="Ishrana" showBackButton={false}/> 
 }}/>
+
     <Stack2.Screen name='HRANA' component={HranaScreen} options={{ 
-  header: (props) => <Header {...props} title="HRANA" showBackButton={true}/> 
+  header: (props) => <Header {...props} title="Obroci" showBackButton={true}/> 
 }}/>
     <Stack2.Screen name='EDUKACIJA' component={EdukacijaScreen} options={{ 
-  header: (props) => <Header {...props} title="EDUKACIJA" showBackButton={true}/> 
+  header: (props) => <Header {...props} title="Edukacija" showBackButton={true}/> 
 }}/>
 
 <Stack2.Screen name='PREPORUCENI_OBROCI' component={PreporuceniObrociScreen} options={{ 
-  header: (props) => <Header {...props} title="PREPORUČENI OBROCI" showBackButton={true}/> 
+  header: (props) => <Header {...props} title="Preporučeni obroci" showBackButton={true}/> 
 }}/>
 
   </Stack.Navigator>
@@ -90,7 +91,7 @@ function PocetnaStack() {
         name="UNOS" 
         component={UnosScreen} 
         options={{ 
-          header: (props) => <Header {...props} title="UNOS PODATAKA" showBackButton={true}/> 
+          header: (props) => <Header {...props} title="Unos podataka" showBackButton={true}/> 
         }}
       />
     </Stack.Navigator>
@@ -160,11 +161,11 @@ function MainApp() {
         },
       })}
     >
-      <Tab.Screen name="ISTORIJA" component={IstorijaScreen} options={{ header: () => <Header title="ISTORIJA MJERENJA"/> }} />
-      <Tab.Screen name="LIJEKOVI" component={TableteScreen} options={{ header: () => <Header title="LIJEKOVI"/> }} />
+      <Tab.Screen name="ISTORIJA" component={IstorijaScreen} options={{ header: () => <Header title="Istorija mjerenja"/> }} />
+      <Tab.Screen name="LIJEKOVI" component={TableteScreen} options={{ header: () => <Header title="Lijekovi"/> }} />
       <Tab.Screen name="POČETNA" component={PocetnaStack} options={{ headerShown: false }}  />
       <Tab.Screen name="ISHRANA" component={IshranaStack} options={{ headerShown: false }} />
-      <Tab.Screen name="NALOG" component={PodesavanjaNaloga} options={{ header: () => <Header title="NALOG"/> }} />
+      <Tab.Screen name="NALOG" component={PodesavanjaNaloga} options={{ header: () => <Header title="Nalog"/> }} />
     </Tab.Navigator>
   );
 }

@@ -90,7 +90,7 @@ const UnosScreen = () => {
   };
 
   return (
-    
+    <View style={{flex: 1, backgroundColor: colors.pozadina, paddingBottom: 110}}>
     <ScrollView>
     <View style={styles.container}>
       <View style={styles.polja}>
@@ -202,6 +202,7 @@ const UnosScreen = () => {
       </View>
     </View>
     </ScrollView>
+    </View>
   );
 };
 
@@ -210,7 +211,6 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: colors.pozadina,
     flex: 1, 
-    paddingBottom: 110
   },
   polja: { 
     marginBottom: 10

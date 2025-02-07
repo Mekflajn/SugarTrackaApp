@@ -6,7 +6,7 @@ import { getAuth } from "firebase/auth";
 import colors from "../constants/colors";
 import Card from "../components/Card";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faTrash, faClock, faUtensils } from "@fortawesome/free-solid-svg-icons";
 
 const HranaScreen = () => {
     const [nazivHrane, setNazivHrane] = useState('');
@@ -88,45 +88,93 @@ const HranaScreen = () => {
 
     return (
         <View style={styles.screen}>
-            <Text style={styles.title}>Unesite naziv obroka</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="Naziv obroka"
-                value={nazivHrane}
-                onChangeText={setNazivHrane}
-            />
-            <View style={styles.timeButtonsContainer}>
+            <View style={styles.inputSection}>
+                <Text style={styles.title}>Dodaj novi obrok</Text>
+                <View style={styles.inputContainer}>
+                    <FontAwesomeIcon 
+                        icon={faUtensils} 
+                        size={20} 
+                        color={colors.primary} 
+                        style={styles.inputIcon}
+                    />
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Naziv obroka"
+                        value={nazivHrane}
+                        onChangeText={setNazivHrane}
+                        placeholderTextColor="#999"
+                    />
+                </View>
+                
                 <View style={styles.timeButtons}>
                     {["Doručak", "Ručak", "Večera", "Užina"].map((time) => (
                         <TouchableOpacity
                             key={time}
-                            style={[styles.timeButton, selectedTime === time && styles.selectedButton]}
+                            style={[
+                                styles.timeButton, 
+                                selectedTime === time && styles.selectedButton
+                            ]}
                             onPress={() => setSelectedTime(time)}
                         >
-                            <Text style={styles.timeButtonText}>{time}</Text>
+                            <FontAwesomeIcon 
+                                icon={faClock} 
+                                size={14} 
+                                color={selectedTime === time ? 'white' : colors.primary} 
+                                style={styles.timeIcon}
+                            />
+                            <Text style={[
+                                styles.timeButtonText, 
+                                selectedTime === time && styles.selectedTimeText
+                            ]}>{time}</Text>
                         </TouchableOpacity>
                     ))}
                 </View>
-                <TouchableOpacity style={styles.addButton} onPress={addHrana}>
+                
+                <TouchableOpacity 
+                    style={styles.addButton} 
+                    onPress={addHrana}
+                    activeOpacity={0.7}
+                >
                     <Text style={styles.addButtonText}>Dodaj obrok</Text>
                 </TouchableOpacity>
             </View>
-            <FlatList
-                data={hrana}
-                renderItem={({ item }) => (
-                    <Card style={styles.item}>
-                        <View style={styles.cardRow}>
-                            <Text style={styles.cardText}>{item.naziv}</Text>
-                            <Text style={styles.cardText}>{item.time}</Text>
-                            <TouchableOpacity onPress={() => deleteHrana(item.id)}>
-                                <FontAwesomeIcon icon={faTrash} size={20} color="red" />
-                            </TouchableOpacity>
-                        </View>
-                    </Card>
-                )}
-                keyExtractor={(item) => item.id}
-                contentContainerStyle={styles.flatListContent}
-            />
+
+            <View style={styles.listSection}>
+                <Text style={styles.listTitle}>Lista obroka</Text>
+                <FlatList
+                    data={hrana}
+                    renderItem={({ item }) => (
+                        <Card style={styles.foodCard}>
+                            <View style={styles.foodContent}>
+                                <View style={styles.foodNameContainer}>
+                                    <FontAwesomeIcon 
+                                        icon={faUtensils} 
+                                        size={18} 
+                                        color={colors.primary} 
+                                        style={styles.foodIcon}
+                                    />
+                                    <Text style={styles.foodName}>{item.naziv}</Text>
+                                </View>
+                                
+                                <View style={styles.timeContainer}>
+                                    <View style={styles.timeTag}>
+                                        <Text style={styles.timeTagText}>{item.time}</Text>
+                                    </View>
+                                </View>
+
+                                <TouchableOpacity 
+                                    onPress={() => deleteHrana(item.id)}
+                                    style={styles.deleteButton}
+                                >
+                                    <FontAwesomeIcon icon={faTrash} size={16} color="red" />
+                                </TouchableOpacity>
+                            </View>
+                        </Card>
+                    )}
+                    keyExtractor={(item) => item.id}
+                    showsVerticalScrollIndicator={false}
+                />
+            </View>
         </View>
     );
 };
@@ -134,75 +182,139 @@ const HranaScreen = () => {
 const styles = StyleSheet.create({
     screen: {
         flex: 1,
-        padding: 20,
         backgroundColor: colors.pozadina,
+        padding: 15,
         paddingBottom: 110,
     },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
+    inputSection: {
+        backgroundColor: 'white',
+        borderRadius: 15,
+        padding: 15,
         marginBottom: 20,
-        textAlign: 'center',
+        elevation: 2,
+    },
+    title: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: colors.primary,
+        marginBottom: 15,
+        alignSelf: 'center',
+    },
+    inputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#f5f5f5',
+        borderRadius: 10,
+        paddingHorizontal: 15,
+        marginBottom: 15,
     },
     input: {
-        width: '100%',
-        padding: 10,
-        borderWidth: 1,
-        borderColor: colors.primary,
-        borderRadius: 5,
-        marginBottom: 20,
+        flex: 1,
+        paddingVertical: 12,
+        paddingHorizontal: 10,
+        fontSize: 16,
     },
-    timeButtonsContainer: {
-        marginBottom: 20,
+    inputIcon: {
+        marginRight: 10,
     },
     timeButtons: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginBottom: 10,
+        marginBottom: 15,
+        flexWrap: 'wrap',
     },
     timeButton: {
         flex: 1,
-        padding: 10,
-        marginHorizontal: 5,
-        backgroundColor: '#f0f0f0',
-        borderRadius: 5,
+        flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#f5f5f5',
+        padding: 10,
+        borderRadius: 8,
+        marginHorizontal: 4,
+        marginBottom: 8,
     },
     selectedButton: {
         backgroundColor: colors.primary,
     },
+    timeIcon: {
+        marginRight: 5,
+    },
     timeButtonText: {
-        fontSize: 13,
-        color: '#000',
-        fontWeight: 'bold',
+        color: colors.primary,
+        fontWeight: '500',
+        fontSize: 14,
+    },
+    selectedTimeText: {
+        color: 'white',
     },
     addButton: {
-        padding: 10,
         backgroundColor: colors.primary,
+        padding: 12,
         borderRadius: 20,
         alignItems: 'center',
     },
     addButtonText: {
-        color: '#fff',
+        color: 'white',
         fontWeight: 'bold',
+        fontSize: 16,
     },
-    item: {
+    listSection: {
         flex: 1,
-        padding: 10,
+    },
+    listTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: colors.primary,
         marginBottom: 10,
-        backgroundColor: '#f9f9f9',
-        borderRadius: 5,
-        borderColor: '#ddd',
-        borderWidth: 1,
+        alignSelf: 'center',
     },
-    cardRow: {
+    foodCard: {
+        backgroundColor: 'white',
+        borderRadius: 10,
+        padding: 12,
+        marginBottom: 10,
+        elevation: 1,
+    },
+    foodContent: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'center',
+        justifyContent: 'space-between',
     },
-    cardText: {
-        flex: 1,
-        textAlign: 'center',
+    foodNameContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 0.4,
+    },
+    foodIcon: {
+        marginRight: 8,
+    },
+    foodName: {
+        fontSize: 16,
+        fontWeight: '500',
+        color: '#333',
+    },
+    timeContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 0.5,
+        justifyContent: 'center',
+    },
+    timeTag: {
+        backgroundColor: colors.primary + '15',
+        paddingVertical: 4,
+        paddingHorizontal: 8,
+        borderRadius: 6,
+    },
+    timeTagText: {
+        color: colors.primary,
+        fontSize: 12,
+        fontWeight: '500',
+    },
+    deleteButton: {
+        padding: 8,
+        flex: 0.1,
+        alignItems: 'flex-end',
     },
 });
 

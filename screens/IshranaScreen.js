@@ -1,67 +1,143 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image, SafeAreaView, ScrollView } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Card from "../components/Card";
 import colors from "../constants/colors";
 
 const IshranaScreen = () => {
-        const navigation = useNavigation();
-        const navigateToScreen = (screenName) => {
-            navigation.navigate(screenName);
-        };
+    const navigation = useNavigation();
+    const navigateToScreen = (screenName) => {
+        navigation.navigate(screenName);
+    };
 
     return(
-        <View style={styles.screen}>
-            <TouchableOpacity onPress={() => navigateToScreen("HRANA")} style={styles.dugme}>
-                <Card style={styles.card}>
-                    <Text style={styles.text}>OMILJENA HRANA</Text>
-                </Card>
-            </TouchableOpacity>
+        <SafeAreaView style={styles.container}>
+            <Text style={styles.headerText}>Upravljanje ishranom</Text>
+            <View style={styles.contentContainer}>
+                <TouchableOpacity 
+                    onPress={() => navigateToScreen("HRANA")} 
+                    style={styles.dugme}
+                    activeOpacity={0.7}
+                >
+                    <Card style={styles.card}>
+                        <View style={styles.cardContent}>
+                            <Image 
+                                source={require('../assets/food.png')} 
+                                style={styles.icon}
+                            />
+                            <View style={styles.textContainer}>
+                                <Text style={styles.text}>OMILJENI OBROCI</Text>
+                                <Text style={styles.subText}>Pregledajte i upravljajte vašim omiljenim obrocima</Text>
+                            </View>
+                        </View>
+                    </Card>
+                </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => navigateToScreen("PREPORUCENI_OBROCI")} style={styles.dugme}>
-                <Card style={styles.card}>
-                    <Text style={styles.text}>PREPORUČENI OBROCI</Text>
-                </Card>
-            </TouchableOpacity>
-            
-            <TouchableOpacity onPress={() => navigateToScreen("EDUKACIJA")} style={styles.dugme}>
-                <Card style={styles.card}>
-                    <Text style={styles.text}>EDUKATIVNI MATERIJAL</Text>
-                </Card>
-            </TouchableOpacity>
-
-        </View>
+                <TouchableOpacity 
+                    onPress={() => navigateToScreen("PREPORUCENI_OBROCI")} 
+                    style={styles.dugme}
+                    activeOpacity={0.7}
+                >
+                    <Card style={styles.card}>
+                        <View style={styles.cardContent}>
+                            <Image 
+                                source={require('../assets/recommend.png')} 
+                                style={styles.icon}
+                            />
+                            <View style={styles.textContainer}>
+                                <Text style={styles.text}>PREPORUČENI OBROCI</Text>
+                                <Text style={styles.subText}>Otkrijte zdrave i uravnotežene obroke</Text>
+                            </View>
+                        </View>
+                    </Card>
+                </TouchableOpacity>
+                
+                <TouchableOpacity 
+                    onPress={() => navigateToScreen("EDUKACIJA")} 
+                    style={styles.dugme}
+                    activeOpacity={0.7}
+                >
+                    <Card style={styles.card}>
+                        <View style={styles.cardContent}>
+                            <Image 
+                                source={require('../assets/education.png')} 
+                                style={styles.icon}
+                            />
+                            <View style={styles.textContainer}>
+                                <Text style={styles.text}>EDUKATIVNI MATERIJAL</Text>
+                                <Text style={styles.subText}>Saznajte više o zdravoj ishrani</Text>
+                            </View>
+                        </View>
+                    </Card>
+                </TouchableOpacity>
+            </View>
+        </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
-    screen: {
+    container: {
         flex: 1,
-        width: '100%',
-        padding: 10,
-        alignItems: 'center',
         backgroundColor: colors.pozadina,
+    },
+    headerText: {
+        fontSize: 26,
+        fontWeight: 'bold',
+        color: colors.primary,
+        marginTop: 25,
+        marginBottom: 20,
+        textAlign: 'center',
+        paddingHorizontal: 20,
+    },
+    contentContainer: {
+        flex: 1,
         justifyContent: 'center',
-        alignContent: 'center',
-        marginBottom: 0
+        paddingHorizontal: 15,
+        marginTop: -60,
+        paddingBottom: 40,
     },
     dugme: {
         width: '100%',
-        alignItems: 'center',
+        marginBottom: 20,
     },
     card: {
-        width: '80%',
+        padding: 15,
+        borderRadius: 15,
+        backgroundColor: 'white',
+        elevation: 4,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.23,
+        shadowRadius: 2.62,
+    },
+    cardContent: {
+        flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: 50,
-        borderRadius: 20
+        padding: 10,
+    },
+    icon: {
+        width: 45,
+        height: 45,
+        marginRight: 15,
+        tintColor: colors.primary
+    },
+    textContainer: {
+        flex: 1,
     },
     text: {
         fontSize: 16,
         fontWeight: 'bold',
-        color: '#333',
-        textAlign: 'center'
-      },
+        color: colors.primary,
+        marginBottom: 5
+    },
+    subText: {
+        fontSize: 13,
+        color: '#666',
+        lineHeight: 18,
+    }
 });
 
 export default IshranaScreen;

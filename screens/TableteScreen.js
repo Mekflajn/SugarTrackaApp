@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Text, View, StyleSheet, TextInput, FlatList, TouchableOpacity } from "react-native";
+import { Text, View, StyleSheet, TextInput, FlatList, TouchableOpacity, Image } from "react-native";
 import { FIREBASE_DB } from "../config/FirebaseConfig";
 import { addDoc, collection, getDocs, doc, deleteDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import colors from "../constants/colors";
 import Card from "../components/Card";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faTrash, faClock, faPills } from "@fortawesome/free-solid-svg-icons";
 
 const TableteScreen = () => {
     const [nazivTablete, setNazivTablete] = useState('');
@@ -114,45 +114,95 @@ const TableteScreen = () => {
 
     return (
         <View style={styles.screen}>
-            <Text style={styles.title}>Unesite naziv lijeka</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="Naziv lijeka"
-                value={nazivTablete}
-                onChangeText={setNazivTablete}
-            />
-            <View style={styles.timeButtons}>
-                {["Jutro", "Podne", "Veče"].map((time) => (
-                    <TouchableOpacity
-                        key={time}
-                        style={[styles.timeButton, selectedTimes.includes(time) && styles.selectedButton]}
-                        onPress={() => toggleTime(time)}
-                    >
-                        <Text style={styles.timeButtonText}>{time}</Text>
-                    </TouchableOpacity>
-                ))}
+            <View style={styles.inputSection}>
+                <Text style={styles.title}>Dodaj novi lijek</Text>
+                <View style={styles.inputContainer}>
+                    <FontAwesomeIcon 
+                        icon={faPills} 
+                        size={20} 
+                        color={colors.primary} 
+                        style={styles.inputIcon}
+                    />
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Naziv lijeka"
+                        value={nazivTablete}
+                        onChangeText={setNazivTablete}
+                        placeholderTextColor="#999"
+                    />
+                </View>
+                
+                <View style={styles.timeButtons}>
+                    {["Jutro", "Podne", "Veče"].map((time) => (
+                        <TouchableOpacity
+                            key={time}
+                            style={[
+                                styles.timeButton, 
+                                selectedTimes.includes(time) && styles.selectedButton
+                            ]}
+                            onPress={() => toggleTime(time)}
+                        >
+                            <FontAwesomeIcon 
+                                icon={faClock} 
+                                size={14} 
+                                color={selectedTimes.includes(time) ? 'white' : colors.primary} 
+                                style={styles.timeIcon}
+                            />
+                            <Text style={[
+                                styles.timeButtonText, 
+                                selectedTimes.includes(time) && styles.selectedTimeText
+                            ]}>{time}</Text>
+                        </TouchableOpacity>
+                    ))}
+                </View>
+                
+                <TouchableOpacity 
+                    style={styles.addButton} 
+                    onPress={addTablet}
+                    activeOpacity={0.7}
+                >
+                    <Text style={styles.addButtonText}>Dodaj lijek</Text>
+                </TouchableOpacity>
             </View>
-            <TouchableOpacity style={styles.addButton} onPress={addTablet}>
-                <Text style={styles.addButtonText}>Dodaj Lijek</Text>
-            </TouchableOpacity>
-            <FlatList
-                data={tablete || []}
-                renderItem={({ item }) => (
-                    <Card style={styles.item}>
-                        <View style={styles.cardRow}>
-                            <Text style={styles.cardText}>{item.naziv}</Text>
-                            <Text style={styles.cardText}>
-                                {item.times && Array.isArray(item.times) ? item.times.join(', ') : 'Nema vremena'}
-                            </Text>
-                            <TouchableOpacity onPress={() => deleteTablet(item.id)}>
-                                <FontAwesomeIcon icon={faTrash} size={20} color="red" />
-                            </TouchableOpacity>
-                        </View>
-                    </Card>
-                )}
-                keyExtractor={(item) => item.id || Math.random().toString()}
-                contentContainerStyle={styles.flatListContent}
-            />
+
+            <View style={styles.listSection}>
+                <Text style={styles.listTitle}>Lista lijekova</Text>
+                <FlatList
+                    data={tablete || []}
+                    renderItem={({ item }) => (
+                        <Card style={styles.medicineCard}>
+                            <View style={styles.medicineContent}>
+                                <View style={styles.medicineNameContainer}>
+                                    <FontAwesomeIcon 
+                                        icon={faPills} 
+                                        size={18} 
+                                        color={colors.primary} 
+                                        style={styles.medicineIcon}
+                                    />
+                                    <Text style={styles.medicineName}>{item.naziv}</Text>
+                                </View>
+                                
+                                <View style={styles.timesContainer}>
+                                    {item.times && item.times.map((time, index) => (
+                                        <View key={index} style={styles.timeTag}>
+                                            <Text style={styles.timeTagText}>{time}</Text>
+                                        </View>
+                                    ))}
+                                </View>
+
+                                <TouchableOpacity 
+                                    onPress={() => deleteTablet(item.id)}
+                                    style={styles.deleteButton}
+                                >
+                                    <FontAwesomeIcon icon={faTrash} size={16} color="red" />
+                                </TouchableOpacity>
+                            </View>
+                        </Card>
+                    )}
+                    keyExtractor={item => item.id}
+                    showsVerticalScrollIndicator={false}
+                />
+            </View>
         </View>
     );
 };
@@ -160,75 +210,138 @@ const TableteScreen = () => {
 const styles = StyleSheet.create({
     screen: {
         flex: 1,
-        padding: 20,
         backgroundColor: colors.pozadina,
+        padding: 15,
         paddingBottom: 110,
     },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
+    inputSection: {
+        backgroundColor: 'white',
+        borderRadius: 15,
+        padding: 15,
         marginBottom: 20,
-        textAlign: 'center',
+        elevation: 2,
+    },
+    title: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: colors.primary,
+        marginBottom: 15,
+        alignSelf: 'center',
+    },
+    inputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#f5f5f5',
+        borderRadius: 10,
+        paddingHorizontal: 15,
+        marginBottom: 15,
     },
     input: {
-        width: '100%',
-        padding: 10,
-        borderWidth: 1,
-        borderColor: colors.primary,
-        borderRadius: 5,
-        marginBottom: 20,
+        flex: 1,
+        paddingVertical: 12,
+        paddingHorizontal: 10,
+        fontSize: 16,
+    },
+    inputIcon: {
+        marginRight: 10,
     },
     timeButtons: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginBottom: 10,
+        marginBottom: 15,
     },
     timeButton: {
         flex: 1,
-        padding: 10,
-        marginHorizontal: 5,
-        backgroundColor: '#f0f0f0',
-        borderRadius: 5,
+        flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#f5f5f5',
+        padding: 10,
+        borderRadius: 8,
+        marginHorizontal: 4,
     },
     selectedButton: {
         backgroundColor: colors.primary,
     },
+    timeIcon: {
+        marginRight: 5,
+    },
     timeButtonText: {
-        color: '#000',
-        fontWeight: 'bold',
+        color: colors.primary,
+        fontWeight: '500',
+        fontSize: 14,
+    },
+    selectedTimeText: {
+        color: 'white',
     },
     addButton: {
-        padding: 10,
         backgroundColor: colors.primary,
+        padding: 12,
         borderRadius: 20,
         alignItems: 'center',
-        marginBottom: 20,
     },
     addButtonText: {
+        color: 'white',
         fontWeight: 'bold',
-        color: '#fff'
+        fontSize: 16,
     },
-    item: {
+    listSection: {
         flex: 1,
-        padding: 10,
+    },
+    listTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: colors.primary,
         marginBottom: 10,
-        backgroundColor: '#f9f9f9',
-        borderRadius: 5,
-        borderColor: '#ddd',
-        borderWidth: 1,
+        alignSelf: 'center',
     },
-    cardRow: {
+    medicineCard: {
+        backgroundColor: 'white',
+        borderRadius: 10,
+        padding: 12,
+        marginBottom: 10,
+        elevation: 1,
+    },
+    medicineContent: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'center',
+        justifyContent: 'space-between',
     },
-    cardText: {
-        flex: 1,
-        textAlign: 'center',
+    medicineNameContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 0.4,
     },
-    timeText: {
-        textAlign: 'center',
+    medicineIcon: {
+        marginRight: 8,
+    },
+    medicineName: {
+        fontSize: 16,
+        fontWeight: '500',
+        color: '#333',
+    },
+    timesContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 0.5,
+        justifyContent: 'center',
+    },
+    timeTag: {
+        backgroundColor: colors.primary + '15',
+        paddingVertical: 4,
+        paddingHorizontal: 8,
+        borderRadius: 6,
+        marginRight: 4,
+    },
+    timeTagText: {
+        color: colors.primary,
+        fontSize: 12,
+        fontWeight: '500',
+    },
+    deleteButton: {
+        padding: 8,
+        flex: 0.1,
+        alignItems: 'flex-end',
     },
 });
 
