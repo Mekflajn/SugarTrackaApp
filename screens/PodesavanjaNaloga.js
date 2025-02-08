@@ -8,6 +8,9 @@ import Card from "../components/Card";
 import strings from "../constants/Strings";
 import { setLogLevel } from "firebase/app";
 import { useFocusEffect } from "@react-navigation/native";
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faInfoCircle, faChevronLeft, faMars, faVenus, faGenderless, faSignOut } from '@fortawesome/free-solid-svg-icons';
+
 
 setLogLevel('silent');
 const PodesavanjaNaloga = () => {
@@ -188,7 +191,7 @@ useEffect(() => {
       </View>
 
       <TouchableOpacity style={styles.infoIconContainer} onPress={handleInfoPress}>
-          <Image source={require('../assets/info.png')} style={styles.infoIcon} />
+          <FontAwesomeIcon icon={faInfoCircle} size={24} color={colors.primary} />
       </TouchableOpacity>
 
       <Modal
@@ -199,10 +202,11 @@ useEffect(() => {
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
               <TouchableOpacity onPress={handleCloseInfo} style={styles.closeButton}>
-                <Image source={require("../assets/arrowBack.png")} style={styles.backArrow} />
+                <FontAwesomeIcon icon={faChevronLeft} size={24} color={colors.primary} />
               </TouchableOpacity>
               <Image source={require("../assets/logo96.png")}/>
               <ScrollView style={styles.modalTextContainer}>                
+
                 <Text style={styles.modalTitle}>Autorska prava (Copy Rights)</Text>
                 <Text style={styles.modalText}>{strings.modalText3}</Text>
                 <Text>{"\n"}</Text>
@@ -244,21 +248,22 @@ useEffect(() => {
             <TouchableOpacity
               style={[styles.genderButton, updatedData.gender === "Muško" && styles.selectedGenderButton]}
               onPress={() => setUpdatedData({ ...updatedData, gender: "Muško" })}>
-              <Image source={require('../assets/male.png')} style={styles.genderIcon} />
+              <FontAwesomeIcon icon={faMars} size={24} color={colors.primary} />
               <Text style={styles.genderButtonText}>M</Text>
             </TouchableOpacity>
+
 
             <TouchableOpacity
               style={[styles.genderButton, updatedData.gender === "Žensko" && styles.selectedGenderButton]}
                 onPress={() => setUpdatedData({ ...updatedData, gender: "Žensko" })}>
-              <Image source={require('../assets/female.png')} style={styles.genderIcon} />
+              <FontAwesomeIcon icon={faVenus} size={24} color={colors.primary} />
               <Text style={styles.genderButtonText}>Ž</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={[styles.genderButton, updatedData.gender === "Nije navedeno" && styles.selectedGenderButton]}
                 onPress={() => setUpdatedData({ ...updatedData, gender: "Nije navedeno" })}>
-              <Image source={require('../assets/person.png')} style={styles.genderIcon} />
+              <FontAwesomeIcon icon={faGenderless} size={24} color={colors.primary} />
               <Text style={styles.genderButtonText}>NN</Text>
             </TouchableOpacity>
             </View>
@@ -337,12 +342,11 @@ useEffect(() => {
         <TouchableOpacity style={styles.editButton} onPress={() => setIsEditing(true)}>
           <Text style={styles.buttonText}>Uredi</Text>
         </TouchableOpacity>
-              <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-              <Image
-              source={require('../assets/logout.png')}
-              style={styles.logoutIcon}/>
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+              <FontAwesomeIcon icon={faSignOut} size={20} color={colors.pozadina} />
         </TouchableOpacity>
             </View>
+
       ) : (
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
@@ -418,12 +422,22 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   input: {
-    width: '100%',
-    padding: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    marginBottom: 12,
+    borderColor: colors.primary,
+    borderRadius: 15,
+    padding: 12,
+    marginBottom: 15,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
   },
   inputHalf: {
     width: '48%',
@@ -448,9 +462,12 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginHorizontal: 10,
     width: 48,
+    backgroundColor: '#ffffff',
   },
   selectedGenderButton: {
-    backgroundColor: colors.primary, // Replace with your primary color
+    backgroundColor: `${colors.primary}40`,
+    borderColor: colors.primary,
+    borderWidth: 2,
   },
   genderIcon: {
     width: 36,

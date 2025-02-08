@@ -6,6 +6,10 @@ import { getAuth } from 'firebase/auth';
 import colors from '../constants/colors';
 import { useNavigation } from '@react-navigation/native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faCalendar, faHeart, faNoteSticky, faHeartbeat, faDroplet } from '@fortawesome/free-solid-svg-icons';
+
+
 
 const UnosScreen = () => {
   const [glukoza, setGlukoza] = useState('');
@@ -96,12 +100,14 @@ const UnosScreen = () => {
       <View style={styles.polja}>
         <Text style={styles.text}>VRIJEDNOST GLUKOZE</Text>
         <View style={styles.inputContainer}>
-          <Image source={require('../assets/insights.png')} style={styles.icon} />
+          <FontAwesomeIcon icon={faDroplet} size={24} color={colors.primary}  style={styles.icon}/>
           <TextInput
             style={styles.input}
             placeholder="Unesite vrijednost glukoze"
             keyboardType="decimal-pad"
             value={glukoza}
+
+
             onChangeText={(text) => {
               if (/^\d*\.?\d*$/.test(text) && (text === "" || parseFloat(text) <= 33.3)) {
                 setGlukoza(text);
@@ -114,12 +120,13 @@ const UnosScreen = () => {
       <View style={styles.polja}>
         <Text style={styles.text}>PRITISAK</Text>
         <View style={styles.inputContainer}>
-          <Image source={require('../assets/heart.png')} style={styles.icon} />
+          <FontAwesomeIcon icon={faHeart} size={24} color={colors.primary}  style={styles.icon}/>
           <TextInput
             style={styles.input}
             placeholder="Unesite vrijednost gornjeg pritiska"
             keyboardType="numeric"
             value={gornjiPritisak}
+
             onChangeText={(text) => {
               if (/^\d*$/.test(text) && (text === "" || parseInt(text) <= 200)) {
                 setGornjiPritisak(text);
@@ -128,12 +135,13 @@ const UnosScreen = () => {
           />
         </View>
         <View style={styles.inputContainer}>
-          <Image source={require('../assets/heart.png')} style={styles.icon} />
+          <FontAwesomeIcon icon={faHeart} size={24} color={colors.primary}  style={styles.icon}/>
           <TextInput
           style={styles.input}
           placeholder="Unesite vrijednost donjeg pritiska"
           keyboardType="numeric"
           value={donjiPritisak}
+
           onChangeText={(text) => {
             if (/^\d*$/.test(text) && (text === "" || parseInt(text) <= 120)) {
               setDonjiPritisak(text);
@@ -146,12 +154,14 @@ const UnosScreen = () => {
       <View style={styles.polja}>
         <Text style={styles.text}>PULS</Text>
         <View style={styles.inputContainer}>
-          <Image source={require('../assets/ecg.png')} style={styles.icon} />
+          <FontAwesomeIcon icon={faHeartbeat} size={24} color={colors.primary}  style={styles.icon}/>
           <TextInput
           style={styles.input}
           placeholder="Unesite vrijednost pulsa"
           keyboardType="numeric"
           value={puls}
+
+
           onChangeText={(text) => {
             if (/^\d*$/.test(text) && (text === "" || parseInt(text) <= 200)) {
               setPuls(text);
@@ -164,9 +174,11 @@ const UnosScreen = () => {
       <View style={styles.polja}>
         <Text style={styles.text}>DODATNE BILJEŠKE</Text>
         <View style={styles.inputContainer}>
-          <Image source={require('../assets/notes.png')} style={styles.icon} />
+          <FontAwesomeIcon icon={faNoteSticky} size={24} color={colors.primary}  style={styles.icon}/>
           <TextInput
             style={[styles.input]}
+
+
             placeholder="Unesite dodatne bilješke ukoliko imate"
             multiline={true}
             value={biljeske}
@@ -179,10 +191,11 @@ const UnosScreen = () => {
           <Text style={styles.text}>DATUM I VRIJEME</Text>
           <TouchableWithoutFeedback onPress={() => setShowDatePicker(true)}>
             <View style={styles.inputContainer}>
-              <Image source={require('../assets/calendar.png')} style={styles.icon} />
+              <FontAwesomeIcon icon={faCalendar} size={24} color={colors.primary}  style={styles.icon}/>
               <Text style={styles.input}>{formatDate(date)}</Text>
             </View>
           </TouchableWithoutFeedback>
+
         </View>
 
 
@@ -222,19 +235,26 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#ffffff',
     borderWidth: 1,
     borderColor: colors.primary,
-    borderRadius: 10,
-    padding: 5,
-    marginBottom: 10,
+    borderRadius: 15,
+    padding: 12,
+    marginBottom: 15,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
   },
-  input: {
-    backgroundColor: '#f0f0f0',
-    borderRadius: 10,
-    padding: 10,
+   input: {
     flex: 1,
-    height: 50,
-    borderColor: colors.linija,
+    height: 45,
+    paddingHorizontal: 10,
+    fontSize: 16,
     textAlignVertical: 'center',
   },
   icon: {

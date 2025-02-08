@@ -1,6 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet, TextInput, ActivityIndicator, TouchableOpacity, Image, ScrollView, Modal, Alert, KeyboardAvoidingView, Platform  } from 'react-native';
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TextInput, ActivityIndicator, TouchableOpacity, Image, ScrollView, Modal, Alert, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
 import { doc, setDoc } from "firebase/firestore";
 import { FIREBASE_DB } from '../config/FirebaseConfig';
 import { FIREBASE_AUTH } from '../config/FirebaseConfig';
@@ -8,6 +7,22 @@ import { createUserWithEmailAndPassword, getAuth } from 'firebase/auth';
 import colors from '../constants/colors';
 import strings from '../constants/Strings';
 import zxcvbn from 'zxcvbn';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { 
+  faEnvelope, 
+  faLock, 
+  faUser, 
+  faRuler, 
+  faWeightScale,
+  faCake,
+  faDroplet,
+  faEye,
+  faEyeSlash,
+  faChevronLeft,
+  faMars,
+  faVenus,
+  faGenderless
+} from '@fortawesome/free-solid-svg-icons';
 
 const RegisterScreen = ({ navigation, setIsAuthenticated }) => {
   const [email, setEmail] = useState('');
@@ -24,6 +39,7 @@ const RegisterScreen = ({ navigation, setIsAuthenticated }) => {
   const [isTermsModalVisible, setTermsModalVisible] = useState(false);
   const [isPrivacyModalVisible, setPrivacyModalVisible] = useState(false);
   const [emailError, setEmailError] = useState('');
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
 
   const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
 
@@ -92,277 +108,317 @@ const RegisterScreen = ({ navigation, setIsAuthenticated }) => {
     }
   };
 
+  // Dodajemo keyboard listener
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      () => {
+        setKeyboardVisible(true);
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        setKeyboardVisible(false);
+      }
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
+
   return (
-    <KeyboardAvoidingView style={{backgroundColor: colors.pozadina}} behavior='padding' keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}>
-    <ScrollView contentContainerStyle={styles.screen}>
-      {loading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.primary} />
-        </View>
-      ) : (
-        <>
-          <View style={styles.header}>
-            <TouchableOpacity onPress={() => navigation.navigate('AUTHCHOICE')} style={styles.backButton}>
+    <View style={styles.mainContainer}>
+      <KeyboardAvoidingView 
+        style={styles.screen} 
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
+      >
+        <ScrollView 
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          bounces={false}
+        >
+          {loading ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color={colors.primary} />
+            </View>
+          ) : (
+            <>
+              <View style={styles.header}>
+                <TouchableOpacity onPress={() => navigation.navigate('AUTHCHOICE')} style={styles.backButton}>
+                  <FontAwesomeIcon icon={faChevronLeft} size={24} color="black" />
+                </TouchableOpacity>
+                <Text style={styles.title}>REGISTRACIJA</Text>
+                <Text>Kreirajte svoj novi nalog!</Text>
+              </View>
               <Image
-                source={require("../assets/arrowBack.png")}
-                style={styles.backIcon}
+                source={require("../assets/logo.png")}
+                style={styles.centeredLogo}
               />
-            </TouchableOpacity>
-            <Text style={styles.title}>REGISTRACIJA</Text>
-            <Text>Kreirajte svoj novi nalog!</Text>
-          </View>
-          <Image
-            source={require("../assets/logo.png")}
-            style={styles.centeredLogo}
-            />
 
-          <View style={styles.inputWrapper}>
-            <View style={styles.inputContainer}>
-              <Image source={require('../assets/person.png')} style={styles.icon} />
-              <TextInput
-                style={styles.input}
-                placeholder="Ime"
-                value={name}
-                onChangeText={setName}
-                autoCapitalize='words'
-              />
-            </View>
+              <View style={styles.inputWrapper}>
+                <View style={styles.inputContainer}>
+                  <FontAwesomeIcon icon={faUser} size={20} color={colors.primary} style={styles.icon} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Ime"
+                    value={name}
+                    onChangeText={setName}
+                    autoCapitalize='words'
+                  />
+                </View>
 
-            <View style={styles.inputContainer}>
-              <Image source={require('../assets/person.png')} style={styles.icon} />
-              <TextInput
-                style={styles.input}
-                placeholder="Prezime"
-                value={surname}
-                onChangeText={setSurname}
-                autoCapitalize='words'
-              />
-            </View>
+                <View style={styles.inputContainer}>
+                  <FontAwesomeIcon icon={faUser} size={20} color={colors.primary} style={styles.icon} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Prezime"
+                    value={surname}
+                    onChangeText={setSurname}
+                    autoCapitalize='words'
+                  />
+                </View>
 
-            {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
-            <View style={styles.inputContainer}>
-              <Image source={require('../assets/email.png')} style={styles.icon} />
-              <TextInput
-                style={styles.input}
-                placeholder="Email"
-                autoCapitalize="none"
-                keyboardType="email-address"
-                value={email}
-                onChangeText={(input) => {
-                  setEmail(input);
-                  if (input === '') {
-                    setEmailError('');
-                  } else if (emailRegex.test(input)) {
-                    setEmailError('');
-                  } else {
-                    setEmailError('Unesite validnu email adresu');
-                  }
-                }}
-              />
-            </View>
+                {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
+                <View style={styles.inputContainer}>
+                  <FontAwesomeIcon icon={faEnvelope} size={20} color={colors.primary} style={styles.icon} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Email"
+                    autoCapitalize="none"
+                    keyboardType="email-address"
+                    value={email}
+                    onChangeText={(input) => {
+                      setEmail(input);
+                      if (input === '') {
+                        setEmailError('');
+                      } else if (emailRegex.test(input)) {
+                        setEmailError('');
+                      } else {
+                        setEmailError('Unesite validnu email adresu');
+                      }
+                    }}
+                  />
+                </View>
 
-            <View style={styles.inputContainer}>
-              <Image source={require('../assets/password.png')} style={styles.icon} />
-              <TextInput
-                style={styles.input}
-                placeholder="Šifra"
-                autoCapitalize="none"
-                secureTextEntry={!isPasswordVisible}
-                value={password}
-                onChangeText={setPassword}
-              />
-              <TouchableOpacity onPress={() => setIsPasswordVisible(prevState => !prevState)} style={styles.iconButton}>
-                <Image
-                  source={isPasswordVisible ? require('../assets/visibility.png') : require('../assets/visibilitiOff.png')} // Ikona za otvaranje/zatvaranje oka
-                  style={styles.iconVisibility}
-                />
+                <View style={styles.inputContainer}>
+                  <FontAwesomeIcon icon={faLock} size={20} color={colors.primary} style={styles.icon} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Šifra"
+                    autoCapitalize="none"
+                    secureTextEntry={!isPasswordVisible}
+                    value={password}
+                    onChangeText={setPassword}
+                  />
+                  <TouchableOpacity onPress={() => setIsPasswordVisible(prevState => !prevState)} style={styles.iconButton}>
+                    <FontAwesomeIcon 
+                      icon={isPasswordVisible ? faEye : faEyeSlash} 
+                      size={20} 
+                      color={colors.primary}
+                    />
+                  </TouchableOpacity>
+                </View>
+              <View style={styles.red}>
+                <View style={styles.inputContainerHalf}>
+                  <FontAwesomeIcon icon={faRuler} size={20} color={colors.primary} style={styles.icon} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Visina"
+                    keyboardType="numeric"
+                    value={height}
+                    onChangeText={(input) => {
+                      if (/^[0-9]*$/.test(input)) {
+                        setHeight(input);
+                      } else {
+                        setHeight(height);
+                      }
+                    }}
+                  />
+                </View>
+
+                <View style={styles.inputContainerHalf}>
+                  <FontAwesomeIcon icon={faWeightScale} size={20} color={colors.primary} style={styles.icon} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Masa"
+                    keyboardType="numeric"
+                    value={weight}
+                    onChangeText={(input) => {
+                      if (/^[0-9]*$/.test(input)) {
+                        setWeight(input);
+                      } else {
+                        setWeight(weight);
+                      }
+                    }}
+                  />
+                </View>
+                </View>
+
+              <View style={styles.red}>
+                <View style={styles.inputContainerHalf}>
+                  <FontAwesomeIcon icon={faCake} size={20} color={colors.primary} style={styles.icon} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Godine"
+                    keyboardType="numeric"
+                    value={age}
+                    onChangeText={(input) => {
+                      if (/^[0-9]*$/.test(input)) {
+                        setAge(input);
+                      } else {
+                        setAge(age);
+                      }
+                    }}
+                  />
+                </View>
+
+                <View style={styles.inputContainerHalf}>
+                  <FontAwesomeIcon icon={faDroplet} size={20} color={colors.primary} style={styles.icon} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Tip dijabetesa"
+                    value={dijabetes}
+                    onChangeText={(text) => {
+                      if (text === '1' || text === '2' || text === '') {
+                        setDijabetes(text);
+                      } else {
+                        Alert.alert('Obavještenje','Unesite samo "1" za Tip 1 ili "2" za Tip 2');
+                      }
+                    }}
+                    keyboardType="numeric"
+                  />
+                </View>
+                </View>
+              </View>
+
+              <Text style={styles.tekst}>Izaberite pol:</Text>
+              <View style={styles.genderContainer}>
+
+                <TouchableOpacity
+                  style={[styles.genderButton, gender === 'Muško' && styles.selectedGenderButton]}
+                  onPress={() => setGender('Muško')}>
+                  <FontAwesomeIcon icon={faMars} size={24} color={colors.primary} />
+                  <Text style={styles.genderButtonText}>Muško</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.genderButton, gender === 'Žensko' && styles.selectedGenderButton]}
+                  onPress={() => setGender('Žensko')}>
+                  <FontAwesomeIcon icon={faVenus} size={24} color={colors.primary} />
+                  <Text style={styles.genderButtonText}>Žensko</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.genderButton, gender === 'Nije navedeno' && styles.selectedGenderButton]}
+                  onPress={() => setGender('Nije navedeno')}>
+                  <FontAwesomeIcon icon={faGenderless} size={24} color={colors.primary} />
+                  <Text style={styles.genderButtonText}>Ne navodi</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.bottomContainer}>
+                <TouchableOpacity onPress={handleRegister} style={styles.registerButton}>
+                  <Text style={styles.registerButtonText}>REGISTRUJTE SE</Text>
+                </TouchableOpacity>
+              </View>
+
+              <TouchableOpacity onPress={() => navigation.navigate('LOGIN')} style={styles.footerLink}>
+                <Text style={styles.footerText}>
+                  Već imate nalog?{' '}
+                  <Text style={styles.linkText}>Ulogujte se</Text>
+                </Text>
               </TouchableOpacity>
+              <TouchableOpacity style={styles.footerLink} onPress={toggleTermsModal}>
+                <Text style={styles.footerText}>
+                  Registracijom prihvatate naše{' '}
+                  <Text style={styles.linkText}>Uslove korišćenja</Text>
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.footerLink} onPress={togglePrivacyModal}>
+                <Text style={styles.footerText}>
+                  i <Text style={styles.linkText}>Politiku privatnosti</Text>.
+                </Text>
+              </TouchableOpacity>
+            </>
+          )}
+          <Modal
+            visible={isTermsModalVisible}
+            animationType="slide"
+            transparent={true}
+            onRequestClose={toggleTermsModal}
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                <TouchableOpacity style={styles.backButton1} onPress={toggleTermsModal}>
+                  <FontAwesomeIcon icon={faChevronLeft} size={24} color="black" />
+                </TouchableOpacity>
+                <Text style={styles.modalTitle}>Uslovi korišćenja</Text>
+                <Image
+                source={require('../assets/logo96.png')}/>
+                <ScrollView style={styles.modalScroll}>
+                  <Text style={styles.modalText}>
+                    {strings.modalText1}
+                  </Text>
+                </ScrollView>
+              </View>
             </View>
-          <View style={styles.red}>
-            <View style={styles.inputContainerHalf}>
-              <Image source={require('../assets/ruler.png')} style={styles.icon} />
-              <TextInput
-                style={styles.input}
-                placeholder="Visina"
-                keyboardType="numeric"
-                value={height}
-                onChangeText={(input) => {
-                  if (/^[0-9]*$/.test(input)) {
-                    setHeight(input);
-                  } else {
-                    setHeight(height);
-                  }
-                }}
-              />
+          </Modal>
+
+          <Modal
+            visible={isPrivacyModalVisible}
+            animationType="slide"
+            transparent={true}
+            onRequestClose={togglePrivacyModal}
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                <TouchableOpacity style={styles.backButton1} onPress={togglePrivacyModal}>
+                  <FontAwesomeIcon icon={faChevronLeft} size={24} color="black" />
+                </TouchableOpacity>
+                <Text style={styles.modalTitle}>Politika privatnosti</Text>
+                <Image
+                source={require('../assets/logo96.png')}/>
+                <ScrollView style={styles.modalScroll}>
+                  <Text style={styles.modalText}>
+                    {strings.modalText2}
+                  </Text>
+                </ScrollView>
+              </View>
             </View>
-
-            <View style={styles.inputContainerHalf}>
-              <Image source={require('../assets/weight.png')} style={styles.icon} />
-              <TextInput
-                style={styles.input}
-                placeholder="Masa"
-                keyboardType="numeric"
-                value={weight}
-                onChangeText={(input) => {
-                  if (/^[0-9]*$/.test(input)) {
-                    setWeight(input);
-                  } else {
-                    setWeight(weight);
-                  }
-                }}
-              />
-            </View>
-            </View>
-
-          <View style={styles.red}>
-            <View style={styles.inputContainerHalf}>
-              <Image source={require('../assets/cake.png')} style={styles.icon} />
-              <TextInput
-                style={styles.input}
-                placeholder="Godine"
-                keyboardType="numeric"
-                value={age}
-                onChangeText={(input) => {
-                  if (/^[0-9]*$/.test(input)) {
-                    setAge(input);
-                  } else {
-                    setAge(age);
-                  }
-                }}
-              />
-            </View>
-
-            <View style={styles.inputContainerHalf}>
-              <Image source={require('../assets/blood.png')} style={styles.icon} />
-              <TextInput
-                style={styles.input}
-                placeholder="Tip dijabetesa"
-                value={dijabetes}
-                onChangeText={(text) => {
-                  if (text === '1' || text === '2' || text === '') {
-                    setDijabetes(text);
-                  } else {
-                    Alert.alert('Obavještenje','Unesite samo "1" za Tip 1 ili "2" za Tip 2');
-                  }
-                }}
-                keyboardType="numeric"
-              />
-            </View>
-            </View>
-          </View>
-
-          <Text style={styles.tekst}>Izaberite pol:</Text>
-          <View style={styles.genderContainer}>
-
-            <TouchableOpacity
-              style={[styles.genderButton, gender === 'Muško' && styles.selectedGenderButton]}
-              onPress={() => setGender('Muško')}>
-              <Image source={require('../assets/male.png')} style={styles.genderIcon} />
-              <Text style={styles.genderButtonText}>Muško</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.genderButton, gender === 'Žensko' && styles.selectedGenderButton]}
-              onPress={() => setGender('Žensko')}>
-              <Image source={require('../assets/female.png')} style={styles.genderIcon} />
-              <Text style={styles.genderButtonText}>Žensko</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.genderButton, gender === 'Nije navedeno' && styles.selectedGenderButton]}
-              onPress={() => setGender('Nije navedeno')}>
-              <Image source={require('../assets/person.png')} style={styles.genderIcon} />
-              <Text style={styles.genderButtonText}>Ne navodi</Text>
-            </TouchableOpacity>
-          </View>
-
-          <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
-            <Text style={styles.registerButtonText}>REGISTRUJTE SE</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={() => navigation.navigate('LOGIN')} style={styles.footerLink}>
-            <Text style={styles.footerText}>
-              Već imate nalog?{' '}
-              <Text style={styles.linkText}>Ulogujte se</Text>
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.footerLink} onPress={toggleTermsModal}>
-            <Text style={styles.footerText}>
-              Registracijom prihvatate naše{' '}
-              <Text style={styles.linkText}>Uslove korišćenja</Text>
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.footerLink} onPress={togglePrivacyModal}>
-            <Text style={styles.footerText}>
-              i <Text style={styles.linkText}>Politiku privatnosti</Text>.
-            </Text>
-          </TouchableOpacity>
-        </>
-      )}
-<Modal
-  visible={isTermsModalVisible}
-  animationType="slide"
-  transparent={true}
-  onRequestClose={toggleTermsModal}
->
-  <View style={styles.modalContainer}>
-    <View style={styles.modalContent}>
-      <TouchableOpacity style={styles.backButton1} onPress={toggleTermsModal}>
-        <Image
-          source={require('../assets/arrowBack.png')}
-          style={styles.backIcon}
-        />
-      </TouchableOpacity>
-      <Text style={styles.modalTitle}>Uslovi korišćenja</Text>
-      <Image
-      source={require('../assets/logo96.png')}/>
-      <ScrollView style={styles.modalScroll}>
-        <Text style={styles.modalText}>
-          {strings.modalText1}
-        </Text>
-      </ScrollView>
+          </Modal>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </View>
-  </View>
-</Modal>
-
-<Modal
-  visible={isPrivacyModalVisible}
-  animationType="slide"
-  transparent={true}
-  onRequestClose={togglePrivacyModal}
->
-  <View style={styles.modalContainer}>
-    <View style={styles.modalContent}>
-      <TouchableOpacity style={styles.backButton1} onPress={togglePrivacyModal}>
-        <Image
-          source={require('../assets/arrowBack.png')}
-          style={styles.backIcon}
-        />
-      </TouchableOpacity>
-      <Text style={styles.modalTitle}>Politika privatnosti</Text>
-      <Image
-      source={require('../assets/logo96.png')}/>
-      <ScrollView style={styles.modalScroll}>
-        <Text style={styles.modalText}>
-          {strings.modalText2}
-        </Text>
-      </ScrollView>
-    </View>
-  </View>
-</Modal>
-    </ScrollView>
-    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
+  mainContainer: {
+    flex: 1,
+    backgroundColor: colors.pozadina,
+  },
   screen: {
+    flex: 1,
+    backgroundColor: colors.pozadina,
+    paddingTop: 20,
+  },
+  scrollContent: {
     flexGrow: 1,
-    justifyContent: 'center',
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+  },
+  bottomContainer: {
+    width: '100%',
     alignItems: 'center',
-    padding: 20,
-    backgroundColor: colors.pozadina
+    paddingTop: 20,
+    marginTop: 'auto',
+    backgroundColor: colors.pozadina,
+    paddingBottom: Platform.OS === 'ios' ? 40 : 20,
   },
   header: {
     width: '100%',
@@ -373,12 +429,10 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   centeredLogo: {
-    width: 128, 
-    height: 128, 
-    resizeMode: 'contain', 
-    alignSelf: 'center', 
-    marginTop: 10,
-    marginBottom: 20
+    width: 128,
+    height: 128,
+    alignSelf: 'center',
+    marginBottom: 20,
   },
   backButton: {
     position: 'absolute',
@@ -404,26 +458,31 @@ const styles = StyleSheet.create({
     fontWeight: 'bold'
   },
   inputWrapper: {
-    width: '100%',
-    marginBottom: 20,
+    marginBottom: 15,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#ffffff',
     borderWidth: 1,
     borderColor: colors.primary,
-    borderRadius: 10,
-    padding: 5,
-    marginBottom: 20,
+    borderRadius: 15,
+    padding: 12,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
   },
   input: {
-    backgroundColor: '#f0f0f0',
-    borderRadius: 10,
-    padding: 10,
     flex: 1,
-    height: 50,
-    borderColor: colors.linija,
-    textAlignVertical: 'center',
+    height: 45,
+    paddingHorizontal: 10,
+    fontSize: 16,
   },
   icon: {
     width: 24,
@@ -437,41 +496,59 @@ const styles = StyleSheet.create({
     marginLeft: 5
   },
   red: {
-    flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginBottom: 10,
   },
   inputContainerHalf: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#ffffff',
     borderWidth: 1,
     borderColor: colors.primary,
-    borderRadius: 10,
-    padding: 5,
-    width: '49%',
-    marginBottom: 20
+    borderRadius: 15,
+    padding: 12,
+    width: '48%',
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
   },
   genderContainer: {
-    marginBottom: 20,
     flexDirection: 'row',
-    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+    paddingHorizontal: 10,
   },
   tekst: {
     marginBottom: 20,
     fontSize: 16
   },
   genderButton: {
-    flexDirection: 'column',
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    padding: 12,
     alignItems: 'center',
-    padding: 10,
+    width: '31%',
     borderWidth: 1,
     borderColor: colors.primary,
-    borderRadius: 5,
-    marginHorizontal: 10,
-    width: 80
+    shadowColor: "#0f00",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
   },
   selectedGenderButton: {
-    backgroundColor: colors.primary,
+    backgroundColor: `${colors.primary}40`,
+    borderColor: colors.primary,
+    borderWidth: 2,
   },
   genderIcon: {
     width: 36, 
@@ -487,9 +564,17 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     paddingVertical: 15,
     alignItems: 'center',
-    justifyContent: 'center',
-    width: '80%',
-    marginBottom: 20,
+    width: '90%',
+    alignSelf: 'center',
+    marginVertical: 20,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 5,
   },
   registerButtonText: {
     color: '#fff',

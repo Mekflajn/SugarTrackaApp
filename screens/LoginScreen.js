@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, ActivityIndicator, Image, Platform, Alert } from 'react-native';
 import { FIREBASE_AUTH } from '../config/FirebaseConfig';
 import { FIREBASE_DB } from '../config/FirebaseConfig';
@@ -7,13 +7,105 @@ import { doc, getDoc } from "firebase/firestore";
 
 import colors from '../constants/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { 
+  faEnvelope, 
+  faLock, 
+  faEye, 
+  faEyeSlash,
+  faChevronLeft,
+  faCheckSquare,
+  faSquare
+} from '@fortawesome/free-solid-svg-icons';
 
 const LoginScreen = ({ navigation, setIsAuthenticated }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isResetLoading, setIsResetLoading] = useState(false);  // Dodano za loading pri resetovanju
+  const [previousLogins, setPreviousLogins] = useState([]);
+
+  // Učitaj sačuvane kredencijale pri pokretanju
+  useEffect(() => {
+    loadSavedCredentials();
+    loadPreviousLogins();
+  }, []);
+
+  const loadSavedCredentials = async () => {
+    try {
+      const savedEmail = await AsyncStorage.getItem('savedEmail');
+      const savedPassword = await AsyncStorage.getItem('savedPassword');
+      const savedRememberMe = await AsyncStorage.getItem('rememberMe');
+      
+      if (savedRememberMe === 'true') {
+        setEmail(savedEmail || '');
+        setPassword(savedPassword || '');
+        setRememberMe(true);
+      }
+    } catch (error) {
+      console.error('Greška pri učitavanju kredencijala:', error);
+    }
+  };
+
+  const saveCredentials = async () => {
+    try {
+      if (rememberMe) {
+        await AsyncStorage.setItem('savedEmail', email);
+        await AsyncStorage.setItem('savedPassword', password);
+        await AsyncStorage.setItem('rememberMe', 'true');
+      } else {
+        await AsyncStorage.removeItem('savedEmail');
+        await AsyncStorage.removeItem('savedPassword');
+        await AsyncStorage.removeItem('rememberMe');
+      }
+    } catch (error) {
+      console.error('Greška pri čuvanju kredencijala:', error);
+    }
+  };
+
+  const loadPreviousLogins = async () => {
+    try {
+      const savedLogins = await AsyncStorage.getItem('previousLogins');
+      if (savedLogins) {
+        const logins = JSON.parse(savedLogins);
+        setPreviousLogins(logins);
+        // Postavi poslednji korišćeni email kao predlog
+        if (logins.length > 0) {
+          setEmail(logins[logins.length - 1].email);
+          setPassword(logins[logins.length - 1].password);
+        }
+      }
+    } catch (error) {
+      console.error('Greška pri učitavanju prethodnih prijava:', error);
+    }
+  };
+
+  const savePreviousLogin = async () => {
+    try {
+      let logins = [...previousLogins];
+      
+      // Proveri da li već postoji ovaj email
+      const existingIndex = logins.findIndex(login => login.email === email);
+      if (existingIndex !== -1) {
+        // Ažuriraj postojeći unos
+        logins[existingIndex] = { email, password };
+      } else {
+        // Dodaj novi unos
+        logins.push({ email, password });
+        // Zadrži samo poslednjih 5 prijava
+        if (logins.length > 5) {
+          logins = logins.slice(-5);
+        }
+      }
+      
+      await AsyncStorage.setItem('previousLogins', JSON.stringify(logins));
+      setPreviousLogins(logins);
+    } catch (error) {
+      console.error('Greška pri čuvanju prijave:', error);
+    }
+  };
 
   const handleLogin = async () => {
     setLoading(true);
@@ -34,6 +126,8 @@ const LoginScreen = ({ navigation, setIsAuthenticated }) => {
       
       const userDoc = await getDoc(doc(FIREBASE_DB, "users", user.uid));
       if (userDoc.exists()) {
+        await saveCredentials();
+        await savePreviousLogin();
         setIsAuthenticated(true);
       } else {
         alert('Došlo je do greške prilikom preuzimanja podataka.');
@@ -66,7 +160,11 @@ const LoginScreen = ({ navigation, setIsAuthenticated }) => {
   };
 
   return (
-    <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}>
+    <KeyboardAvoidingView 
+      style={[styles.screen, { backgroundColor: colors.pozadina }]} 
+      behavior={Platform.OS === "ios" ? "padding" : "height"} 
+      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+    >
       {loading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.primary} />
@@ -75,12 +173,9 @@ const LoginScreen = ({ navigation, setIsAuthenticated }) => {
         <>
           <View style={styles.header}>
             <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-              <Image
-                source={require("../assets/arrowBack.png")}
-                style={styles.backIcon}
-              />
+              <FontAwesomeIcon icon={faChevronLeft} size={24} color="black" />
             </TouchableOpacity>
-            <Text style={styles.title}>PRIJAVA KORISNIKA</Text>
+            <Text style={styles.title} numberOfLines={1}>PRIJAVA KORISNIKA</Text>
           </View>
 
           <View style={styles.logoContainer}>
@@ -89,7 +184,7 @@ const LoginScreen = ({ navigation, setIsAuthenticated }) => {
 
           <KeyboardAvoidingView behavior="padding" style={styles.form}>
             <View style={styles.inputContainer}>
-              <Image source={require('../assets/email.png')} style={styles.icon} />
+              <FontAwesomeIcon icon={faEnvelope} size={20} color={colors.primary} style={styles.icon} />
               <TextInput
                 style={styles.input}
                 placeholder="Email"
@@ -97,10 +192,12 @@ const LoginScreen = ({ navigation, setIsAuthenticated }) => {
                 autoCapitalize="none"
                 value={email}
                 onChangeText={setEmail}
+                autoComplete="email"
+                textContentType="emailAddress"
               />
             </View>
             <View style={styles.inputContainer}>
-              <Image source={require('../assets/password.png')} style={styles.icon} />
+              <FontAwesomeIcon icon={faLock} size={20} color={colors.primary} style={styles.icon} />
               <TextInput
                 style={styles.input}
                 placeholder="Šifra"
@@ -108,13 +205,30 @@ const LoginScreen = ({ navigation, setIsAuthenticated }) => {
                 secureTextEntry={!isPasswordVisible}
                 value={password}
                 onChangeText={setPassword}
+                autoComplete="password"
+                textContentType="password"
               />
               <TouchableOpacity onPress={() => setIsPasswordVisible(prevState => !prevState)} style={styles.iconButton}>
-                <Image
-                  source={isPasswordVisible ? require('../assets/visibility.png') : require('../assets/visibilitiOff.png')}
-                  style={styles.iconVisibility}
+                <FontAwesomeIcon 
+                  icon={isPasswordVisible ? faEye : faEyeSlash} 
+                  size={20} 
+                  color={colors.primary}
+                />
+
+              </TouchableOpacity>
+            </View>
+            <View style={styles.rememberMeContainer}>
+              <TouchableOpacity 
+                style={styles.checkbox} 
+                onPress={() => setRememberMe(!rememberMe)}
+              >
+                <FontAwesomeIcon 
+                  icon={rememberMe ? faCheckSquare : faSquare} 
+                  size={20} 
+                  color={colors.primary} 
                 />
               </TouchableOpacity>
+              <Text style={styles.rememberMeText}>Zapamti me</Text>
             </View>
           </KeyboardAvoidingView>
 
@@ -122,20 +236,24 @@ const LoginScreen = ({ navigation, setIsAuthenticated }) => {
             <Text style={styles.buttonText}>ULOGUJTE SE</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={handleResetPassword} style={styles.forgotPasswordLink}>
-            {isResetLoading ? (
-              <ActivityIndicator size="small" color={colors.primary} />
-            ) : (
-              <Text style={styles.footerText}>Zaboravili ste šifru?</Text>
-            )}
-          </TouchableOpacity>
+          <View style={styles.bottomContainer}>
+            <TouchableOpacity onPress={handleResetPassword} style={styles.forgotPasswordLink}>
+              {isResetLoading ? (
+                <ActivityIndicator size="small" color={colors.primary} />
+              ) : (
+                <Text style={styles.footerText}>Zaboravili ste šifru?</Text>
+              )}
+            </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => navigation.navigate('REGISTER')} style={styles.footerLink}>
+            <TouchableOpacity onPress={() => navigation.navigate('REGISTER')} style={styles.footerLink}>
             <Text style={styles.footerText}>
               Nemate nalog?{' '}
               <Text style={styles.linkText}>Napravite jedan!</Text>
             </Text>
           </TouchableOpacity>
+          </View>
+
+
         </>
       )}
     </KeyboardAvoidingView>
@@ -147,15 +265,16 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'flex-start',
-    padding: 20,
+    paddingHorizontal: 20,
     backgroundColor: colors.pozadina,
+    minHeight: '100%',
   },
   header: {
     width: '100%',
     height: 100,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 10,
     position: 'relative',
   },
   backButton: {
@@ -176,7 +295,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   logoContainer: {
-    marginBottom: 40,
+    marginBottom: 30,
+    alignItems: 'center',
   },
   logo: {
     width: 128,
@@ -186,33 +306,38 @@ const styles = StyleSheet.create({
   form: {
     width: '100%',
     alignItems: 'center',
+    flex: 1,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#ffffff',
     borderWidth: 1,
     borderColor: colors.primary,
-    borderRadius: 10,
-    padding: 10,
-    marginBottom: 20,
+    borderRadius: 15,
+    padding: 12,
+    marginBottom: 15,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
   },
   input: {
     flex: 1,
-    height: 50,
-    backgroundColor: '#f9f9f9',
-    borderRadius: 10,
+    height: 45,
     paddingHorizontal: 10,
+    fontSize: 16,
   },
   icon: {
-    width: 24,
-    height: 24,
     marginRight: 10,
-  },
-  iconVisibility: {
     width: 24,
-    height: 24,
-    marginRight: 5,
-    marginLeft: 5
+  },
+  iconButton: {
+    padding: 8,
   },
   loadingContainer: {
     flex: 1,
@@ -226,13 +351,22 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     alignItems: 'center',
     justifyContent: 'center',
-    width: '80%',
+    width: '90%',
     marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 5,
   },
   buttonText: {
     color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 16,
+    fontWeight: '600',
+    letterSpacing: 1,
   },
   footerLink: {
     marginTop: 10,
@@ -241,16 +375,37 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 14,
     color: colors.primary,
-    textDecorationLine: 'underline'
+    marginTop: 5,
   },
   forgotPasswordLink: {
     marginTop: 10,
     alignItems: 'center',
+    marginBottom: Platform.OS === 'ios' ? 20 : 10,
   },
   linkText: {
-      textDecorationLine: 'underline',
-      color: colors.primary,
+    fontWeight: '600',
+    textDecorationLine: 'none',
   },
+  rememberMeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+    width: '100%',
+    paddingHorizontal: 5,
+  },
+  checkbox: {
+    marginRight: 10,
+    padding: 5,
+  },
+  rememberMeText: {
+    fontSize: 14,
+    color: colors.text,
+  },
+  bottomContainer: {
+    width: '100%',
+    backgroundColor: colors.pozadina,
+    paddingBottom: Platform.OS === 'ios' ? 40 : 20,
+  }
 });
 
 export default LoginScreen;

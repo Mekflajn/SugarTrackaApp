@@ -137,7 +137,7 @@ const PocetnaScreen = () => {
           <View style={styles.chartContainer}>
             <View style={styles.cardHeader}>
               <FontAwesomeIcon icon={faChartLine} size={20} color={colors.primary} />
-              <Text style={styles.cardTitle}>Trend glukoze</Text>
+              <Text style={styles.cardTitle}>Trend kretanja glukoze</Text>
             </View>
             <View style={styles.chartWrapper}>
               {measurements.length > 0 ? (

@@ -29,6 +29,14 @@ import HranaScreen from './screens/HranaScreen';
 import EdukacijaScreen from './screens/EdukacijaScreen';
 import PreporuceniObrociScreen from './screens/PreporuceniObrociScreen';
 import SystemNavigationBar from 'react-native-system-navigation-bar';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { 
+  faHome, 
+  faCapsules, 
+  faClockRotateLeft, 
+  faUtensils, 
+  faUser 
+} from '@fortawesome/free-solid-svg-icons';
 
 
 
@@ -123,21 +131,22 @@ function MainApp() {
         headerStyle: { backgroundColor: colors.primary },
         headerTitleStyle: { color: "black", fontWeight: "bold" },
         tabBarIcon: ({ focused, color, size }) => {
-          let iconSource;
+          let icon;
           if (route.name === "POČETNA") {
-            iconSource = require('../SugarTrackApp/assets/home.png');
+            icon = faHome;
           } else if (route.name === "LIJEKOVI") {
-            iconSource = require('../SugarTrackApp/assets/medkit.png');
+            icon = faCapsules;
           } else if (route.name === "ISTORIJA") {
-            iconSource = require('../SugarTrackApp/assets/history.png');
+            icon = faClockRotateLeft;
           } else if (route.name === "ISHRANA") {
-            iconSource = require('../SugarTrackApp/assets/food.png');
+            icon = faUtensils;
           } else if (route.name === "NALOG") {
-            iconSource = require('../SugarTrackApp/assets/account.png');
+            icon = faUser;
           }
-          return <Image
-            source={iconSource}
-            style={[styles.icon, { tintColor: focused ? colors.primary : colors.neaktivna, width: size, height: size }] }
+          return <FontAwesomeIcon 
+            icon={icon} 
+            size={size} 
+            color={focused ? colors.primary : colors.neaktivna}
           />;
         },
         tabBarActiveTintColor: colors.primary,
@@ -267,10 +276,5 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     marginBottom: 0,
-  },
-  icon: {
-    width: 48,
-    height: 48,
-    resizeMode: 'contain',
   },
 });
