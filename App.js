@@ -52,7 +52,7 @@ const Stack2 = createStackNavigator();
 
 function IshranaStack() {
   return(
-  <Stack.Navigator initialRouteName='ISHRANA'>
+  <Stack.Navigator initialRouteName='ISHRANA' screenOptions={{ animation: 'fade_from_bottom', animationDuration: 300 }}>
     <Stack2.Screen name='ISHRANA' component={IshranaScreen} options={{ 
   header: (props) => <Header {...props} title="Ishrana" showBackButton={false}/> 
 }}/>
@@ -73,7 +73,7 @@ function IshranaStack() {
 }
 function AuthStack({ setIsAuthenticated }) {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Navigator screenOptions={{ headerShown: false, animation: 'fade_from_bottom', animationDuration: 300 }}>
       <Stack.Screen name='AUTHCHOICE' component={AuthChoiceScreen} />
       <Stack.Screen name='LOGIN'>
         {(props) => <LoginScreen {...props} setIsAuthenticated={setIsAuthenticated} />}
@@ -87,7 +87,7 @@ function AuthStack({ setIsAuthenticated }) {
 
 function PocetnaStack() {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator screenOptions={{ animation: 'fade_from_bottom', animationDuration: 300 }}>
       <Stack.Screen 
         name="POČETNA_STACK" 
         component={PocetnaScreen}
@@ -153,11 +153,16 @@ function MainApp() {
         tabBarInactiveTintColor: colors.neaktivna,
         tabBarStyle: isKeyboardVisible ? { display: 'none' } : {
           ...styles.tabBarStyle,
-          height: 70
+          height: 70,
+          transform: [{ translateY: 0 }],
+          transition: 'all 0.3s ease-in-out',
         },
+
         tabBarLabelStyle: { 
           fontSize: 10,
           marginBottom: 0,
+          opacity: 1, 
+          transition: 'opacity 0.3s ease', 
         },
         tabBarItemStyle: {
           paddingVertical: 0,
