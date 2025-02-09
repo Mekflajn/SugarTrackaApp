@@ -94,10 +94,16 @@ const UnosScreen = () => {
   };
 
   return (
-    <View style={{flex: 1, backgroundColor: colors.pozadina, paddingBottom: 110}}>
+    <View style={{flex: 1, backgroundColor: colors.pozadina, paddingBottom: 100}}>
+    <KeyboardAvoidingView 
+      style={[styles.screen, { backgroundColor: colors.pozadina }]} 
+      behavior={"padding"} 
+      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 100}
+    >
     <ScrollView>
     <View style={styles.container}>
       <View style={styles.polja}>
+
         <Text style={styles.text}>VRIJEDNOST GLUKOZE</Text>
         <View style={styles.inputContainer}>
           <FontAwesomeIcon icon={faDroplet} size={24} color={colors.primary}  style={styles.icon}/>
@@ -215,7 +221,10 @@ const UnosScreen = () => {
       </View>
     </View>
     </ScrollView>
+    </KeyboardAvoidingView>
     </View>
+
+
   );
 };
 

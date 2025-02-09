@@ -3,10 +3,15 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, SafeAreaView, ScrollVi
 import { useNavigation } from "@react-navigation/native";
 import Card from "../components/Card";
 import colors from "../constants/colors";
-
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faThumbsUp, faBook, faAppleAlt } from '@fortawesome/free-solid-svg-icons';
 const IshranaScreen = () => {
     const navigation = useNavigation();
     const navigateToScreen = (screenName) => {
+
+
+
+
         navigation.navigate(screenName);
     };
 
@@ -21,10 +26,9 @@ const IshranaScreen = () => {
                 >
                     <Card style={styles.card}>
                         <View style={styles.cardContent}>
-                            <Image 
-                                source={require('../assets/food.png')} 
-                                style={styles.icon}
-                            />
+                            <FontAwesomeIcon icon={faAppleAlt} size={24} color={colors.primary}  style={styles.icon}/>
+
+
                             <View style={styles.textContainer}>
                                 <Text style={styles.text}>OMILJENI OBROCI</Text>
                                 <Text style={styles.subText}>Pregledajte i upravljajte vašim omiljenim obrocima</Text>
@@ -40,12 +44,12 @@ const IshranaScreen = () => {
                 >
                     <Card style={styles.card}>
                         <View style={styles.cardContent}>
-                            <Image 
-                                source={require('../assets/recommend.png')} 
-                                style={styles.icon}
-                            />
+                            <FontAwesomeIcon icon={faThumbsUp} size={24} color={colors.primary}  style={styles.icon}/>
+
+
                             <View style={styles.textContainer}>
                                 <Text style={styles.text}>PREPORUČENI OBROCI</Text>
+
                                 <Text style={styles.subText}>Otkrijte zdrave i uravnotežene obroke</Text>
                             </View>
                         </View>
@@ -59,12 +63,12 @@ const IshranaScreen = () => {
                 >
                     <Card style={styles.card}>
                         <View style={styles.cardContent}>
-                            <Image 
-                                source={require('../assets/education.png')} 
-                                style={styles.icon}
-                            />
+                            <FontAwesomeIcon icon={faBook} size={24} color={colors.primary}  style={styles.icon}/>
+
+
                             <View style={styles.textContainer}>
                                 <Text style={styles.text}>EDUKATIVNI MATERIJAL</Text>
+
                                 <Text style={styles.subText}>Saznajte više o zdravoj ishrani</Text>
                             </View>
                         </View>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Text, View, StyleSheet, TextInput, FlatList, TouchableOpacity } from "react-native";
+import { Text, View, StyleSheet, TextInput, FlatList, TouchableOpacity, Alert } from "react-native";
 import { FIREBASE_DB } from "../config/FirebaseConfig";
 import { addDoc, collection, getDocs, doc, deleteDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
@@ -37,8 +37,23 @@ const HranaScreen = () => {
     }, [userId]);
 
     const addHrana = async () => {
+        if (nazivHrane.trim() === '' && selectedTime === null) {
+            Alert.alert("Obavještenje", "Unesite naziv obroka i odaberite vrijeme obroka.");
+            return;
+        }
+        if (selectedTime === null) {
+            Alert.alert("Obavještenje", "Odaberite vrijeme obroka.");
+            return;
+
+        }
+        if (nazivHrane.trim() === '') {
+            Alert.alert("Obavještenje", "Unesite naziv obroka.");
+            return;
+        }
+
         if (nazivHrane.trim() && selectedTime && userId) {
             try {
+
                 const foodRef = collection(FIREBASE_DB, "users", userId, "food");
                 await addDoc(foodRef, {
                     naziv: nazivHrane,
@@ -184,7 +199,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: colors.pozadina,
         padding: 15,
-        paddingBottom: 110,
+        paddingBottom: 100,
     },
     inputSection: {
         backgroundColor: 'white',
@@ -230,7 +245,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         backgroundColor: '#f5f5f5',
         padding: 10,
-        borderRadius: 8,
+        borderRadius: 25,
         marginHorizontal: 4,
         marginBottom: 8,
     },
@@ -243,7 +258,7 @@ const styles = StyleSheet.create({
     timeButtonText: {
         color: colors.primary,
         fontWeight: '500',
-        fontSize: 14,
+        fontSize: 11,
     },
     selectedTimeText: {
         color: 'white',

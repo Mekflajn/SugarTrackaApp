@@ -21,8 +21,13 @@ const [updatedData, setUpdatedData] = useState({
     name: user?.name || "",
     surname: user?.surname || "",
     gender: user?.gender || "",
+    age: user?.age || "",
+    weight: user?.weight || "",
+    height: user?.height || "",
+    dijabetes: user?.dijabetes || "",
   });
 const [isInfoVisible, setIsInfoVisible] = useState(false);
+
 
 const handleInfoPress = () => {
   setIsInfoVisible(true);
@@ -47,50 +52,18 @@ const getDefaultProfileImage = (gender) => {
 
 
 useEffect(() => {
-  const fetchUserData = async () => {
-    const auth = getAuth();
-    const user = auth.currentUser;
+  const auth = getAuth();
+  const userRef = doc(db, "users", auth.currentUser?.uid);
 
-    if (!user) {
-      return;
+  const unsubscribe = onSnapshot(userRef, (snapshot) => {
+    if (snapshot.exists()) {
+      setUpdatedData(snapshot.data());
     }
+  });
 
-    if (user) {
-      const userId = user.uid;
-      const userRef = doc(db, "users", userId);
-
-      try {
-        const snapshot = await getDoc(userRef);
-        if (snapshot.exists()) {
-          const data = snapshot.data();
-          setUpdatedData({
-            name: data.name || "",
-            surname: data.surname || "",
-            gender: data.gender || "",
-            age: data.age || "",
-            dijabetes: data.dijabetes || "",
-            weight: data.weight || "",
-            height: data.height || ""
-          });
-
-          if (data.profileImage) {
-            setProfileImage(data.profileImage);
-          } else {
-            setProfileImage(getDefaultProfileImage(data.gender));
-          }
-
-        } else {
-          Alert.alert("Greška", "Podaci nisu pronađeni.");
-        }
-      } catch (error) {
-        console.log("Greška pri čitanju podataka:", error);
-        Alert.alert("Greška", "Došlo je do greške prilikom čitanja podataka.");
-      }
-    }
-  };
-
-  fetchUserData();
+  return () => unsubscribe();
 }, []);
+
 
 useFocusEffect(
   useCallback(() => {
@@ -108,57 +81,72 @@ useEffect(() => {
   return () => unsubscribe();
 }, []);
 
-  const handleSave = async () => {
-    console.log("Dugme je pritisnuto!");
-    const auth = getAuth();
-    const user = auth.currentUser; 
 
-    if (user) {
-      const userId = user.uid;
-      const userRef = doc(db, "users", userId); 
+const handleSave = async () => {
+  console.log("Dugme je pritisnuto!");
+  const auth = getAuth();
+  const user = auth.currentUser;
 
-      const age = parseInt(updatedData.age, 10);
+  if (user) {
+    const userId = user.uid;
+    const userRef = doc(db, "users", userId);
+
+    const age = parseInt(updatedData.age, 10);
       const weight = parseFloat(updatedData.weight.replace(',', '.'));
       const height = parseFloat(updatedData.height.replace(',', '.'));
 
-      if (isNaN(age) || age <= 0) {
-        Alert.alert("Greška", "Unesite validne godine.");
+      if (isNaN(age) || age <= 0 || age > 90) {
+        Alert.alert("Obavještenje", "Unesite validne godine.");
         return;
       }
 
-      if (isNaN(weight) || weight <= 0) {
-        Alert.alert("Greška", "Unesite validnu masu.");
+
+      if (isNaN(weight) || weight <= 0 || weight > 150) {
+        Alert.alert("Obavještenje", "Unesite validnu masu.");
         return;
       }
 
-      if (isNaN(height) || height <= 0) {
-        Alert.alert("Greška", "Unesite validnu visinu.");
+
+      if (isNaN(height) || height <= 0 || height > 250) {
+        Alert.alert("Obavještenje", "Unesite validnu visinu.");
         return;
       }
+
 
       if (updatedData.dijabetes !== "1" && updatedData.dijabetes !== "2") {
-        Alert.alert("Greška", "Tip dijabetesa mora biti 1 ili 2.");
+        Alert.alert("Obavještenje", "Tip dijabetesa mora biti 1 ili 2.");
         return;
       }
 
-      const updatedUserData = {
-        ...updatedData,
-        dijabetes: updatedData.dijabetes,
-      };
 
-      try {
-        await setDoc(userRef, updatedData, { merge: true });
-        console.log("Podaci za čuvanje:", updatedData);
-        Alert.alert("Obavještenje", "Podaci su uspješno sačuvani.");
-        setIsEditing(false);
-      } catch (error) {
-        console.log("Greška pri čuvanju podataka:", error);
-        Alert.alert("Greška", "Podaci nisu sačuvani. Pokušajte ponovo.");
-      }
-    } else {
-      Alert.alert("Greška", "Nema ulogovanog korisnika.");
+    const updatedUserData = {
+      ...updatedData,
+      dijabetes: updatedData.dijabetes,
+    };
+
+    try {
+      await setDoc(userRef, updatedData, { merge: true });
+      console.log("Podaci za čuvanje:", updatedData);
+      Alert.alert("Obavještenje", "Podaci su sačuvani.");
+      setIsEditing(false);
+    } catch (error) {
+      console.log("Greška pri čuvanju podataka:", error);
+      Alert.alert("Greška", "Podaci nisu sačuvani. Pokušajte ponovo.");
     }
-  };
+  } else {
+    Alert.alert("Greška", "Nema ulogovanog korisnika.");
+  }
+};
+
+
+useEffect(() => {
+  const auth = getAuth();
+  const unsubscribe = onSnapshot(doc(db, "users", auth.currentUser?.uid), (snapshot) => {
+    setUpdatedData(snapshot.data());
+  });
+
+  return () => unsubscribe();
+}, []);
 
   const handleCancel = () => {
     setIsEditing(false);
@@ -177,18 +165,20 @@ useEffect(() => {
   };
 
   useEffect(() => {
-    const defaultImage = getDefaultProfileImage(user?.gender);
+    const defaultImage = getDefaultProfileImage(updatedData.gender);
     setProfileImage(defaultImage);
-  }, [user?.gender]);
+  }, [updatedData.gender]);
+
 
   return (
-    <View style={{flex: 1, backgroundColor: colors.pozadina, paddingBottom: 110}}>
-    <KeyboardAvoidingView style={{flex: 1, backgroundColor: colors.pozadina,}} behavior='padding' keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}>
+    <View style={{flex: 1, backgroundColor: colors.pozadina, paddingBottom: 100}}>
+    <KeyboardAvoidingView style={{flex: 1, backgroundColor: colors.pozadina,}} behavior='padding' keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 100}>
     <ScrollView style={styles.scrollContainer}>
     <View style={styles.screen}>
       <View style={styles.imageContainer}>
-        <Image source={getDefaultProfileImage(user?.gender)} style={styles.image} />
+        <Image source={getDefaultProfileImage(updatedData.gender)} style={styles.image} />
       </View>
+
 
       <TouchableOpacity style={styles.infoIconContainer} onPress={handleInfoPress}>
           <FontAwesomeIcon icon={faInfoCircle} size={24} color={colors.primary} />
@@ -239,15 +229,17 @@ useEffect(() => {
               />
             </View>
           ) : (
-            <Text style={styles.infoValue}>{user?.name || "N/A"} {user?.surname || "N/A"}</Text>
+            <Text style={styles.infoValue}>{updatedData.name || "N/A"} {updatedData.surname || "N/A"}</Text>
           )}
+
 
           <Text style={styles.infoLabel}>Pol</Text>
           {isEditing ? (
             <View style={styles.genderContainer}>
             <TouchableOpacity
               style={[styles.genderButton, updatedData.gender === "Muško" && styles.selectedGenderButton]}
-              onPress={() => setUpdatedData({ ...updatedData, gender: "Muško" })}>
+              onPress={() => {
+                setUpdatedData({ ...updatedData, gender: "Muško" })}}>
               <FontAwesomeIcon icon={faMars} size={24} color={colors.primary} />
               <Text style={styles.genderButtonText}>M</Text>
             </TouchableOpacity>
@@ -268,24 +260,25 @@ useEffect(() => {
             </TouchableOpacity>
             </View>
           ) : (
-            <Text style={styles.infoValue}>{user?.gender || "N/A"}</Text>
+            <Text style={styles.infoValue}>{updatedData.gender || "N/A"}</Text>
           )}
+
 
           <Text style={styles.infoLabel}>Godine</Text>
           {isEditing ? (
-          <TextInput
-              style={styles.input}
-              value={updatedData.age}
-              placeholder="Godine"
-              onChangeText={(text) => {
-                if (/^\d*\.?\d*$/.test(text)) {
-                  setUpdatedData({ ...updatedData, age: text });
-                }
-              }}
-              keyboardType="numeric"
+            <TextInput
+            style={styles.input}
+            value={String(updatedData.age)}
+            placeholder="Godine"
+            onChangeText={(text) => {
+              if (/^\d*\.?\d*$/.test(text)) {
+                setUpdatedData({ ...updatedData, age: text });
+              }
+            }}
+            keyboardType="numeric"
           />
           ) : (
-          <Text style={styles.infoValue}>{user?.age || "N/A"}</Text>
+          <Text style={styles.infoValue}>{updatedData.age || "N/A"}</Text>
           )}
 
           <Text style={styles.infoLabel}>Tip dijabetesa</Text>
@@ -298,14 +291,14 @@ useEffect(() => {
               keyboardType="numeric"
           />
           ) : (
-          <Text style={styles.infoValue}>{user?.dijabetes || "N/A"}</Text>
+          <Text style={styles.infoValue}>{updatedData.dijabetes || "N/A"}</Text>
           )}
 
           <Text style={styles.infoLabel}>Masa</Text>
           {isEditing ? (
           <TextInput
               style={styles.input}
-              value={updatedData.weight}
+              value={String(updatedData.weight)}
               placeholder="Masa"
               onChangeText={(text) => {
                 if (/^\d*\.?\d*$/.test(text)) {
@@ -315,14 +308,14 @@ useEffect(() => {
               keyboardType="numeric"
           />
           ) : (
-          <Text style={styles.infoValue}>{user?.weight || "N/A"} kg</Text>
+          <Text style={styles.infoValue}>{updatedData.weight || "N/A"} kg</Text>
           )}
 
           <Text style={styles.infoLabel}>Visina</Text>
           {isEditing ? (
           <TextInput
               style={styles.input}
-              value={updatedData.height}
+              value={String(updatedData.height)}
               placeholder="Visina"
               onChangeText={(text) => {
                 if (/^\d*\.?\d*$/.test(text)) {
@@ -332,10 +325,11 @@ useEffect(() => {
               keyboardType="numeric"
           />
           ) : (
-          <Text style={styles.infoValue}>{user?.height || "N/A"} cm</Text>
+          <Text style={styles.infoValue}>{updatedData.height || "N/A"} cm</Text>
           )}
         </View>
       </View>
+
 
       {!isEditing ? (
         <View style={styles.editDugmad}>
@@ -458,7 +452,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 10,
     borderWidth: 1,
-    borderColor: colors.primary, // Replace with your primary color
+    borderColor: colors.primary,
     borderRadius: 5,
     marginHorizontal: 10,
     width: 48,

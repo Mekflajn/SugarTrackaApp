@@ -1,6 +1,5 @@
 import React, { createContext, useContext } from "react";
 
-// Definiši tip podatka koji se očekuje
 const UserContext = createContext({
   uid: null,
   email: null,

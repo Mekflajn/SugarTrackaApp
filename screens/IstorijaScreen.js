@@ -19,8 +19,8 @@ const IstorijaScreen = () => {
   const [dateTo, setDateTo] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [activeDateInput, setActiveDateInput] = useState(null);
-  const [filterType, setFilterType] = useState('all'); // 'all', 'high', 'low', 'normal'
-  const [sortOrder, setSortOrder] = useState('desc'); // 'asc' ili 'desc'
+  const [filterType, setFilterType] = useState('all');
+  const [sortOrder, setSortOrder] = useState('desc');
 
   useEffect(() => {
     if (!uid) {
@@ -89,11 +89,11 @@ const IstorijaScreen = () => {
 
     let matchesType = true;
     if (filterType === 'high') {
-        matchesType = item.glucose > 7;  // Samo glukoza povišena
+        matchesType = item.glucose > 7; 
     } else if (filterType === 'low') {
-        matchesType = item.glucose < 4;  // Samo glukoza snižena
+        matchesType = item.glucose < 4;
     } else if (filterType === 'normal') {
-        matchesType = item.glucose >= 4 && item.glucose <= 7;  // Samo glukoza normalna
+        matchesType = item.glucose >= 4 && item.glucose <= 7; 
     }
 
     return matchesDateRange && matchesType;
@@ -114,7 +114,7 @@ const IstorijaScreen = () => {
     }
   };
 
-  // Dodajte helper funkciju za formatiranje datuma
+
   const formatDate = (date) => {
     if (!date) return '';
     const day = String(date.getDate()).padStart(2, '0');
@@ -312,7 +312,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
     backgroundColor: colors.pozadina,
-    paddingBottom: 110,
+    paddingBottom: 100,
   },
   card: {
     marginHorizontal: 10,
@@ -463,7 +463,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginVertical: 20, // Povećan vertikalni razmak
+    marginVertical: 20,
     paddingHorizontal: 5,
   },
   sortButton: {

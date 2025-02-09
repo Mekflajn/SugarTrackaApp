@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Text, View, StyleSheet, TextInput, FlatList, TouchableOpacity, Image } from "react-native";
+import { Text, View, StyleSheet, TextInput, FlatList, TouchableOpacity, Image, Alert } from "react-native";
 import { FIREBASE_DB } from "../config/FirebaseConfig";
 import { addDoc, collection, getDocs, doc, deleteDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import colors from "../constants/colors";
 import Card from "../components/Card";
+
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faTrash, faClock, faPills } from "@fortawesome/free-solid-svg-icons";
 
@@ -56,8 +57,24 @@ const TableteScreen = () => {
     };
 
     const addTablet = async () => {
+
+        if (nazivTablete.trim() === '' && selectedTimes.length === 0) {
+            Alert.alert("Obavještenje", "Unesite naziv tablete i odaberite vrijeme za uzimanje tablete.");
+            return;
+        }
+        if (selectedTimes.length === 0) {
+            Alert.alert("Obavještenje", "Odaberite vrijeme za uzimanje tablete.");
+            return;
+        }
+        if (nazivTablete.trim() === '') {
+            Alert.alert("Obavještenje", "Unesite naziv tablete.");
+            return;
+        }
+
         if (nazivTablete.trim() && selectedTimes.length > 0 && userId) {
             try {
+
+
                 const medicinsRef = collection(FIREBASE_DB, "users", userId, "medicines");
                 await addDoc(medicinsRef, {
                     naziv: nazivTablete,
@@ -212,7 +229,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: colors.pozadina,
         padding: 15,
-        paddingBottom: 110,
+        paddingBottom: 100,
     },
     inputSection: {
         backgroundColor: 'white',

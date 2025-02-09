@@ -244,7 +244,7 @@ export default function App() {
           <StatusBar barStyle="dark-content" backgroundColor={colors.primary} hidden={true}/>
           <NavigationContainer>
             {isAuthenticated ? <MainApp /> : <AuthStack setIsAuthenticated={setIsAuthenticated} />}
-            {/*<View style={{alignItems: 'center', backgroundColor: colors.pozadina, marginBottom: 5}}><Text style={{fontSize: 10, fontWeight: 'bold'}}>SugarTrack©</Text></View>*/}
+            <View style={{alignItems: 'center', backgroundColor: colors.pozadina, marginBottom: 2}}><Text style={{fontSize: 11, fontWeight: 'bold'}}>SugarTrack©</Text></View>
           </NavigationContainer>
         </SafeAreaView>
       </View>
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginHorizontal: '10%',
     position: 'absolute',
-    bottom: Platform.OS === 'android' ? 35 : 25,
+    bottom: 30,
     elevation: 8,
     shadowColor: '#000',
     shadowOffset: {

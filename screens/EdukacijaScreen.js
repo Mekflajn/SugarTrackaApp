@@ -161,14 +161,13 @@ const EdukacijaScreen = () => {
     }
   ];
 
-  // Funkcija za dobijanje 3 nasumična elementa iz niza
   const getRandomItems = (items) => {
     const shuffled = [...items].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, 3);
   };
 
   return (
-    <View style={{flex: 1, backgroundColor: colors.pozadina, paddingBottom: 110}}>
+    <View style={{flex: 1, backgroundColor: colors.pozadina, paddingBottom: 100}}>
     <ScrollView style={styles.scrollContainer}>
       <View style={styles.container}>
         <Text style={styles.header}>Edukacija o Dijabetesu</Text>

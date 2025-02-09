@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, ActivityIndicator, Image, Platform, Alert } from 'react-native';
 import { FIREBASE_AUTH } from '../config/FirebaseConfig';
 import { FIREBASE_DB } from '../config/FirebaseConfig';
-import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";  // Dodajte sendPasswordResetEmail
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 
 import colors from '../constants/colors';
@@ -24,14 +24,14 @@ const LoginScreen = ({ navigation, setIsAuthenticated }) => {
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [isResetLoading, setIsResetLoading] = useState(false);  // Dodano za loading pri resetovanju
+  const [isResetLoading, setIsResetLoading] = useState(false); 
   const [previousLogins, setPreviousLogins] = useState([]);
 
-  // Učitaj sačuvane kredencijale pri pokretanju
   useEffect(() => {
     loadSavedCredentials();
     loadPreviousLogins();
   }, []);
+
 
   const loadSavedCredentials = async () => {
     try {
@@ -71,11 +71,11 @@ const LoginScreen = ({ navigation, setIsAuthenticated }) => {
       if (savedLogins) {
         const logins = JSON.parse(savedLogins);
         setPreviousLogins(logins);
-        // Postavi poslednji korišćeni email kao predlog
         if (logins.length > 0) {
           setEmail(logins[logins.length - 1].email);
           setPassword(logins[logins.length - 1].password);
         }
+
       }
     } catch (error) {
       console.error('Greška pri učitavanju prethodnih prijava:', error);
@@ -85,16 +85,12 @@ const LoginScreen = ({ navigation, setIsAuthenticated }) => {
   const savePreviousLogin = async () => {
     try {
       let logins = [...previousLogins];
-      
-      // Proveri da li već postoji ovaj email
+
       const existingIndex = logins.findIndex(login => login.email === email);
       if (existingIndex !== -1) {
-        // Ažuriraj postojeći unos
         logins[existingIndex] = { email, password };
       } else {
-        // Dodaj novi unos
         logins.push({ email, password });
-        // Zadrži samo poslednjih 5 prijava
         if (logins.length > 5) {
           logins = logins.slice(-5);
         }
@@ -120,7 +116,6 @@ const LoginScreen = ({ navigation, setIsAuthenticated }) => {
       const userCredential = await signInWithEmailAndPassword(FIREBASE_AUTH, email, password);
       const user = userCredential.user;
       
-      // Sačuvaj token u AsyncStorage
       const token = await user.getIdToken();
       await AsyncStorage.setItem('userToken', token);
       
@@ -216,19 +211,6 @@ const LoginScreen = ({ navigation, setIsAuthenticated }) => {
                 />
 
               </TouchableOpacity>
-            </View>
-            <View style={styles.rememberMeContainer}>
-              <TouchableOpacity 
-                style={styles.checkbox} 
-                onPress={() => setRememberMe(!rememberMe)}
-              >
-                <FontAwesomeIcon 
-                  icon={rememberMe ? faCheckSquare : faSquare} 
-                  size={20} 
-                  color={colors.primary} 
-                />
-              </TouchableOpacity>
-              <Text style={styles.rememberMeText}>Zapamti me</Text>
             </View>
           </KeyboardAvoidingView>
 
@@ -385,21 +367,6 @@ const styles = StyleSheet.create({
   linkText: {
     fontWeight: '600',
     textDecorationLine: 'none',
-  },
-  rememberMeContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 15,
-    width: '100%',
-    paddingHorizontal: 5,
-  },
-  checkbox: {
-    marginRight: 10,
-    padding: 5,
-  },
-  rememberMeText: {
-    fontSize: 14,
-    color: colors.text,
   },
   bottomContainer: {
     width: '100%',

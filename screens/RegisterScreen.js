@@ -108,7 +108,6 @@ const RegisterScreen = ({ navigation, setIsAuthenticated }) => {
     }
   };
 
-  // Dodajemo keyboard listener
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
       'keyboardDidShow',
@@ -132,9 +131,9 @@ const RegisterScreen = ({ navigation, setIsAuthenticated }) => {
   return (
     <View style={styles.mainContainer}>
       <KeyboardAvoidingView 
-        style={styles.screen} 
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
+        style={[styles.screen, styles.mainContainer]} 
+        behavior={ "padding"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 10}
       >
         <ScrollView 
           contentContainerStyle={styles.scrollContent}

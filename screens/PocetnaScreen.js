@@ -8,7 +8,7 @@ import { FIREBASE_DB } from '../config/FirebaseConfig';
 import colors from '../constants/colors';
 import { LineChart } from 'react-native-chart-kit';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faPlus, faPills, faUtensils, faChartLine, faCalendar, faStethoscope, faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faPills, faUtensils, faChartLine, faCalendar, faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
 
 const PocetnaScreen = () => {
   const { uid } = useUser();
@@ -88,10 +88,9 @@ const PocetnaScreen = () => {
   };
 
   return (
-    <View style={{flex: 1, backgroundColor: colors.pozadina, paddingBottom: 110}}>
+    <View style={{flex: 1, backgroundColor: colors.pozadina, paddingBottom: 100}}>
       <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         <View style={styles.screen}>
-          {/* Statistika kartica */}
           <Card style={styles.statsCard}>
             <View style={styles.statsRow}>
               <View style={styles.statItem}>
@@ -106,7 +105,6 @@ const PocetnaScreen = () => {
             </View>
           </Card>
 
-          {/* Brze akcije */}
           <View style={styles.quickActionsContainer}>
             <TouchableOpacity 
               style={styles.quickActionButton}
@@ -126,14 +124,13 @@ const PocetnaScreen = () => {
 
             <TouchableOpacity 
               style={styles.quickActionButton}
-              onPress={() => navigation.navigate('ISHRANA')}
+              onPress={() => navigation.navigate('ISHRANA', {screen: 'HRANA'})}
             >
               <FontAwesomeIcon icon={faUtensils} size={24} color={colors.primary} />
               <Text style={styles.quickActionText}>Ishrana</Text>
             </TouchableOpacity>
           </View>
 
-          {/* Grafikon */}
           <View style={styles.chartContainer}>
             <View style={styles.cardHeader}>
               <FontAwesomeIcon icon={faChartLine} size={20} color={colors.primary} />
@@ -181,7 +178,6 @@ const PocetnaScreen = () => {
             </View>
           </View>
 
-          {/* Poslednja merenja sa ScrollView */}
           <Card style={styles.measurementsCard}>
             <View style={styles.cardHeader}>
               <FontAwesomeIcon icon={faCalendar} size={20} color={colors.primary} />
@@ -195,12 +191,9 @@ const PocetnaScreen = () => {
                 nestedScrollEnabled={true}
               >
                 {measurements.length > 0 && (
-                  <Image 
-                    source={require('../assets/up.png')} 
-                    style={styles.scrollIndicator} 
-                    tintColor={colors.primary}
-                  />
+                  <FontAwesomeIcon icon={faArrowUp} size={20} color={colors.primary}  style={styles.scrollIndicator}/>
                 )}
+
                 {measurements.slice(0, 5).map((item) => (
                   <View key={item.id} style={styles.measurementItem}>
                     <View style={styles.measurementHeader}>
@@ -234,11 +227,7 @@ const PocetnaScreen = () => {
                   </View>
                 ))}
                 {measurements.length > 0 && (
-                  <Image 
-                    source={require('../assets/down.png')} 
-                    style={styles.scrollIndicator} 
-                    tintColor={colors.primary}
-                  />
+                  <FontAwesomeIcon icon={faArrowDown} size={20} color={colors.primary}  style={styles.scrollIndicator}/>
                 )}
               </ScrollView>
             </View>

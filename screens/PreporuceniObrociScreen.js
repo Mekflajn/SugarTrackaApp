@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.pozadina,
     padding: 15,
-    paddingBottom: 110,
+    paddingBottom: 100,
   },
   headerSection: {
     flexDirection: 'row',
